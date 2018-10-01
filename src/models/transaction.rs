@@ -29,6 +29,69 @@ pub struct Transaction<D, A, IP, Pk, Sig, OP, P>
     pub payload: P,
 }
 
+impl<D, A, IP, Pk, Sig, OP, P> Transaction<D, A, IP, Pk, Sig, OP, P>
+    where   D: Datable + FixedSize,
+            A: Numerical,
+            IP: Datable,
+            Pk: Datable + FixedSize,
+            Sig: Datable + FixedSize,
+            OP: Datable,
+            P: Datable
+{
+    pub fn new() -> Transaction<D, A, IP, Pk, Sig, OP, P> {
+        Transaction::default()
+    }
+
+    pub fn meta(mut self, meta: &Meta) -> Result<Transaction<D, A, IP, Pk, Sig, OP, P>> {
+        meta.check()?;
+        self.meta = meta.clone();
+
+        Ok(self)
+    }
+
+    pub fn inputs(mut self, inputs: &Vec<Input<D, A, IP, Pk, Sig>>,)
+        -> Result<Transaction<D, A, IP, Pk, Sig, OP, P>>
+    {
+        inputs.check()?;
+
+        self.inputs_len = inputs.len() as u64;
+        self.inputs = inputs.clone();
+
+        Ok(self)
+    }
+
+    pub fn outputs(mut self, outputs: &Vec<Output<D, Pk, A, OP>>,)
+        -> Result<Transaction<D, A, IP, Pk, Sig, OP, P>>
+    {
+        outputs.check()?;
+
+        self.outputs_len = outputs.len() as u64;
+        self.outputs = outputs.clone();
+
+        Ok(self)
+    }
+
+    pub fn payload(mut self, payload: &P) -> Result<Transaction<D, A, IP, Pk, Sig, OP, P>> {
+        payload.check()?;
+
+        self.payload = payload.clone();
+
+        Ok(self)
+    }
+
+    pub fn finalize<HP: Datable>(mut self, params: &HP, cb: &Fn(&Self, &HP) -> Result<D>)
+        -> Result<Transaction<D, A, IP, Pk, Sig, OP, P>>
+    {
+        params.check()?;
+
+        self.id = self.digest_cb(params, cb)?;
+
+        self.check()?;
+
+        Ok(self)
+    }
+}
+
 impl<RP, D, A, IP, Pk, Sig, OP, P> Runnable<RP, D> for Transaction<D, A, IP, Pk, Sig, OP, P>
     where   RP: Datable,
             D: Datable + FixedSize,

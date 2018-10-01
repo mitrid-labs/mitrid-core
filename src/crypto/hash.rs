@@ -7,11 +7,11 @@ pub trait Hashable<P, D>
             D: Datable + FixedSize,
             Self: Datable
 {
-    fn digest(&self, params: &P, cb: &Fn(&Self, &P) -> Result<D>) -> Result<D> {
+    fn digest_cb(&self, params: &P, cb: &Fn(&Self, &P) -> Result<D>) -> Result<D> {
         cb(self, params)
     }
 
-    fn verify_digest(&self, params: &P, digest: &D, cb: &Fn(&Self, &P, &D) -> Result<bool>)
+    fn verify_digest_cb(&self, params: &P, digest: &D, cb: &Fn(&Self, &P, &D) -> Result<bool>)
         -> Result<bool>
     {
         cb(self, params, digest)

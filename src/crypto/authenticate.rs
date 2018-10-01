@@ -7,11 +7,11 @@ pub trait Authenticated<P, T>
             T: Datable + FixedSize,
             Self: Datable
 {
-    fn authenticate(&self, params: &P, cb: &Fn(&Self, &P) -> Result<T>) -> Result<T> {
+    fn authenticate_cb(&self, params: &P, cb: &Fn(&Self, &P) -> Result<T>) -> Result<T> {
         cb(self, params)
     }
 
-    fn verify_token(&self, params: &P, token: &T, cb: &Fn(&Self, &P, &T) -> Result<bool>)
+    fn verify_token_cb(&self, params: &P, token: &T, cb: &Fn(&Self, &P, &T) -> Result<bool>)
         -> Result<bool>
     {
         cb(self, params, token)

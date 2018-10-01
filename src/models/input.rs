@@ -5,7 +5,7 @@ use base::Serializable;
 use base::{Sizable, FixedSize};
 use base::Numerical;
 use base::Runnable;
-use crypto::Hashable;
+use crypto::{Hashable, Signable};
 use models::Meta;
 use models::Coin;
 
@@ -26,6 +26,73 @@ pub struct Input<D, A, P, Pk, Sig>
     pub signature: Sig,
 }
 
+impl<D, A, P, Pk, Sig> Input<D, A, P, Pk, Sig>
+    where   D: Datable + FixedSize,
+            A: Numerical,
+            P: Datable,
+            Pk: Datable + FixedSize,
+            Sig: Datable + FixedSize
+{
+    pub fn new() -> Input<D, A, P, Pk, Sig> {
+        Input::default()
+    }
+
+    pub fn meta(mut self, meta: &Meta) -> Result<Input<D, A, P, Pk, Sig>> {
+        meta.check()?;
+        self.meta = meta.clone();
+
+        Ok(self)
+    }
+
+    pub fn coins(mut self, coins: &Vec<Coin<D, A>>,) -> Result<Input<D, A, P, Pk, Sig>> {
+        coins.check()?;
+
+        self.coins_len = coins.len() as u64;
+        self.coins = coins.clone();
+
+        Ok(self)
+    }
+
+    pub fn payload(mut self, payload: &P) -> Result<Input<D, A, P, Pk, Sig>> {
+        payload.check()?;
+
+        self.payload = payload.clone();
+
+        Ok(self)
+    }
+
+    pub fn sign<SP, Sk>(mut self,
+                        params: &SP,
+                        sk: &Sk,
+                        pk: &Pk,
+                        cb: &Fn(&Self, &SP, &Sk) -> Result<Sig>)
+        -> Result<Input<D, A, P, Pk, Sig>>
+        where   SP: Datable,
+                Sk: Datable + FixedSize
+    {
+        params.check()?;
+        sk.check()?;
+        pk.check()?;
+
+        self.signature = self.sign_cb(params, sk, cb)?;
+        self.public_key = pk.clone();
+
+        Ok(self)
+    }
+
+    pub fn finalize<HP: Datable>(mut self, params: &HP, cb: &Fn(&Self, &HP) -> Result<D>)
+        -> Result<Input<D, A, P, Pk, Sig>>
+    {
+        params.check()?;
+
+        self.id = self.digest_cb(params, cb)?;
+
+        self.check()?;
+
+        Ok(self)
+    }
+}
+
 impl<RP, D, A, P, Pk, Sig> Runnable<RP, D> for Input<D, A, P, Pk, Sig>
     where   RP: Datable,
             D: Datable + FixedSize,
@@ -37,6 +104,17 @@ impl<RP, D, A, P, Pk, Sig> Runnable<RP, D> for Input<D, A, P, Pk, Sig>
 
 impl<HP, D, A, P, Pk, Sig> Hashable<HP, D> for Input<D, A, P, Pk, Sig>
     where   HP: Datable,
+            D: Datable + FixedSize,
+            A: Numerical,
+            P: Datable,
+            Pk: Datable + FixedSize,
+            Sig: Datable + FixedSize
+{}
+
+impl<SP, Sk, D, A, P, Pk, Sig> Signable<SP, Sk, Pk, Sig> for Input<D, A, P, Pk, Sig>
+    where   SP: Datable,
+            Sk: Datable + FixedSize,
+            Sig: Datable + FixedSize,
             D: Datable + FixedSize,
             A: Numerical,
             P: Datable,

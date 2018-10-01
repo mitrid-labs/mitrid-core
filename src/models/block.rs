@@ -33,6 +33,41 @@ pub struct Block<D, A, IP, Pk, Sig, OP, TP, P, Pr>
     pub proof: Pr,
 }
 
+impl<D, A, IP, Pk, Sig, OP, TP, P, Pr> Block<D, A, IP, Pk, Sig, OP, TP, P, Pr>
+    where   D: Datable + FixedSize,
+            A: Numerical,
+            IP: Datable,
+            Pk: Datable + FixedSize,
+            Sig: Datable + FixedSize,
+            OP: Datable,
+            TP: Datable,
+            P: Datable,
+            Pr: Datable
+{
+    pub fn new() -> Block<D, A, IP, Pk, Sig, OP, TP, P, Pr> {
+        Block::default()
+    }
+
+    pub fn meta(mut self, meta: &Meta) -> Result<Block<D, A, IP, Pk, Sig, OP, TP, P, Pr>> {
+        meta.check()?;
+        self.meta = meta.clone();
+
+        Ok(self)
+    }
+
+    pub fn finalize<HP: Datable>(mut self, params: &HP, cb: &Fn(&Self, &HP) -> Result<D>)
+        -> Result<Block<D, A, IP, Pk, Sig, OP, TP, P, Pr>>
+    {
+        params.check()?;
+
+        self.id = self.digest_cb(params, cb)?;
+
+        self.check()?;
+
+        Ok(self)
+    }
+}
+
 impl<RP, D, A, IP, Pk, Sig, OP, TP, P, Pr> Runnable<RP, D> for Block<D, A, IP, Pk, Sig, OP, TP, P, Pr>
     where   RP: Datable,
             D: Datable + FixedSize,

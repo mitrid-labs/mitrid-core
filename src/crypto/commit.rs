@@ -7,11 +7,11 @@ pub trait Committable<P, C>
             C: Datable + FixedSize,
             Self: 'static + Sized
 {
-    fn commit(&self, params: &P, cb: &Fn(&Self, &P) -> Result<C>) -> Result<C> {
+    fn commit_cb(&self, params: &P, cb: &Fn(&Self, &P) -> Result<C>) -> Result<C> {
         cb(self, params)
     }
 
-    fn verify_commit(&self, params: &P, commit: &C, cb: &Fn(&Self, &P, &C) -> Result<bool>)
+    fn verify_commit_cb(&self, params: &P, commit: &C, cb: &Fn(&Self, &P, &C) -> Result<bool>)
         -> Result<bool>
     {
         cb(self, params, commit)

@@ -19,6 +19,48 @@ pub struct Coin<D, A>
     pub out_amount: A,
 }
 
+impl<D, A> Coin<D, A>
+    where   D: Datable + FixedSize,
+            A: Numerical
+{
+    pub fn new() -> Coin<D, A> {
+        Coin::default()
+    }
+
+    pub fn meta(mut self, meta: &Meta) -> Result<Coin<D, A>> {
+        meta.check()?;
+        self.meta = meta.clone();
+
+        Ok(self)
+    }
+
+    pub fn output_data(mut self, tx_id: &D, out_idx: u64, out_amount: &A)
+        -> Result<Coin<D, A>>
+    {
+        tx_id.check()?;
+        tx_id.check_size()?;
+        out_amount.check()?;
+
+        self.tx_id = tx_id.clone();
+        self.out_idx = out_idx;
+        self.out_amount = out_amount.clone();
+
+        Ok(self)
+    }
+
+    pub fn finalize<HP: Datable>(mut self, params: &HP, cb: &Fn(&Self, &HP) -> Result<D>)
+        -> Result<Coin<D, A>>
+    {
+        params.check()?;
+
+        self.id = self.digest_cb(params, cb)?;
+
+        self.check()?;
+
+        Ok(self)
+    }
+}
+
 impl<P, D, A> Hashable<P, D> for Coin<D, A>
     where   P: Datable,
             D: Datable + FixedSize,

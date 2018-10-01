@@ -18,7 +18,42 @@ pub struct BlockNode<D>
 
 impl<D> BlockNode<D>
     where   D: Datable + FixedSize
-{}
+{
+    pub fn new() -> BlockNode<D> {
+        BlockNode::default()
+    }
+
+    pub fn meta(mut self, meta: &Meta) -> Result<BlockNode<D>> {
+        meta.check()?;
+        self.meta = meta.clone();
+
+        Ok(self)
+    }
+
+    pub fn block_data(mut self, block_id: &D, block_height: u64)
+        -> Result<BlockNode<D>>
+    {
+        block_id.check()?;
+        block_id.check_size()?;
+
+        self.block_id = block_id.clone();
+        self.block_height = block_height;
+
+        Ok(self)
+    }
+
+    pub fn finalize<HP: Datable>(mut self, params: &HP, cb: &Fn(&Self, &HP) -> Result<D>)
+        -> Result<BlockNode<D>>
+    {
+        params.check()?;
+
+        self.id = self.digest_cb(params, cb)?;
+
+        self.check()?;
+
+        Ok(self)
+    }
+}
 
 impl<P, D> Hashable<P, D> for BlockNode<D>
     where   P: Datable,

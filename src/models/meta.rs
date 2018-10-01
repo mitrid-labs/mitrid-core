@@ -15,6 +15,22 @@ pub struct Meta {
     pub size: u64,
 }
 
+impl Meta {
+    pub fn new(name: String,
+               chain: String,
+               version: Version,
+               stage: Stage,
+               size: u64)
+        -> Result<Meta>
+    {
+        version.check()?;
+        stage.check()?;
+
+        let meta = Meta { name, chain, version, stage, size };
+        Ok(meta)
+    }
+}
+
 impl Sizable for Meta {
     fn size(&self) -> u64 {
         self.name.size() +

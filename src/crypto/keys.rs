@@ -7,7 +7,7 @@ pub trait Key<P, K>
             K: Datable + FixedSize,
             Self: 'static + Sized
 {
-    fn generate_key(&self, params: &P, cb: &Fn(&Self, &P) -> Result<K>) -> Result<K> {
+    fn generate_key_cb(&self, params: &P, cb: &Fn(&Self, &P) -> Result<K>) -> Result<K> {
         cb(self, params)
     }
 }
@@ -18,7 +18,7 @@ pub trait KeyPair<P, Sk, Pk>
             Pk: Datable + FixedSize,
             Self: 'static + Sized
 {
-    fn generate_keypair(&self, params: &P, cb: &Fn(&Self, &P) -> Result<(Pk, Sk)>)
+    fn generate_keypair_cb(&self, params: &P, cb: &Fn(&Self, &P) -> Result<(Pk, Sk)>)
         -> Result<(Pk, Sk)>
     {
         cb(self, params)

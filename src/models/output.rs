@@ -23,6 +23,65 @@ pub struct Output<D, Pk, A, P>
     pub payload: P,
 }
 
+impl<D, Pk, A, P> Output<D, Pk, A, P>
+    where   D: Datable + FixedSize,
+            Pk: Datable + FixedSize,
+            A: Numerical,
+            P: Datable
+{
+    pub fn new() -> Output<D, Pk, A, P> {
+        Output::default()
+    }
+
+    pub fn meta(mut self, meta: &Meta) -> Result<Output<D, Pk, A, P>> {
+        meta.check()?;
+        self.meta = meta.clone();
+
+        Ok(self)
+    }
+
+    pub fn sender(mut self, sender: &Pk) -> Result<Output<D, Pk, A, P>> {
+        sender.check()?;
+        self.sender = sender.clone();
+
+        Ok(self)
+    }
+
+    pub fn receiver(mut self, receiver: &Pk) -> Result<Output<D, Pk, A, P>> {
+        receiver.check()?;
+        self.receiver = receiver.clone();
+
+        Ok(self)
+    }
+
+    pub fn amount(mut self, amount: &A) -> Result<Output<D, Pk, A, P>> {
+        amount.check()?;
+        self.amount = amount.clone();
+
+        Ok(self)
+    }
+
+    pub fn payload(mut self, payload: &P) -> Result<Output<D, Pk, A, P>> {
+        payload.check()?;
+
+        self.payload = payload.clone();
+
+        Ok(self)
+    }
+
+    pub fn finalize<HP: Datable>(mut self, params: &HP, cb: &Fn(&Self, &HP) -> Result<D>)
+        -> Result<Output<D, Pk, A, P>>
+    {
+        params.check()?;
+
+        self.id = self.digest_cb(params, cb)?;
+
+        self.check()?;
+
+        Ok(self)
+    }
+}
+
 impl<RP, D, Pk, A, P> Runnable<RP, D> for Output<D, Pk, A, P>
     where   RP: Datable,
             D: Datable + FixedSize,
