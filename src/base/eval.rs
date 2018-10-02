@@ -6,7 +6,7 @@ pub trait Evaluable<P, R>
             R: Datable,
             Self: Datable
 {
-    fn eval(&mut self, params: &P, cb: &mut FnMut(&mut Self, &P) -> Result<R>) -> Result<R> {
+    fn eval_cb(&self, params: &P, cb: &mut Fn(&Self, &P) -> Result<R>) -> Result<R> {
         cb(self, params)
     }
 }
