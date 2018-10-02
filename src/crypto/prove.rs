@@ -15,4 +15,14 @@ pub trait Provable<P, Pr>
     {
         cb(self, params, proof)
     }
+
+    fn check_proof_cb(&self, params: &P, proof: &Pr, cb: &Fn(&Self, &P, &Pr) -> Result<bool>)
+        -> Result<()>
+    {
+        if !Self::verify_proof_cb(self, params, proof, cb)? {
+            return Err(String::from("invalid proof"));
+        }
+
+        Ok(())
+    }
 }

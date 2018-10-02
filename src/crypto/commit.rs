@@ -16,4 +16,14 @@ pub trait Committable<P, C>
     {
         cb(self, params, commit)
     }
+
+    fn check_commit_cb(&self, params: &P, commit: &C, cb: &Fn(&Self, &P, &C) -> Result<bool>)
+        -> Result<()>
+    {
+        if !Self::verify_commit_cb(self, params, commit, cb)? {
+            return Err(String::from("invalid commit"));
+        }
+
+        Ok(())
+    }
 }

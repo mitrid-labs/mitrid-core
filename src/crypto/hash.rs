@@ -16,4 +16,14 @@ pub trait Hashable<P, D>
     {
         cb(self, params, digest)
     }
+
+    fn check_digest_cb(&self, params: &P, digest: &D, cb: &Fn(&Self, &P, &D) -> Result<bool>)
+        -> Result<()>
+    {
+        if !Self::verify_digest_cb(self, params, digest, cb)? {
+            return Err(String::from("invalid digest"));
+        }
+
+        Ok(())
+    }
 }

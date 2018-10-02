@@ -16,4 +16,14 @@ pub trait Authenticated<P, T>
     {
         cb(self, params, token)
     }
+
+    fn check_token_cb(&self, params: &P, token: &T, cb: &Fn(&Self, &P, &T) -> Result<bool>)
+        -> Result<()>
+    {
+        if !Self::verify_token_cb(self, params, token, cb)? {
+            return Err(String::from("invalid authentication token"));
+        }
+
+        Ok(())
+    }
 }

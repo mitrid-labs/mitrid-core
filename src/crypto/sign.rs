@@ -22,4 +22,18 @@ pub trait Signable<P, Sk, Pk, Sig>
     {
         cb(self, params, sig, pk)
     }
+
+    fn check_signature_cb(&self,
+                          params: &P,
+                          sig: &Sig,
+                          pk: &Pk,
+                          cb: &Fn(&Self, &P, &Sig, &Pk) -> Result<bool>)
+        -> Result<()>
+    {
+        if !Self::verify_signature_cb(self, params, sig, pk, cb)? {
+            return Err(String::from("invalid signature"));
+        }
+
+        Ok(())
+    }
 }
