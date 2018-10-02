@@ -37,6 +37,45 @@ impl<D, P> BlockGraph<D, P>
         Ok(self)
     }
 
+    pub fn frontier(mut self, tip_idx: Option<u64>, frontier: &Vec<BlockNode<D>>)
+        -> Result<BlockGraph<D, P>>
+    {
+        frontier.check()?;
+
+        let mut height = 0;
+
+        for node in frontier.clone() {
+            if node.block_height > height {
+                height = node.block_height;
+            }
+        }
+
+        let mut tip = None;
+
+        if let Some(idx) = tip_idx {
+            if idx > (frontier.len() -1) as u64 {
+                return Err(String::from("invalid tip index"));
+            }
+
+            tip = Some(frontier[idx as usize].clone());
+        }
+
+        self.height = height;
+        self.tip = tip;
+        self.frontier_len = frontier.len() as u64;
+        self.frontier = frontier.clone();
+
+        Ok(self)
+    }
+
+    pub fn payload(mut self, payload: &P) -> Result<BlockGraph<D, P>> {
+        payload.check()?;
+
+        self.payload = payload.clone();
+
+        Ok(self)
+    }
+
     pub fn finalize<HP: Datable>(mut self, params: &HP, cb: &Fn(&Self, &HP) -> Result<D>)
         -> Result<BlockGraph<D, P>>
     {

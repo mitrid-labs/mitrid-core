@@ -5,7 +5,7 @@ use base::Serializable;
 use base::{Sizable, FixedSize};
 use base::Numerical;
 use base::Runnable;
-use crypto::Hashable;
+use crypto::{Hashable, Provable};
 use models::Meta;
 use models::Transaction;
 use models::BlockNode;
@@ -55,6 +55,57 @@ impl<D, A, IP, Pk, Sig, OP, TP, P, Pr> Block<D, A, IP, Pk, Sig, OP, TP, P, Pr>
         Ok(self)
     }
 
+    pub fn prev_blocks(mut self, prev_blocks: &Vec<BlockNode<D>>)
+        -> Result<Block<D, A, IP, Pk, Sig, OP, TP, P, Pr>>
+    {
+        prev_blocks.check()?;
+
+        let mut prev_height = 0;
+
+        for prev_block in prev_blocks.clone() {
+            if prev_block.block_height > prev_height {
+                prev_height = prev_block.block_height;
+            }
+        }
+
+        self.height = prev_height + 1;
+        self.prev_blocks_len = prev_blocks.len() as u64;
+        self.prev_blocks = prev_blocks.clone();
+
+        Ok(self)
+    }
+
+    pub fn transactions(mut self, transactions: &Vec<Transaction<D, A, IP, Pk, Sig, OP, TP>>)
+        -> Result<Block<D, A, IP, Pk, Sig, OP, TP, P, Pr>>
+    {
+        transactions.check()?;
+
+        self.transactions_len = transactions.len() as u64;
+        self.transactions = transactions.clone();
+
+        Ok(self)
+    }
+
+    pub fn payload(mut self, payload: &P) -> Result<Block<D, A, IP, Pk, Sig, OP, TP, P, Pr>> {
+        payload.check()?;
+
+        self.payload = payload.clone();
+
+        Ok(self)
+    }
+
+    pub fn prove<PrP: Datable>(mut self, params: &PrP, cb: &Fn(&Self, &PrP) -> Result<Pr>)
+        -> Result<Block<D, A, IP, Pk, Sig, OP, TP, P, Pr>>
+    {
+        params.check()?;
+
+        self.proof = self.prove_cb(params, cb)?;
+
+        self.check()?;
+
+        Ok(self)
+    }
+
     pub fn finalize<HP: Datable>(mut self, params: &HP, cb: &Fn(&Self, &HP) -> Result<D>)
         -> Result<Block<D, A, IP, Pk, Sig, OP, TP, P, Pr>>
     {
@@ -83,6 +134,19 @@ impl<RP, D, A, IP, Pk, Sig, OP, TP, P, Pr> Runnable<RP, D> for Block<D, A, IP, P
 
 impl<HP, D, A, IP, Pk, Sig, OP, TP, P, Pr> Hashable<HP, D> for Block<D, A, IP, Pk, Sig, OP, TP, P, Pr>
     where   HP: Datable,
+            D: Datable + FixedSize,
+            A: Numerical,
+            IP: Datable,
+            Pk: Datable + FixedSize,
+            Sig: Datable + FixedSize,
+            OP: Datable,
+            TP: Datable,
+            P: Datable,
+            Pr: Datable
+{}
+
+impl<PrP, D, A, IP, Pk, Sig, OP, TP, P, Pr> Provable<PrP, Pr> for Block<D, A, IP, Pk, Sig, OP, TP, P, Pr>
+    where   PrP: Datable,
             D: Datable + FixedSize,
             A: Numerical,
             IP: Datable,
