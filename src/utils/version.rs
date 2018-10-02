@@ -8,77 +8,73 @@ use base::Datable;
 use base::Serializable;
 use utils::regex;
 
-pub const VERSION: &str = "0.0.1";
+pub const VERSION: &str = "0.1.0";
 
 pub const NUMERIC_VERSION: &str = "^[0-9]*$";
 pub const PRERELEASE_VERSION: &str = "^[A-Za-z-]*$";
 pub const BUILDMETA_VERSION: &str = "^[0-9A-Za-z-]*$";
-pub const SEMVER_VERSION: &str = "^(?P<major>[0-9]*).(?P<minor>[0-9]*).(?P<patch>[0-9]*)(-(?P<prerelease>[A-Za-z-]*))?(\\+(?P<buildmeta>[0-9A-Za-z-]*))?$";
+pub const SEMVER_VERSION: &str = "^(?P<major>[0-9]*).(?P<minor>[0-9]*).(?P<patch>[0-9]*)(-(?P<prerelease>[A-Za-z-]+))?(\\+(?P<buildmeta>[0-9A-Za-z-]+))?$";
 
 #[derive(Clone, Debug, Hash, Serialize, Deserialize)]
 pub struct Version {
     pub major: u32,
     pub minor: u32,
     pub patch: u32,
-    pub prerelease: Option<String>,
-    pub buildmeta: Option<String>,
+    pub prerelease: String,
+    pub buildmeta: String,
 }
 
 impl Version {
-    pub fn new(major: u32, minor: u32, patch: u32, pre: Option<String>, build: Option<String>)
+    pub fn new(major: u32, minor: u32, patch: u32, pre: &str, build: &str)
         -> Result<Version> {
 
-        let prerelease = pre.clone();
-        let buildmeta = build.clone();
+        Self::check_prerelease(pre)?;
 
-        if let Some(ref pre) = prerelease {
-            Self::check_prerelease(pre)?;
-        }
+        Self::check_buildmeta(build)?;
 
-        if let Some(ref build) = buildmeta {
-            Self::check_buildmeta(build)?;
-        }
+        let prerelease = String::from(pre);
+        let buildmeta = String::from(build);
 
         let ver = Version {major, minor, patch, prerelease, buildmeta};
         Ok(ver)
     }
 
     pub fn check_numeric(num: &str) -> Result<()> {
-        if regex::is_match(num, NUMERIC_VERSION).unwrap() {
+        if regex::is_match(NUMERIC_VERSION, num).unwrap() {
             Ok(())
         } else {
-            Err(String::from("invalid numeric version"))
+            Err("invalid numeric version".into())
         }
     }
 
     pub fn check_prerelease(pre: &str) -> Result<()> {
-        if regex::is_match(pre, PRERELEASE_VERSION).unwrap() {
+        if regex::is_match(PRERELEASE_VERSION, pre).unwrap() {
             Ok(())
         } else {
-            Err(String::from("invalid prerelease version"))
+            Err("invalid prerelease version".into())
         }
     }
 
     pub fn check_buildmeta(build: &str) -> Result<()> {
-        if regex::is_match(build, BUILDMETA_VERSION).unwrap() {
+        if regex::is_match(BUILDMETA_VERSION, build).unwrap() {
             Ok(())
         } else {
-            Err(String::from("invalid buildmeta version"))
+            Err("invalid buildmeta version".into())
         }
     }
 
     pub fn check_semver(sv: &str) -> Result<()> {
-        if regex::is_match(sv, SEMVER_VERSION).unwrap() {
+        if regex::is_match(SEMVER_VERSION, sv).unwrap() {
             Ok(())
         } else {
-            Err(String::from("invalid semver version"))
+            Err("invalid semver version".into())
         }
     }
 
     pub fn parse(s: &str) -> Result<Version> {
         let matches = regex::captures(SEMVER_VERSION, s)?;
 
-        let _major = matches.get("minor").unwrap();
+        let _major = matches.get("major").unwrap();
         let major = u32::from_str_radix(_major, 10)
                         .map_err(|e| format!("{}", e))?;
 
@@ -90,8 +86,10 @@ impl Version {
         let patch = u32::from_str_radix(_patch, 10)
                         .map_err(|e| format!("{}", e))?;
 
-        let prerelease = matches.get("prerelease").map(|p| p.to_owned());
-        let buildmeta = matches.get("buildmeta").map(|b| b.to_owned());
+        let _prerelease = matches.get("prerelease").unwrap();
+        let prerelease = _prerelease.to_owned();
+        let _buildmeta = matches.get("buildmeta").unwrap();
+        let buildmeta = _buildmeta.to_owned();
 
         let ver = Version { major, minor, patch, prerelease, buildmeta };
 
@@ -105,14 +103,14 @@ impl Version {
         res.push_str(&format!(".{}", self.minor));
         res.push_str(&format!(".{}", self.patch));
 
-        if self.prerelease.is_some() {
+        if !self.prerelease.is_empty() {
             res.push('-');
-            res.push_str(&self.prerelease.clone().unwrap());
+            res.push_str(&self.prerelease);
         }
 
-        if self.buildmeta.is_some() {
+        if !self.buildmeta.is_empty() {
             res.push('+');
-            res.push_str(&self.buildmeta.clone().unwrap());
+            res.push_str(&self.buildmeta);
         }
 
         res
@@ -122,21 +120,21 @@ impl Version {
         n.cmp(other)
     }
 
-    fn compare_prerelease(a: &Option<String>, b: &Option<String>) -> Ordering {
-        if a.is_none() {
-            if b.is_none() {
+    fn compare_prerelease(a: &String, b: &String) -> Ordering {
+        if a.is_empty() {
+            if b.is_empty() {
                 return Ordering::Equal;
             }
 
             return Ordering::Greater;
         }
 
-        if b.is_none() {
+        if b.is_empty() {
             return Ordering::Less;
         }
 
-        let _a = a.clone().unwrap();
-        let _b = b.clone().unwrap();
+        let _a = a.clone();
+        let _b = b.clone();
 
         _a.cmp(&_b)
     }
@@ -215,13 +213,9 @@ impl Sizable for Version {
 
 impl Checkable for Version {
     fn check(&self) -> Result<()> {
-        if self.prerelease.is_some() {
-            Self::check_prerelease(&self.clone().prerelease.unwrap())?;
-        }
+        Self::check_prerelease(&self.prerelease)?;
 
-        if self.buildmeta.is_some() {
-            Self::check_buildmeta(&self.clone().buildmeta.unwrap())?;
-        }
+        Self::check_buildmeta(&self.buildmeta)?;
 
         Ok(())
     }

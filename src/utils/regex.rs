@@ -28,7 +28,10 @@ pub fn captures(pattern: &str, target: &str) -> Result<HashMap<String, String>> 
     for cap_name in reg.capture_names() {
         if cap_name.is_some() {
             let key = cap_name.unwrap();
-            let value = &captures[key];
+            let mut value = "";
+            if let Some(cap_match) = captures.name(key) {
+                value = cap_match.as_str();
+            }
             res.insert(String::from(key), String::from(value));
         }
     }
