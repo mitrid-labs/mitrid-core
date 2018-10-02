@@ -12,7 +12,7 @@ use base::Datable;
 use base::Serializable;
 use utils::timestamp::TimestampDiff;
 
-#[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Debug, Default, Hash, Serialize, Deserialize)]
+#[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Debug, Hash, Serialize, Deserialize)]
 pub struct Timestamp(TimestampDiff);
 
 impl Timestamp {
@@ -58,6 +58,12 @@ impl Timestamp {
 
     pub fn as_diff(&self) -> TimestampDiff {
         self.0
+    }
+}
+
+impl Default for Timestamp {
+    fn default() -> Timestamp {
+        Timestamp::now().unwrap()
     }
 }
 
