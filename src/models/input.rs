@@ -80,16 +80,80 @@ impl<D, A, P, Pk, Sig> Input<D, A, P, Pk, Sig>
         Ok(self)
     }
 
+    pub fn verify_signature<SP, Sk>(&self,
+                                    params: &SP,
+                                    sig: &Sig,
+                                    pk: &Pk,
+                                    cb: &Fn(&Self, &SP, &Sig, &Pk) -> Result<bool>)
+        -> Result<bool>
+        where   SP: Datable,
+                Sk: Datable + FixedSize
+    {
+        params.check()?;
+        sig.check()?;
+        pk.check()?;
+
+        Signable::<SP, Sk, Pk, Sig>::verify_signature_cb(self, params, sig, pk, cb)
+    }
+
+    pub fn check_signature<SP, Sk>(&self,
+                                   params: &SP,
+                                   sig: &Sig,
+                                   pk: &Pk,
+                                   cb: &Fn(&Self, &SP, &Sig, &Pk) -> Result<bool>)
+        -> Result<()>
+        where   SP: Datable,
+                Sk: Datable + FixedSize
+    {
+        params.check()?;
+        sig.check()?;
+        pk.check()?;
+
+        Signable::<SP, Sk, Pk, Sig>::check_signature_cb(self, params, sig, pk, cb)
+    }
+
     pub fn finalize<HP: Datable>(mut self, params: &HP, cb: &Fn(&Self, &HP) -> Result<D>)
         -> Result<Input<D, A, P, Pk, Sig>>
     {
         params.check()?;
 
-        self.id = self.digest_cb(params, cb)?;
+        self.id = self.digest(params, cb)?;
 
         self.check()?;
 
         Ok(self)
+    }
+
+    pub fn digest<HP: Datable>(&self, params: &HP, cb: &Fn(&Self, &HP) -> Result<D>)
+        -> Result<D>
+    {
+        params.check()?;
+
+        self.digest_cb(params, cb)
+    }
+
+    pub fn verify_digest<HP: Datable>(&self,
+                                      params: &HP,
+                                      digest: &D,
+                                      cb: &Fn(&Self, &HP, &D) -> Result<bool>)
+        -> Result<bool>
+    {
+        params.check()?;
+        digest.check()?;
+
+        self.verify_digest_cb(params, digest, cb)
+    }
+
+    pub fn check_digest<HP: Datable>(&self,
+                                     params: &HP,
+                                     digest: &D,
+                                     cb: &Fn(&Self, &HP, &D) -> Result<bool>)
+        -> Result<()>
+    {
+        params.check()?;
+        digest.check()?;
+
+        self.check_digest_cb(params, digest, cb)
     }
 }
 

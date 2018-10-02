@@ -104,16 +104,72 @@ impl<D, A, IP, Pk, Sig, OP, TP, P, Pr> Block<D, A, IP, Pk, Sig, OP, TP, P, Pr>
         Ok(self)
     }
 
+    pub fn verify_proof<PrP: Datable>(&self,
+                                      params: &PrP,
+                                      proof: &Pr,
+                                      cb: &Fn(&Self, &PrP, &Pr) -> Result<bool>)
+        -> Result<bool>
+    {
+        params.check()?;
+        proof.check()?;
+
+        self.verify_proof_cb(params, proof, cb)
+    }
+
+    pub fn check_proof<PrP: Datable>(&self,
+                                     params: &PrP,
+                                     proof: &Pr,
+                                     cb: &Fn(&Self, &PrP, &Pr) -> Result<bool>)
+        -> Result<()>
+    {
+        params.check()?;
+        proof.check()?;
+
+        self.check_proof_cb(params, proof, cb)
+    }
+
     pub fn finalize<HP: Datable>(mut self, params: &HP, cb: &Fn(&Self, &HP) -> Result<D>)
         -> Result<Block<D, A, IP, Pk, Sig, OP, TP, P, Pr>>
     {
         params.check()?;
 
-        self.id = self.digest_cb(params, cb)?;
+        self.id = self.digest(params, cb)?;
 
         self.check()?;
 
         Ok(self)
+    }
+
+    pub fn digest<HP: Datable>(&self, params: &HP, cb: &Fn(&Self, &HP) -> Result<D>)
+        -> Result<D>
+    {
+        params.check()?;
+
+        self.digest_cb(params, cb)
+    }
+
+    pub fn verify_digest<HP: Datable>(&self,
+                                      params: &HP,
+                                      digest: &D,
+                                      cb: &Fn(&Self, &HP, &D) -> Result<bool>)
+        -> Result<bool>
+    {
+        params.check()?;
+        digest.check()?;
+
+        self.verify_digest_cb(params, digest, cb)
+    }
+
+    pub fn check_digest<HP: Datable>(&self,
+                                     params: &HP,
+                                     digest: &D,
+                                     cb: &Fn(&Self, &HP, &D) -> Result<bool>)
+        -> Result<()>
+    {
+        params.check()?;
+        digest.check()?;
+
+        self.check_digest_cb(params, digest, cb)
     }
 }
 

@@ -74,11 +74,43 @@ impl<D, Pk, A, P> Output<D, Pk, A, P>
     {
         params.check()?;
 
-        self.id = self.digest_cb(params, cb)?;
+        self.id = self.digest(params, cb)?;
 
         self.check()?;
 
         Ok(self)
+    }
+
+    pub fn digest<HP: Datable>(&self, params: &HP, cb: &Fn(&Self, &HP) -> Result<D>)
+        -> Result<D>
+    {
+        params.check()?;
+
+        self.digest_cb(params, cb)
+    }
+
+    pub fn verify_digest<HP: Datable>(&self,
+                                      params: &HP,
+                                      digest: &D,
+                                      cb: &Fn(&Self, &HP, &D) -> Result<bool>)
+        -> Result<bool>
+    {
+        params.check()?;
+        digest.check()?;
+
+        self.verify_digest_cb(params, digest, cb)
+    }
+
+    pub fn check_digest<HP: Datable>(&self,
+                                     params: &HP,
+                                     digest: &D,
+                                     cb: &Fn(&Self, &HP, &D) -> Result<bool>)
+        -> Result<()>
+    {
+        params.check()?;
+        digest.check()?;
+
+        self.check_digest_cb(params, digest, cb)
     }
 }
 
