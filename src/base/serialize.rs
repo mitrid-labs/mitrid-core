@@ -9,10 +9,10 @@ use base::check::Checkable;
 pub trait Serializable
     where   for<'a> Self: Serialize + Deserialize<'a> + Checkable
 {
-    fn to_json(t: Self) -> Result<String> {
-        t.check()?;
+    fn to_json(&self) -> Result<String> {
+        self.check()?;
 
-        json::to_string(&t).map_err(|e| format!("{}", e))
+        json::to_string(&self).map_err(|e| format!("{}", e))
     }
 
     fn from_json(s: &str) -> Result<Self> {
@@ -22,10 +22,10 @@ pub trait Serializable
         Ok(t)
     }
 
-    fn to_bytes(t: Self) -> Result<Vec<u8>> {
-        t.check()?;
+    fn to_bytes(&self) -> Result<Vec<u8>> {
+        self.check()?;
 
-        cbor::to_vec(&t).map_err(|e| format!("{}", e))
+        cbor::to_vec(self).map_err(|e| format!("{}", e))
     }
 
     fn from_bytes(b: &[u8]) -> Result<Self> {
@@ -35,8 +35,8 @@ pub trait Serializable
         Ok(t)
     }
 
-    fn to_hex(t: Self) -> Result<String> {
-        Ok(hex::encode(Self::to_bytes(t)?))
+    fn to_hex(&self) -> Result<String> {
+        Ok(hex::encode(self.to_bytes()?))
     }
 
     fn from_hex(s: &str) -> Result<Self> {
