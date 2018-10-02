@@ -122,6 +122,16 @@ impl<D, A, IP, Pk, Sig, OP, P> Transaction<D, A, IP, Pk, Sig, OP, P>
 
         self.check_digest_cb(params, digest, cb)
     }
+
+    pub fn eval<EP, R>(&self, params: &EP, cb: &Fn(&Self, &EP) -> Result<R>)
+        -> Result<R>
+        where   EP: Datable,
+                R: Datable
+    {
+        params.check()?;
+
+        self.eval_cb(params, cb)
+    }
 }
 
 impl<HP, D, A, IP, Pk, Sig, OP, P> Hashable<HP, D> for Transaction<D, A, IP, Pk, Sig, OP, P>
@@ -213,9 +223,8 @@ impl<D, A, IP, Pk, Sig, OP, P> Datable for Transaction<D, A, IP, Pk, Sig, OP, P>
             P: Datable
 {}
 
-impl<RP, D, A, IP, Pk, Sig, OP, P> Evaluable<RP, D> for Transaction<D, A, IP, Pk, Sig, OP, P>
-    where   RP: Datable,
-            D: Datable + FixedSize,
+impl<D, A, IP, Pk, Sig, OP, P> Evaluable for Transaction<D, A, IP, Pk, Sig, OP, P>
+    where   D: Datable + FixedSize,
             A: Numerical,
             IP: Datable,
             Pk: Datable + FixedSize,

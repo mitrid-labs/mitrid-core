@@ -171,6 +171,16 @@ impl<D, A, IP, Pk, Sig, OP, TP, P, Pr> Block<D, A, IP, Pk, Sig, OP, TP, P, Pr>
 
         self.check_digest_cb(params, digest, cb)
     }
+
+    pub fn eval<EP, R>(&self, params: &EP, cb: &Fn(&Self, &EP) -> Result<R>)
+        -> Result<R>
+        where   EP: Datable,
+                R: Datable
+    {
+        params.check()?;
+
+        self.eval_cb(params, cb)
+    }
 }
 
 impl<HP, D, A, IP, Pk, Sig, OP, TP, P, Pr> Hashable<HP, D> for Block<D, A, IP, Pk, Sig, OP, TP, P, Pr>
@@ -289,9 +299,8 @@ impl<D, A, IP, Pk, Sig, OP, TP, P, Pr> Datable for Block<D, A, IP, Pk, Sig, OP, 
             Pr: Datable
 {}
 
-impl<RP, D, A, IP, Pk, Sig, OP, TP, P, Pr> Evaluable<RP, D> for Block<D, A, IP, Pk, Sig, OP, TP, P, Pr>
-    where   RP: Datable,
-            D: Datable + FixedSize,
+impl<D, A, IP, Pk, Sig, OP, TP, P, Pr> Evaluable for Block<D, A, IP, Pk, Sig, OP, TP, P, Pr>
+    where   D: Datable + FixedSize,
             A: Numerical,
             IP: Datable,
             Pk: Datable + FixedSize,

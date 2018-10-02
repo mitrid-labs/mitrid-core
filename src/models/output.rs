@@ -112,6 +112,16 @@ impl<D, Pk, A, P> Output<D, Pk, A, P>
 
         self.check_digest_cb(params, digest, cb)
     }
+
+    pub fn eval<EP, R>(&self, params: &EP, cb: &Fn(&Self, &EP) -> Result<R>)
+        -> Result<R>
+        where   EP: Datable,
+                R: Datable
+    {
+        params.check()?;
+
+        self.eval_cb(params, cb)
+    }
 }
 
 impl<HP, D, Pk, A, P> Hashable<HP, D> for Output<D, Pk, A, P>
@@ -178,9 +188,8 @@ impl<D, Pk, A, P> Datable for Output<D, Pk, A, P>
             P: Datable
 {}
 
-impl<RP, D, Pk, A, P> Evaluable<RP, D> for Output<D, Pk, A, P>
-    where   RP: Datable,
-            D: Datable + FixedSize,
+impl<D, Pk, A, P> Evaluable for Output<D, Pk, A, P>
+    where   D: Datable + FixedSize,
             Pk: Datable + FixedSize,
             A: Numerical,
             P: Datable

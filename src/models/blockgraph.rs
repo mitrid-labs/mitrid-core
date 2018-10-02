@@ -119,6 +119,16 @@ impl<D, P> BlockGraph<D, P>
 
         self.check_digest_cb(params, digest, cb)
     }
+
+    pub fn eval<EP, R>(&self, params: &EP, cb: &Fn(&Self, &EP) -> Result<R>)
+        -> Result<R>
+        where   EP: Datable,
+                R: Datable
+    {
+        params.check()?;
+
+        self.eval_cb(params, cb)
+    }
 }
 
 impl<HP, D, P> Hashable<HP, D> for BlockGraph<D, P>
@@ -183,8 +193,7 @@ impl<D, P> Datable for BlockGraph<D, P>
             P: Datable
 {}
 
-impl<RP, D, P> Evaluable<RP, D> for BlockGraph<D, P>
-    where   RP: Datable,
-            D: Datable + FixedSize,
+impl<D, P> Evaluable for BlockGraph<D, P>
+    where   D: Datable + FixedSize,
             P: Datable
 {}
