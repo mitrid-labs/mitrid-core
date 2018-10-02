@@ -101,8 +101,6 @@ impl<D, A, IP, Pk, Sig, OP, TP, P, Pr> Block<D, A, IP, Pk, Sig, OP, TP, P, Pr>
 
         self.proof = self.prove_cb(params, cb)?;
 
-        self.check()?;
-
         Ok(self)
     }
 
