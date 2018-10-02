@@ -124,17 +124,6 @@ impl<D, A, IP, Pk, Sig, OP, P> Transaction<D, A, IP, Pk, Sig, OP, P>
     }
 }
 
-impl<RP, D, A, IP, Pk, Sig, OP, P> Runnable<RP, D> for Transaction<D, A, IP, Pk, Sig, OP, P>
-    where   RP: Datable,
-            D: Datable + FixedSize,
-            A: Numerical,
-            IP: Datable,
-            Pk: Datable + FixedSize,
-            Sig: Datable + FixedSize,
-            OP: Datable,
-            P: Datable
-{}
-
 impl<HP, D, A, IP, Pk, Sig, OP, P> Hashable<HP, D> for Transaction<D, A, IP, Pk, Sig, OP, P>
     where   HP: Datable,
             D: Datable + FixedSize,
@@ -216,6 +205,17 @@ impl<D, A, IP, Pk, Sig, OP, P> Serializable for Transaction<D, A, IP, Pk, Sig, O
 
 impl<D, A, IP, Pk, Sig, OP, P> Datable for Transaction<D, A, IP, Pk, Sig, OP, P>
     where   D: Datable + FixedSize,
+            A: Numerical,
+            IP: Datable,
+            Pk: Datable + FixedSize,
+            Sig: Datable + FixedSize,
+            OP: Datable,
+            P: Datable
+{}
+
+impl<RP, D, A, IP, Pk, Sig, OP, P> Runnable<RP, D> for Transaction<D, A, IP, Pk, Sig, OP, P>
+    where   RP: Datable,
+            D: Datable + FixedSize,
             A: Numerical,
             IP: Datable,
             Pk: Datable + FixedSize,

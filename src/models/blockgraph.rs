@@ -121,12 +121,6 @@ impl<D, P> BlockGraph<D, P>
     }
 }
 
-impl<RP, D, P> Runnable<RP, D> for BlockGraph<D, P>
-    where   RP: Datable,
-            D: Datable + FixedSize,
-            P: Datable
-{}
-
 impl<HP, D, P> Hashable<HP, D> for BlockGraph<D, P>
     where   HP: Datable,
             D: Datable + FixedSize,
@@ -186,5 +180,11 @@ impl<D, P> Serializable for BlockGraph<D, P>
 
 impl<D, P> Datable for BlockGraph<D, P>
     where   D: Datable + FixedSize,
+            P: Datable
+{}
+
+impl<RP, D, P> Runnable<RP, D> for BlockGraph<D, P>
+    where   RP: Datable,
+            D: Datable + FixedSize,
             P: Datable
 {}

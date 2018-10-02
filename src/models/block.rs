@@ -173,19 +173,6 @@ impl<D, A, IP, Pk, Sig, OP, TP, P, Pr> Block<D, A, IP, Pk, Sig, OP, TP, P, Pr>
     }
 }
 
-impl<RP, D, A, IP, Pk, Sig, OP, TP, P, Pr> Runnable<RP, D> for Block<D, A, IP, Pk, Sig, OP, TP, P, Pr>
-    where   RP: Datable,
-            D: Datable + FixedSize,
-            A: Numerical,
-            IP: Datable,
-            Pk: Datable + FixedSize,
-            Sig: Datable + FixedSize,
-            OP: Datable,
-            TP: Datable,
-            P: Datable,
-            Pr: Datable
-{}
-
 impl<HP, D, A, IP, Pk, Sig, OP, TP, P, Pr> Hashable<HP, D> for Block<D, A, IP, Pk, Sig, OP, TP, P, Pr>
     where   HP: Datable,
             D: Datable + FixedSize,
@@ -292,6 +279,19 @@ impl<D, A, IP, Pk, Sig, OP, TP, P, Pr> Serializable for Block<D, A, IP, Pk, Sig,
 
 impl<D, A, IP, Pk, Sig, OP, TP, P, Pr> Datable for Block<D, A, IP, Pk, Sig, OP, TP, P, Pr>
     where   D: Datable + FixedSize,
+            A: Numerical,
+            IP: Datable,
+            Pk: Datable + FixedSize,
+            Sig: Datable + FixedSize,
+            OP: Datable,
+            TP: Datable,
+            P: Datable,
+            Pr: Datable
+{}
+
+impl<RP, D, A, IP, Pk, Sig, OP, TP, P, Pr> Runnable<RP, D> for Block<D, A, IP, Pk, Sig, OP, TP, P, Pr>
+    where   RP: Datable,
+            D: Datable + FixedSize,
             A: Numerical,
             IP: Datable,
             Pk: Datable + FixedSize,

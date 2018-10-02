@@ -157,15 +157,6 @@ impl<D, A, P, Pk, Sig> Input<D, A, P, Pk, Sig>
     }
 }
 
-impl<RP, D, A, P, Pk, Sig> Runnable<RP, D> for Input<D, A, P, Pk, Sig>
-    where   RP: Datable,
-            D: Datable + FixedSize,
-            A: Numerical,
-            P: Datable,
-            Pk: Datable + FixedSize,
-            Sig: Datable + FixedSize
-{}
-
 impl<HP, D, A, P, Pk, Sig> Hashable<HP, D> for Input<D, A, P, Pk, Sig>
     where   HP: Datable,
             D: Datable + FixedSize,
@@ -247,6 +238,15 @@ impl<D, A, P, Pk, Sig> Serializable for Input<D, A, P, Pk, Sig>
 
 impl<D, A, P, Pk, Sig> Datable for Input<D, A, P, Pk, Sig>
     where   D: Datable + FixedSize,
+            A: Numerical,
+            P: Datable,
+            Pk: Datable + FixedSize,
+            Sig: Datable + FixedSize
+{}
+
+impl<RP, D, A, P, Pk, Sig> Runnable<RP, D> for Input<D, A, P, Pk, Sig>
+    where   RP: Datable,
+            D: Datable + FixedSize,
             A: Numerical,
             P: Datable,
             Pk: Datable + FixedSize,

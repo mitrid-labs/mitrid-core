@@ -114,14 +114,6 @@ impl<D, Pk, A, P> Output<D, Pk, A, P>
     }
 }
 
-impl<RP, D, Pk, A, P> Runnable<RP, D> for Output<D, Pk, A, P>
-    where   RP: Datable,
-            D: Datable + FixedSize,
-            Pk: Datable + FixedSize,
-            A: Numerical,
-            P: Datable
-{}
-
 impl<HP, D, Pk, A, P> Hashable<HP, D> for Output<D, Pk, A, P>
     where   HP: Datable,
             D: Datable + FixedSize,
@@ -181,6 +173,14 @@ impl<D, Pk, A, P> Serializable for Output<D, Pk, A, P>
 
 impl<D, Pk, A, P> Datable for Output<D, Pk, A, P>
     where   D: Datable + FixedSize,
+            Pk: Datable + FixedSize,
+            A: Numerical,
+            P: Datable
+{}
+
+impl<RP, D, Pk, A, P> Runnable<RP, D> for Output<D, Pk, A, P>
+    where   RP: Datable,
+            D: Datable + FixedSize,
             Pk: Datable + FixedSize,
             A: Numerical,
             P: Datable
