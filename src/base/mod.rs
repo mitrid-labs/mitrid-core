@@ -5,7 +5,7 @@ pub mod data;
 pub mod serialize;
 pub mod size;
 pub mod numerical;
-pub mod run;
+pub mod eval;
 
 pub use self::result::Result;
 pub use self::future::Future;
@@ -14,4 +14,4 @@ pub use self::data::Datable;
 pub use self::serialize::Serializable;
 pub use self::numerical::Numerical;
 pub use self::size::{Sizable, VariableSize, FixedSize};
-pub use self::run::Runnable;
+pub use self::eval::Evaluable;

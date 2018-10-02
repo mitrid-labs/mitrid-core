@@ -4,7 +4,7 @@ use base::Datable;
 use base::Serializable;
 use base::{Sizable, FixedSize};
 use base::Numerical;
-use base::Runnable;
+use base::Evaluable;
 use crypto::{Hashable, Signable};
 use models::Meta;
 use models::Coin;
@@ -244,7 +244,7 @@ impl<D, A, P, Pk, Sig> Datable for Input<D, A, P, Pk, Sig>
             Sig: Datable + FixedSize
 {}
 
-impl<RP, D, A, P, Pk, Sig> Runnable<RP, D> for Input<D, A, P, Pk, Sig>
+impl<RP, D, A, P, Pk, Sig> Evaluable<RP, D> for Input<D, A, P, Pk, Sig>
     where   RP: Datable,
             D: Datable + FixedSize,
             A: Numerical,

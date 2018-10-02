@@ -3,7 +3,7 @@ use base::Checkable;
 use base::Datable;
 use base::Serializable;
 use base::{Sizable, FixedSize};
-use base::Runnable;
+use base::Evaluable;
 use crypto::Hashable;
 use models::Meta;
 use models::BlockNode;
@@ -183,7 +183,7 @@ impl<D, P> Datable for BlockGraph<D, P>
             P: Datable
 {}
 
-impl<RP, D, P> Runnable<RP, D> for BlockGraph<D, P>
+impl<RP, D, P> Evaluable<RP, D> for BlockGraph<D, P>
     where   RP: Datable,
             D: Datable + FixedSize,
             P: Datable
