@@ -11,29 +11,42 @@ use base::Datable;
 use base::Serializable;
 
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Debug, Default, Hash, Serialize, Deserialize)]
-pub struct TimestampDiff(u64);
+pub struct TimestampDiff(i64);
 
 impl TimestampDiff {
-    pub fn new(tmstmp: u64) -> TimestampDiff {
-        TimestampDiff::from_u64(tmstmp)
+    pub fn new(tmdiff: i64) -> TimestampDiff {
+        TimestampDiff::from_i64(tmdiff)
     }
 
-    pub fn from_u64(tmstmp: u64) -> TimestampDiff {
-        TimestampDiff(tmstmp)
+    pub fn from_i64(tmdiff: i64) -> TimestampDiff {
+        TimestampDiff(tmdiff)
+    }
+
+    pub fn from_u64(tmdiff: u64) -> TimestampDiff {
+        TimestampDiff(tmdiff as i64)
     }
 
     pub fn from_duration(dur: Duration) -> TimestampDiff {
         let _diff = dur.as_secs() * 1000 + (dur.subsec_millis() as u64);
-        TimestampDiff(_diff)
+        TimestampDiff(_diff as i64)
     }
 
-    pub fn as_u64(&self) -> u64 {
+    pub fn as_i64(&self) -> i64 {
         self.0
     }
 
+    pub fn abs(&self) -> u64 {
+        self.0.abs() as u64
+    }
+
+    pub fn as_u64(&self) -> u64 {
+        self.abs()
+    }
+ 
     pub fn as_duration(&self) -> Duration {
-        let secs = self.0 / 1000;
-        let millis = self.0 % 1000;
+        let abs = self.abs();
+        let secs = abs / 1000;
+        let millis = abs % 1000;
         let secs_dur = Duration::from_secs(secs);
         let millis_dur = Duration::from_millis(millis);
 
