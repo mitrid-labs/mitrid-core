@@ -27,16 +27,12 @@ impl Timestamp {
         Timestamp(tmstmp)
     }
 
-    pub fn now() -> Result<Timestamp> {
-        let dur = SystemTime::now().duration_since(UNIX_EPOCH)
-                    .map_err(|e| format!("{}", e))?;
-
-        let tmstmp = Timestamp::from_unix_epoch_duration(dur);
-        Ok(tmstmp)
+    pub fn from_millis(millis: u64) -> Timestamp {
+        Timestamp::from_u64(millis)
     }
 
-    pub fn as_u64(&self) -> u64 {
-        self.0
+    pub fn from_secs(secs: u64) -> Timestamp {
+        Timestamp::from_u64(secs * 1000)
     }
 
     pub fn as_duration(&self) -> Duration {
@@ -51,6 +47,26 @@ impl Timestamp {
 
     pub fn as_diff(&self) -> TimestampDiff {
         TimestampDiff::from_u64(self.0)
+    }
+
+    pub fn as_u64(&self) -> u64 {
+        self.0
+    }
+
+    pub fn as_millis(&self) -> u64 {
+        self.as_u64()
+    }
+
+    pub fn as_secs(&self) -> u64 {
+        self.as_u64() / 1000
+    }
+
+    pub fn now() -> Result<Timestamp> {
+        let dur = SystemTime::now().duration_since(UNIX_EPOCH)
+                    .map_err(|e| format!("{}", e))?;
+
+        let tmstmp = Timestamp::from_unix_epoch_duration(dur);
+        Ok(tmstmp)
     }
 }
 
@@ -90,21 +106,21 @@ impl<'a> Add<&'a TimestampDiff> for Timestamp {
 impl AddAssign<TimestampDiff> for Timestamp {
     fn add_assign(&mut self, other: TimestampDiff) {
         let tmsmp = ((self.as_u64() as i64) + other.as_i64()) as u64;
-        self.0 += tmsmp;
+        self.0 = tmsmp;
     }
 }
 
 impl<'a> AddAssign<&'a TimestampDiff> for Timestamp {
     fn add_assign(&mut self, other: &'a TimestampDiff) {
         let tmsmp = ((self.as_u64() as i64) + other.as_i64()) as u64;
-        self.0 += tmsmp;
+        self.0 = tmsmp;
     }
 }
 
 impl<'a, 'b> AddAssign<&'b TimestampDiff> for &'a mut Timestamp {
     fn add_assign(&mut self, other: &'b TimestampDiff) {
         let tmsmp = ((self.as_u64() as i64) + other.as_i64()) as u64;
-        self.0 += tmsmp;
+        self.0 = tmsmp;
     }
 }
 

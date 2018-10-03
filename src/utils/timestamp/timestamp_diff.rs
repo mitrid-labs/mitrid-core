@@ -31,6 +31,14 @@ impl TimestampDiff {
         TimestampDiff(_diff as i64)
     }
 
+    pub fn from_millis(millis: u64) -> TimestampDiff {
+        TimestampDiff::from_u64(millis)
+    }
+
+    pub fn from_secs(secs: u64) -> TimestampDiff {
+        TimestampDiff::from_u64(secs * 1000)
+    }
+
     pub fn as_i64(&self) -> i64 {
         self.0
     }
@@ -51,6 +59,18 @@ impl TimestampDiff {
         let millis_dur = Duration::from_millis(millis);
 
         secs_dur + millis_dur
+    }
+
+    pub fn as_millis(&self) -> u64 {
+        self.as_u64()
+    }
+
+    pub fn as_secs(&self) -> u64 {
+        self.as_u64() / 1000
+    }
+
+    pub fn sign(&self) -> i64 {
+        self.as_i64() / (self.abs() as i64)
     }
 }
 
