@@ -11,4 +11,3 @@ serde_json = "^1"
 serde_cbor = "^0.9"
 hex = "^0.3"
 regex = "^1"
-bytes = { version = "^0.4", features = ["serde"] }

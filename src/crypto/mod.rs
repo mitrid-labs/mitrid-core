@@ -2,6 +2,9 @@
 //!
 //! `crypto` is the module providing the traits used to implement cryptographic functionalities.
 
+/// Trait implemented by types that can be generated randomly.
+pub mod rand;
+
 /// Trait implemented by types that can be cryptographically hashed.
 pub mod hash;
 
@@ -20,6 +23,7 @@ pub mod authenticate;
 /// Trait implemented by types that can be proved and verified cryptographically.
 pub mod prove;
 
+pub use self::rand::Random;
 pub use self::hash::Hashable;
 pub use self::keys::{Key, KeyPair};
 pub use self::sign::Signable;
