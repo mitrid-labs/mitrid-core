@@ -5,6 +5,8 @@ authors = ["Christian Nyumbayire <chritchens@gmail.com>"]
 license = "Apache-2.0"
 repository = "https://github.com/mitrid-labs/mitrid-core"
 description = "Core library of the Mitrid framework"
+documentation = "https://docs.rs/mitrid_core"
+readme = "README.md"
 categories = ["development-tools", "cryptography"]
 
 [badges]
