@@ -2,6 +2,14 @@
 name = "mitrid_core"
 version = "0.1.0"
 authors = ["Christian Nyumbayire <chritchens@gmail.com>"]
+license = "Apache-2.0"
+repository = "https://github.com/yobicash/libyobicash"
+description = "Core of the Mitrid framework"
+categories = ["development-tools", "cryptography"]
+
+[badges]
+travis-ci = { repository = "mitrid-labs/mitrid-core", branch = "master" }
+coveralls = { repository = "mitrid-labs/mitrid-core", branch = "master", service = "github" }
 
 [dependencies]
 futures = "^0.1"

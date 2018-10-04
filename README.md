@@ -1,4 +1,7 @@
 [![Travis branch](https://img.shields.io/travis/mitrid-labs/mitrid-core/master.svg)](https://travis-ci.org/mitrid-labs/mitrid-core)
+[![Coveralls github branch](https://img.shields.io/coveralls/github/mitrid-labs/mitrid-core/master.svg)](https://coveralls.io/github/mitrid-labs/mitrid-core?branch=master)
+[![Crates.io](https://img.shields.io/crates/v/mitrid-core.svg)](https://crates.io/crates/mitrid-core)
+[![Docs.rs](https://docs.rs/mitrid-core/badge.svg)](https://docs.rs/mitrid-core/0.3.2/mitrid-core/)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://github.com/mitrid-labs/mitrid-core/blob/master/LICENSE)
 
 Mitrid is a framework for building blockchains. It is meant to be flexible enough to cover different architectures (permissionless and permissioned; with authenticated chains, trees or directed graphs) and to let users use the cryptographical protocols they prefer. Add-ons will be added to ease development.
@@ -7,6 +10,26 @@ Mitrid is a framework for building blockchains. It is meant to be flexible enoug
 Mitrid-core is the heart of the Mitrid framework and provides its models and crypto traits.
 <br>
 <br>
+
+## Install
+
+To install the mitrid-core library, add in your Cargo.toml:
+
+
+```toml
+# Cargo.toml
+
+[dependencies]
+mitrid_core = "^0.1"
+```
+
+and in the root of your crate:
+
+```rust
+
+extern crate mitrid_core;
+```
+
 
 ## [License](LICENSE)
 
