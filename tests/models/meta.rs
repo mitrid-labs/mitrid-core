@@ -7,31 +7,31 @@ use mitrid_core::base::Serializable;
 
 #[test]
 fn test_meta_new() {
-    let name = "name";
+    let code = 0;
     let chain = "chain";
     let valid_version = Version::default();
     let stage = Stage::default();
     let size = 1_000_000;
     
-    let res = Meta::new(name.into(), chain.into(), valid_version, stage, size);
+    let res = Meta::new(code, chain.into(), valid_version, stage, size);
     assert!(res.is_ok());
 
     let mut invalid_version = Version::default();
     invalid_version.buildmeta = "/\\".into();
 
-    let res = Meta::new(name.into(), chain.into(), invalid_version, stage, size);
+    let res = Meta::new(code, chain.into(), invalid_version, stage, size);
     assert!(res.is_err());
 }
 
 #[test]
 fn test_meta_check() {
-    let name = "name";
+    let code = 0;
     let chain = "chain";
     let valid_version = Version::default();
     let stage = Stage::default();
     let size = 1_000_000;
     
-    let res = Meta::new(name.into(), chain.into(), valid_version, stage, size);
+    let res = Meta::new(code, chain.into(), valid_version, stage, size);
     assert!(res.is_ok());
 
     let mut meta = res.unwrap();
@@ -46,10 +46,11 @@ fn test_meta_check() {
 #[test]
 fn test_meta_size() {
     let meta = Meta::default();
-    let meta_size = meta.name.size() +
+    let meta_size = meta.code.size() +
                     meta.chain.size() +
                     meta.version.size() +
                     meta.stage.size() +
+                    meta.timestamp.size() +
                     meta.size.size();
     assert_eq!(meta.size(), meta_size)
 }
