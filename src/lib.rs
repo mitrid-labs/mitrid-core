@@ -1,6 +1,6 @@
 //! # Mitrid Core
 //!
-//! `mitrid-core` provides the core traits and types used by the Mitrid framework, a framework
+//! `mitrid_core` provides the core traits and types used by the Mitrid framework, a framework
 //! for building blockchains and other distributed ledgers using block-based authenticated
 //! data structures (authenticated trees, authenticated graphs, etc).
 
