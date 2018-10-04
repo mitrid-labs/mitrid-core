@@ -1,10 +1,10 @@
 [package]
 name = "mitrid_core"
-version = "0.1.0"
+version = "0.1.1"
 authors = ["Christian Nyumbayire <chritchens@gmail.com>"]
 license = "Apache-2.0"
-repository = "https://github.com/yobicash/libyobicash"
-description = "Core of the Mitrid framework"
+repository = "https://github.com/mitrid-labs/mitrid-core"
+description = "Core library of the Mitrid framework"
 categories = ["development-tools", "cryptography"]
 
 [badges]
