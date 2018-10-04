@@ -12,7 +12,6 @@ extern crate serde_json as json;
 extern crate serde_cbor as cbor;
 extern crate hex;
 extern crate regex;
-extern crate bytes;
 
 /// Traits and types used across the library.
 pub mod base;

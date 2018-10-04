@@ -36,3 +36,11 @@ pub trait Random
         cb(self, params, from, to)
     }
 }
+
+impl<T> Random for Vec<T>
+    where   T: Random
+{}
+
+impl<T> Random for Option<T>
+    where   T: Random
+{}
