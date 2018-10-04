@@ -27,10 +27,8 @@ pub struct Input<D, A, P, Pk, Sig>
     pub id: D,
     /// Input metadata.
     pub meta: Meta,
-    /// Bound coins length.
-    pub coins_len: u64,
-    /// Bound coins.
-    pub coins: Vec<Coin<D, A>>,
+    /// Bound coin.
+    pub coin: Coin<D, A>,
     /// Custom payload.
     pub payload: P,
     /// Signature public key.
@@ -59,12 +57,11 @@ impl<D, A, P, Pk, Sig> Input<D, A, P, Pk, Sig>
         Ok(self)
     }
 
-    /// Sets the `Input`s set of coins and its lenght.
-    pub fn coins(mut self, coins: &Vec<Coin<D, A>>,) -> Result<Input<D, A, P, Pk, Sig>> {
-        coins.check()?;
+    /// Sets the `Input`s coin.
+    pub fn coin(mut self, coin: &Coin<D, A>,) -> Result<Input<D, A, P, Pk, Sig>> {
+        coin.check()?;
 
-        self.coins_len = coins.len() as u64;
-        self.coins = coins.clone();
+        self.coin = coin.clone();
 
         Ok(self)
     }
@@ -222,8 +219,7 @@ impl<D, A, P, Pk, Sig> Sizable for Input<D, A, P, Pk, Sig>
     fn size(&self) -> u64 {
         self.id.size() +
             self.meta.size() +
-            self.coins_len.size() +
-            self.coins.size() +
+            self.coin.size() +
             self.payload.size() +
             self.public_key.size() +
             self.signature.size()
@@ -246,12 +242,7 @@ impl<D, A, P, Pk, Sig> Checkable for Input<D, A, P, Pk, Sig>
             return Err(String::from("invalid meta size"));
         }
         
-        self.coins_len.check()?;
-        self.coins.check()?;
-
-        if self.coins.len() != self.coins_len as usize {
-            return Err(String::from("invalid coins length"));
-        }
+        self.coin.check()?;
 
         self.payload.check()?;
         self.public_key.check()?;
