@@ -69,7 +69,31 @@ impl Sizable for u8 {
     }
 }
 
+impl Sizable for i8 {
+    fn size(&self) -> u64 {
+        1
+    }
+}
+
+impl Sizable for u16 {
+    fn size(&self) -> u64 {
+        2
+    }
+}
+
+impl Sizable for i16 {
+    fn size(&self) -> u64 {
+        2
+    }
+}
+
 impl Sizable for u32 {
+    fn size(&self) -> u64 {
+        4
+    }
+}
+
+impl Sizable for i32 {
     fn size(&self) -> u64 {
         4
     }
@@ -78,18 +102,6 @@ impl Sizable for u32 {
 impl Sizable for u64 {
     fn size(&self) -> u64 {
         8
-    }
-}
-
-impl Sizable for i8 {
-    fn size(&self) -> u64 {
-        1
-    }
-}
-
-impl Sizable for i32 {
-    fn size(&self) -> u64 {
-        4
     }
 }
 

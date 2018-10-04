@@ -23,19 +23,19 @@ impl Checkable for () {}
 
 impl Checkable for u8 {}
 
-impl Checkable for u32 {}
-
-impl Checkable for u64 {}
-
 impl Checkable for i8 {}
+
+impl Checkable for u16 {}
+
+impl Checkable for i16 {}
+
+impl Checkable for u32 {}
 
 impl Checkable for i32 {}
 
+impl Checkable for u64 {}
+
 impl Checkable for i64 {}
-
-impl Checkable for f32 {}
-
-impl Checkable for f64 {}
 
 impl Checkable for String {}
 

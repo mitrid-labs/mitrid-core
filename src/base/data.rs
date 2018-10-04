@@ -14,13 +14,17 @@ impl Datable for () {}
 
 impl Datable for u8 {}
 
-impl Datable for u32 {}
-
-impl Datable for u64 {}
-
 impl Datable for i8 {}
 
+impl Datable for u16 {}
+
+impl Datable for i16 {}
+
+impl Datable for u32 {}
+
 impl Datable for i32 {}
+
+impl Datable for u64 {}
 
 impl Datable for i64 {}
 
