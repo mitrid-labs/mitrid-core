@@ -1,3 +1,8 @@
+//! # BlockNode
+//!
+//! `blocknode` is the module providing the type used to represent a node in the `BlockGraph`.
+//! A `BlockNode` references a `Block`.
+
 use base::Result;
 use base::Checkable;
 use base::Datable;
@@ -6,23 +11,30 @@ use base::{Sizable, FixedSize};
 use crypto::Hashable;
 use models::Meta;
 
+/// Type used to represent a node in the `BlockGraph` and that references a `Block`.
 #[derive(Clone, PartialEq, Eq, PartialOrd, Ord, Debug, Default, Hash, Serialize, Deserialize)]
 pub struct BlockNode<D>
     where   D: Datable + FixedSize
 {
+    /// BlockNode id. It is the digest of the same coin, but with a default `D` id.
     pub id: D,
+    /// BlockNode metadata.
     pub meta: Meta,
+    /// BBlockNode's block's id.
     pub block_id: D,
+    /// BlockNode's Block's height.
     pub block_height: u64
 }
 
 impl<D> BlockNode<D>
     where   D: Datable + FixedSize
 {
+    /// Creates a new `BlockNode`.
     pub fn new() -> BlockNode<D> {
         BlockNode::default()
     }
 
+    /// Sets the `BlockNode`'s metadata.
     pub fn meta(mut self, meta: &Meta) -> Result<BlockNode<D>> {
         meta.check()?;
         self.meta = meta.clone();
@@ -30,6 +42,7 @@ impl<D> BlockNode<D>
         Ok(self)
     }
 
+    /// Sets the `BlockNode`'s block data (block_id, block_height).
     pub fn block_data(mut self, block_id: &D, block_height: u64)
         -> Result<BlockNode<D>>
     {
@@ -42,6 +55,7 @@ impl<D> BlockNode<D>
         Ok(self)
     }
 
+    /// Finalizes the `BlockNode`, building its id and returning it's complete form.
     pub fn finalize<HP: Datable>(mut self, params: &HP, cb: &Fn(&Self, &HP) -> Result<D>)
         -> Result<BlockNode<D>>
     {
@@ -54,6 +68,7 @@ impl<D> BlockNode<D>
         Ok(self)
     }
 
+    /// Hashes cryptographically the `BlockNode`.
     pub fn digest<HP: Datable>(&self, params: &HP, cb: &Fn(&Self, &HP) -> Result<D>)
         -> Result<D>
     {
@@ -62,6 +77,7 @@ impl<D> BlockNode<D>
         self.digest_cb(params, cb)
     }
 
+    /// Verifies the cryptographic digest against the `BlockNode`'s digest.
     pub fn verify_digest<HP: Datable>(&self,
                                       params: &HP,
                                       digest: &D,
@@ -74,6 +90,7 @@ impl<D> BlockNode<D>
         self.verify_digest_cb(params, digest, cb)
     }
 
+    /// Checks the cryptographic digest against the `BlockNode`'s digest.
     pub fn check_digest<HP: Datable>(&self,
                                      params: &HP,
                                      digest: &D,

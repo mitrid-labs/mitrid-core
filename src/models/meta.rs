@@ -1,3 +1,7 @@
+//! # Meta
+//!
+//! `meta` is the module providing the type defining the distributed ledger types metadata.
+
 use base::Result;
 use base::Sizable;
 use base::Checkable;
@@ -6,6 +10,7 @@ use base::Serializable;
 use utils::Version;
 use models::Stage;
 
+/// Type used to convey the distributed ledger models metadata.
 #[derive(Clone, PartialEq, Eq, PartialOrd, Ord, Debug, Default, Hash, Serialize, Deserialize)]
 pub struct Meta {
     pub name: String,
@@ -16,6 +21,7 @@ pub struct Meta {
 }
 
 impl Meta {
+    /// Creates a new `Meta`.
     pub fn new(name: String,
                chain: String,
                version: Version,

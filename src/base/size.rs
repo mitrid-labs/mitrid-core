@@ -1,20 +1,30 @@
+//! # Size
+//!
+//! `size` is the module providing the traits implemented by types that can be sized.
+
 use base::result::Result;
 
+/// Trait implemented by types that have a size.
 pub trait Sizable {
+    /// Returns the size of the implementor.
     fn size(&self) -> u64;
 }
 
+/// Trait implemented by types that have a variable size.
 pub trait VariableSize:
     where   Self: Sizable
 {
+    /// Returns the minimum size of the implementor.
     fn min_size() -> u64 {
         0
     }
 
+    /// Returns the maximum size of the implementor, if any.
     fn max_size() -> Option<u64> {
         None
     }
 
+    /// Check the size of the implementor.
     fn check_size(&self) -> Result<()> {
         if self.size() < Self::min_size() {
             return Err(String::from("size under the minimum size"))
@@ -30,11 +40,14 @@ pub trait VariableSize:
     }
 }
 
+/// Trait implemented by types that have a fixed size.
 pub trait FixedSize:
     where   Self: Sizable
 {
+    /// Returns the size required by the implementor.
     fn required_size() -> u64;
 
+    /// Check the size of the implementor.
     fn check_size(&self) -> Result<()> {
         if self.size() != Self::required_size() {
             return Err(String::from("size different from the required size"))

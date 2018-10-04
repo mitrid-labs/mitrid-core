@@ -1,3 +1,9 @@
+//! # Block
+//!
+//! `block` is the module providing the type used to represent the (non-cryptographical) commitment
+//! to one or more `Transaction`s in the `BlockGraph`. Put differently, a `Block` is a bundle of
+//! transactions confirmed by one or more nodes.
+
 use base::Result;
 use base::Checkable;
 use base::Datable;
@@ -10,6 +16,7 @@ use models::Meta;
 use models::Transaction;
 use models::BlockNode;
 
+/// Type used to represent a bundle of confirmed `Transaction`s.
 #[derive(Clone, PartialEq, Eq, PartialOrd, Ord, Debug, Default, Hash, Serialize, Deserialize)]
 pub struct Block<D, A, IP, Pk, Sig, OP, TP, P, Pr>
     where   D: Datable + FixedSize,
@@ -22,14 +29,23 @@ pub struct Block<D, A, IP, Pk, Sig, OP, TP, P, Pr>
             P: Datable,
             Pr: Datable
 {
+    /// Block id. It is the digest of the same coin, but with a default `D` id.
     pub id: D,
+    /// Block metadata.
     pub meta: Meta,
+    /// Block's height.
     pub height: u64,
+    /// Previous blocks length.
     pub prev_blocks_len: u64,
+    /// Previous blocks.
     pub prev_blocks: Vec<BlockNode<D>>,
+    /// Block's transactions length.
     pub transactions_len: u64,
+    /// Block's transactions.
     pub transactions: Vec<Transaction<D, A, IP, Pk, Sig, OP, TP>>,
+    /// Custom payload.
     pub payload: P,
+    /// Proof of the block.
     pub proof: Pr,
 }
 
@@ -44,10 +60,12 @@ impl<D, A, IP, Pk, Sig, OP, TP, P, Pr> Block<D, A, IP, Pk, Sig, OP, TP, P, Pr>
             P: Datable,
             Pr: Datable
 {
+    /// Creates a new `Block`.
     pub fn new() -> Block<D, A, IP, Pk, Sig, OP, TP, P, Pr> {
         Block::default()
     }
 
+    /// Sets the `Block`'s metadata.
     pub fn meta(mut self, meta: &Meta) -> Result<Block<D, A, IP, Pk, Sig, OP, TP, P, Pr>> {
         meta.check()?;
         self.meta = meta.clone();
@@ -55,6 +73,7 @@ impl<D, A, IP, Pk, Sig, OP, TP, P, Pr> Block<D, A, IP, Pk, Sig, OP, TP, P, Pr>
         Ok(self)
     }
 
+    /// Sets the `Block`s set of previous blocks and its lenght.
     pub fn prev_blocks(mut self, prev_blocks: &Vec<BlockNode<D>>)
         -> Result<Block<D, A, IP, Pk, Sig, OP, TP, P, Pr>>
     {
@@ -75,6 +94,7 @@ impl<D, A, IP, Pk, Sig, OP, TP, P, Pr> Block<D, A, IP, Pk, Sig, OP, TP, P, Pr>
         Ok(self)
     }
 
+    /// Sets the `Block`s set of transactions and its lenght.
     pub fn transactions(mut self, transactions: &Vec<Transaction<D, A, IP, Pk, Sig, OP, TP>>)
         -> Result<Block<D, A, IP, Pk, Sig, OP, TP, P, Pr>>
     {
@@ -86,6 +106,7 @@ impl<D, A, IP, Pk, Sig, OP, TP, P, Pr> Block<D, A, IP, Pk, Sig, OP, TP, P, Pr>
         Ok(self)
     }
 
+    /// Sets the `Block`'s custom payload.
     pub fn payload(mut self, payload: &P) -> Result<Block<D, A, IP, Pk, Sig, OP, TP, P, Pr>> {
         payload.check()?;
 
@@ -94,6 +115,7 @@ impl<D, A, IP, Pk, Sig, OP, TP, P, Pr> Block<D, A, IP, Pk, Sig, OP, TP, P, Pr>
         Ok(self)
     }
 
+    /// Proves cryptographically the `Block`.
     pub fn prove<PrP: Datable>(mut self, params: &PrP, cb: &Fn(&Self, &PrP) -> Result<Pr>)
         -> Result<Block<D, A, IP, Pk, Sig, OP, TP, P, Pr>>
     {
@@ -104,6 +126,7 @@ impl<D, A, IP, Pk, Sig, OP, TP, P, Pr> Block<D, A, IP, Pk, Sig, OP, TP, P, Pr>
         Ok(self)
     }
 
+    /// Verifies the cryptographic proof against the `Block`.
     pub fn verify_proof<PrP: Datable>(&self,
                                       params: &PrP,
                                       proof: &Pr,
@@ -116,6 +139,7 @@ impl<D, A, IP, Pk, Sig, OP, TP, P, Pr> Block<D, A, IP, Pk, Sig, OP, TP, P, Pr>
         self.verify_proof_cb(params, proof, cb)
     }
 
+    /// Checks the cryptographic proof against the `Block`.
     pub fn check_proof<PrP: Datable>(&self,
                                      params: &PrP,
                                      proof: &Pr,
@@ -128,6 +152,7 @@ impl<D, A, IP, Pk, Sig, OP, TP, P, Pr> Block<D, A, IP, Pk, Sig, OP, TP, P, Pr>
         self.check_proof_cb(params, proof, cb)
     }
 
+    /// Finalizes the `Block`, building its id and returning it's complete form.
     pub fn finalize<HP: Datable>(mut self, params: &HP, cb: &Fn(&Self, &HP) -> Result<D>)
         -> Result<Block<D, A, IP, Pk, Sig, OP, TP, P, Pr>>
     {
@@ -140,6 +165,7 @@ impl<D, A, IP, Pk, Sig, OP, TP, P, Pr> Block<D, A, IP, Pk, Sig, OP, TP, P, Pr>
         Ok(self)
     }
 
+    /// Hashes cryptographically the `Block`.
     pub fn digest<HP: Datable>(&self, params: &HP, cb: &Fn(&Self, &HP) -> Result<D>)
         -> Result<D>
     {
@@ -148,6 +174,7 @@ impl<D, A, IP, Pk, Sig, OP, TP, P, Pr> Block<D, A, IP, Pk, Sig, OP, TP, P, Pr>
         self.digest_cb(params, cb)
     }
 
+    /// Verifies the cryptographic digest against the `Block`'s digest.
     pub fn verify_digest<HP: Datable>(&self,
                                       params: &HP,
                                       digest: &D,
@@ -160,6 +187,7 @@ impl<D, A, IP, Pk, Sig, OP, TP, P, Pr> Block<D, A, IP, Pk, Sig, OP, TP, P, Pr>
         self.verify_digest_cb(params, digest, cb)
     }
 
+   /// Checks the cryptographic digest against the `Block`'s digest.
     pub fn check_digest<HP: Datable>(&self,
                                      params: &HP,
                                      digest: &D,
@@ -172,6 +200,7 @@ impl<D, A, IP, Pk, Sig, OP, TP, P, Pr> Block<D, A, IP, Pk, Sig, OP, TP, P, Pr>
         self.check_digest_cb(params, digest, cb)
     }
 
+    /// Evals the `Block`.
     pub fn eval<EP, R>(&self, params: &EP, cb: &Fn(&Self, &EP) -> Result<R>)
         -> Result<R>
         where   EP: Datable,

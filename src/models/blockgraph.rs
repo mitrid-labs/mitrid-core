@@ -1,3 +1,11 @@
+//! # BlockGraph
+//!
+//! `blockgraph` is the module providing the type used to represent a graph of authenticated `Block`s.
+//! Nodes are `Blocknode`s and edges the links between them, which are specified in the `Block`s
+//! referenced by the graph `BlockNode`s.
+//! An authenticated graph allows to represent different authenticated data structures
+//! (linked lists, trees, sets, etc), so it is a natural choice to keep the framework generic.
+
 use base::Result;
 use base::Checkable;
 use base::Datable;
@@ -8,17 +16,26 @@ use crypto::Hashable;
 use models::Meta;
 use models::BlockNode;
 
+/// Type representing a graph of `BlockNodes`. It just expose the graph frontier, from which
+/// one can span the entire graph after following the `BlockNode`s' `Block`s `prev_block_id` links.
 #[derive(Clone, PartialEq, Eq, PartialOrd, Ord, Debug, Default, Hash, Serialize, Deserialize)]
 pub struct BlockGraph<D, P>
     where   D: Datable + FixedSize,
             P: Datable
 {
+    /// BlockGraph id. It is the digest of the same blockgraph, but with a default `D` id.
     pub id: D,
+    /// BlockGraph metadata.
     pub meta: Meta,
+    /// Blockgraph tip's or frontier's height.
     pub height: u64,
+    /// BlockGraph's frontier tip, if any.
     pub tip: Option<BlockNode<D>>,
+    /// BlockGraph's frontier length.
     pub frontier_len: u64,
+    /// BlockGraph's frontier.
     pub frontier: Vec<BlockNode<D>>,
+    /// Custom payload.
     pub payload: P,
 }
 
@@ -26,10 +43,12 @@ impl<D, P> BlockGraph<D, P>
     where   D: Datable + FixedSize,
             P: Datable
 {
+    /// Creates a new `BlockGraph`.
     pub fn new() -> BlockGraph<D, P> {
         BlockGraph::default()
     }
 
+    /// Sets the `BlockGraph`'s metadata.
     pub fn meta(mut self, meta: &Meta) -> Result<BlockGraph<D, P>> {
         meta.check()?;
         self.meta = meta.clone();
@@ -37,6 +56,7 @@ impl<D, P> BlockGraph<D, P>
         Ok(self)
     }
 
+    /// Sets the `BlockGraph`s frontier and its height and lenght.
     pub fn frontier(mut self, tip_idx: Option<u64>, frontier: &Vec<BlockNode<D>>)
         -> Result<BlockGraph<D, P>>
     {
@@ -68,6 +88,7 @@ impl<D, P> BlockGraph<D, P>
         Ok(self)
     }
 
+    /// Sets the `BlockGraph`'s custom payload.
     pub fn payload(mut self, payload: &P) -> Result<BlockGraph<D, P>> {
         payload.check()?;
 
@@ -76,6 +97,7 @@ impl<D, P> BlockGraph<D, P>
         Ok(self)
     }
 
+    /// Finalizes the `BlockGraph`, building its id and returning it's complete form.
     pub fn finalize<HP: Datable>(mut self, params: &HP, cb: &Fn(&Self, &HP) -> Result<D>)
         -> Result<BlockGraph<D, P>>
     {
@@ -88,6 +110,7 @@ impl<D, P> BlockGraph<D, P>
         Ok(self)
     }
 
+    /// Hashes cryptographically the `BlockGraph`.
     pub fn digest<HP: Datable>(&self, params: &HP, cb: &Fn(&Self, &HP) -> Result<D>)
         -> Result<D>
     {
@@ -96,6 +119,7 @@ impl<D, P> BlockGraph<D, P>
         self.digest_cb(params, cb)
     }
 
+    /// Verifies the cryptographic digest against the `BlockGraph`'s digest.
     pub fn verify_digest<HP: Datable>(&self,
                                       params: &HP,
                                       digest: &D,
@@ -108,6 +132,7 @@ impl<D, P> BlockGraph<D, P>
         self.verify_digest_cb(params, digest, cb)
     }
 
+    /// Checks the cryptographic digest against the `BlockGraph`'s digest.
     pub fn check_digest<HP: Datable>(&self,
                                      params: &HP,
                                      digest: &D,
@@ -120,6 +145,7 @@ impl<D, P> BlockGraph<D, P>
         self.check_digest_cb(params, digest, cb)
     }
 
+    /// Evals the `BlockGraph`.
     pub fn eval<EP, R>(&self, params: &EP, cb: &Fn(&Self, &EP) -> Result<R>)
         -> Result<R>
         where   EP: Datable,

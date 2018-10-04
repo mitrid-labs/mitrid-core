@@ -1,11 +1,34 @@
+//! # Models
+//!
+//! `models` is the module providing the types used throughout the framework to implement
+//! block-based authenticated data structures and distributed ledgers.
+
+/// Type used to define the distributed ledger stage.
 pub mod stage;
+
+/// Type used to convey the distributed ledger metadata.
 pub mod meta;
+
+/// Type used to represent a past `Transaction` `Output`.
 pub mod coin;
+
+/// Type used to bind as input one or more (generally one) `Coin` in a `Transaction`.
 pub mod input;
+
+/// Type used to represent the output of a `Transaction`.
 pub mod output;
+
+/// Type used to produce new `Output`s from one or more input `Coin`s.
 pub mod transaction;
+
+/// Type used to represent a node in the `BlockGraph`.
 pub mod blocknode;
+
+/// Type used to represent the (non-cryptographical) commitment to one or more `Transaction`s
+/// in the `BlockGraph`.
 pub mod block;
+
+/// Type used to represent a graph of authenticated `Block`s, represented as `BlockNode`s.
 pub mod blockgraph;
 
 pub use self::stage::Stage;

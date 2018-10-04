@@ -1,3 +1,7 @@
+//! # Output
+//!
+//! `output` is the module providing the type used to represent the output of a `Transaction`.
+
 use base::Result;
 use base::Checkable;
 use base::Datable;
@@ -8,6 +12,7 @@ use base::Evaluable;
 use crypto::Hashable;
 use models::Meta;
 
+/// Type representing the output of a `Transaction`.
 #[derive(Clone, PartialEq, Eq, PartialOrd, Ord, Debug, Default, Hash, Serialize, Deserialize)]
 pub struct Output<D, Pk, A, P>
     where   D: Datable + FixedSize,
@@ -15,11 +20,17 @@ pub struct Output<D, Pk, A, P>
             A: Numerical,
             P: Datable
 {
+    /// Output id. It is the digest of the same coin, but with a default `D` id.
     pub id: D,
+    /// Output metadata.
     pub meta: Meta,
+    /// Output sender.
     pub sender: Pk,
+    /// Output receiver.
     pub receiver: Pk,
+    /// Output amount.
     pub amount: A,
+    /// Custom payload.
     pub payload: P,
 }
 
@@ -29,10 +40,12 @@ impl<D, Pk, A, P> Output<D, Pk, A, P>
             A: Numerical,
             P: Datable
 {
+    /// Creates a new `Output`.
     pub fn new() -> Output<D, Pk, A, P> {
         Output::default()
     }
 
+    /// Sets the `Output`'s metadata.
     pub fn meta(mut self, meta: &Meta) -> Result<Output<D, Pk, A, P>> {
         meta.check()?;
         self.meta = meta.clone();
@@ -40,6 +53,7 @@ impl<D, Pk, A, P> Output<D, Pk, A, P>
         Ok(self)
     }
 
+    /// Sets the `Output`'s sender.
     pub fn sender(mut self, sender: &Pk) -> Result<Output<D, Pk, A, P>> {
         sender.check()?;
         self.sender = sender.clone();
@@ -47,6 +61,7 @@ impl<D, Pk, A, P> Output<D, Pk, A, P>
         Ok(self)
     }
 
+    /// Sets the `Output`'s receiver.
     pub fn receiver(mut self, receiver: &Pk) -> Result<Output<D, Pk, A, P>> {
         receiver.check()?;
         self.receiver = receiver.clone();
@@ -54,6 +69,7 @@ impl<D, Pk, A, P> Output<D, Pk, A, P>
         Ok(self)
     }
 
+    /// Sets the `Output`'s amount.
     pub fn amount(mut self, amount: &A) -> Result<Output<D, Pk, A, P>> {
         amount.check()?;
         self.amount = amount.clone();
@@ -61,6 +77,7 @@ impl<D, Pk, A, P> Output<D, Pk, A, P>
         Ok(self)
     }
 
+    /// Sets the `Output`'s custom payload.
     pub fn payload(mut self, payload: &P) -> Result<Output<D, Pk, A, P>> {
         payload.check()?;
 
@@ -69,6 +86,7 @@ impl<D, Pk, A, P> Output<D, Pk, A, P>
         Ok(self)
     }
 
+    /// Finalizes the `Output`, building its id and returning it's complete form.
     pub fn finalize<HP: Datable>(mut self, params: &HP, cb: &Fn(&Self, &HP) -> Result<D>)
         -> Result<Output<D, Pk, A, P>>
     {
@@ -81,6 +99,7 @@ impl<D, Pk, A, P> Output<D, Pk, A, P>
         Ok(self)
     }
 
+    /// Hashes cryptographically the `Output`.
     pub fn digest<HP: Datable>(&self, params: &HP, cb: &Fn(&Self, &HP) -> Result<D>)
         -> Result<D>
     {
@@ -89,6 +108,7 @@ impl<D, Pk, A, P> Output<D, Pk, A, P>
         self.digest_cb(params, cb)
     }
 
+    /// Verifies the cryptographic digest against the `Output`'s digest.
     pub fn verify_digest<HP: Datable>(&self,
                                       params: &HP,
                                       digest: &D,
@@ -101,6 +121,7 @@ impl<D, Pk, A, P> Output<D, Pk, A, P>
         self.verify_digest_cb(params, digest, cb)
     }
 
+    /// Checks the cryptographic digest against the `Output`'s digest.
     pub fn check_digest<HP: Datable>(&self,
                                      params: &HP,
                                      digest: &D,
@@ -113,6 +134,7 @@ impl<D, Pk, A, P> Output<D, Pk, A, P>
         self.check_digest_cb(params, digest, cb)
     }
 
+    /// Evals the `Output`.
     pub fn eval<EP, R>(&self, params: &EP, cb: &Fn(&Self, &EP) -> Result<R>)
         -> Result<R>
         where   EP: Datable,

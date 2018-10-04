@@ -1,3 +1,7 @@
+//! # Transaction
+//!
+//! `transaction` is the module providing the type used to produce new `Output`s from one or more input `Coin`s.
+
 use base::Result;
 use base::Checkable;
 use base::Datable;
@@ -10,6 +14,7 @@ use models::Meta;
 use models::Input;
 use models::Output;
 
+/// Type used to produce one or more `Output`s from one or more `Input`s.
 #[derive(Clone, PartialEq, Eq, PartialOrd, Ord, Debug, Default, Hash, Serialize, Deserialize)]
 pub struct Transaction<D, A, IP, Pk, Sig, OP, P>
     where   D: Datable + FixedSize,
@@ -20,12 +25,19 @@ pub struct Transaction<D, A, IP, Pk, Sig, OP, P>
             OP: Datable,
             P: Datable
 {
+    /// Transaction id. It is the digest of the same coin, but with a default `D` id.
     pub id: D,
+    /// Transaction metadata.
     pub meta: Meta,
+    /// Transaction inputs length.
     pub inputs_len: u64,
+    /// Transaction inputs.
     pub inputs: Vec<Input<D, A, IP, Pk, Sig>>,
+    /// Transaction outputs length.
     pub outputs_len: u64,
+    /// Transaction outputs.
     pub outputs: Vec<Output<D, Pk, A, OP>>,
+    /// Custom payload.
     pub payload: P,
 }
 
@@ -38,10 +50,12 @@ impl<D, A, IP, Pk, Sig, OP, P> Transaction<D, A, IP, Pk, Sig, OP, P>
             OP: Datable,
             P: Datable
 {
+    /// Creates a new `Transaction`.
     pub fn new() -> Transaction<D, A, IP, Pk, Sig, OP, P> {
         Transaction::default()
     }
 
+    /// Sets the `Transaction`'s metadata.
     pub fn meta(mut self, meta: &Meta) -> Result<Transaction<D, A, IP, Pk, Sig, OP, P>> {
         meta.check()?;
         self.meta = meta.clone();
@@ -49,6 +63,7 @@ impl<D, A, IP, Pk, Sig, OP, P> Transaction<D, A, IP, Pk, Sig, OP, P>
         Ok(self)
     }
 
+    /// Sets the `Transaction`s set of inputs and its lenght.
     pub fn inputs(mut self, inputs: &Vec<Input<D, A, IP, Pk, Sig>>,)
         -> Result<Transaction<D, A, IP, Pk, Sig, OP, P>>
     {
@@ -60,6 +75,7 @@ impl<D, A, IP, Pk, Sig, OP, P> Transaction<D, A, IP, Pk, Sig, OP, P>
         Ok(self)
     }
 
+    /// Sets the `Transaction`s set of outputs and its lenght.
     pub fn outputs(mut self, outputs: &Vec<Output<D, Pk, A, OP>>,)
         -> Result<Transaction<D, A, IP, Pk, Sig, OP, P>>
     {
@@ -71,6 +87,7 @@ impl<D, A, IP, Pk, Sig, OP, P> Transaction<D, A, IP, Pk, Sig, OP, P>
         Ok(self)
     }
 
+    /// Sets the `Transaction`'s custom payload.
     pub fn payload(mut self, payload: &P) -> Result<Transaction<D, A, IP, Pk, Sig, OP, P>> {
         payload.check()?;
 
@@ -79,6 +96,7 @@ impl<D, A, IP, Pk, Sig, OP, P> Transaction<D, A, IP, Pk, Sig, OP, P>
         Ok(self)
     }
 
+    /// Finalizes the `Transaction`, building its id and returning it's complete form.
     pub fn finalize<HP: Datable>(mut self, params: &HP, cb: &Fn(&Self, &HP) -> Result<D>)
         -> Result<Transaction<D, A, IP, Pk, Sig, OP, P>>
     {
@@ -91,6 +109,7 @@ impl<D, A, IP, Pk, Sig, OP, P> Transaction<D, A, IP, Pk, Sig, OP, P>
         Ok(self)
     }
 
+    /// Hashes cryptographically the `Transaction`.
     pub fn digest<HP: Datable>(&self, params: &HP, cb: &Fn(&Self, &HP) -> Result<D>)
         -> Result<D>
     {
@@ -99,6 +118,7 @@ impl<D, A, IP, Pk, Sig, OP, P> Transaction<D, A, IP, Pk, Sig, OP, P>
         self.digest_cb(params, cb)
     }
 
+    /// Verifies the cryptographic digest against the `Transaction`'s digest.
     pub fn verify_digest<HP: Datable>(&self,
                                       params: &HP,
                                       digest: &D,
@@ -111,6 +131,7 @@ impl<D, A, IP, Pk, Sig, OP, P> Transaction<D, A, IP, Pk, Sig, OP, P>
         self.verify_digest_cb(params, digest, cb)
     }
 
+    /// Checks the cryptographic digest against the `Transaction`'s digest.
     pub fn check_digest<HP: Datable>(&self,
                                      params: &HP,
                                      digest: &D,
@@ -123,6 +144,7 @@ impl<D, A, IP, Pk, Sig, OP, P> Transaction<D, A, IP, Pk, Sig, OP, P>
         self.check_digest_cb(params, digest, cb)
     }
 
+    /// Evals the `Transaction`.
     pub fn eval<EP, R>(&self, params: &EP, cb: &Fn(&Self, &EP) -> Result<R>)
         -> Result<R>
         where   EP: Datable,

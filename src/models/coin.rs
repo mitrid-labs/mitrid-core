@@ -1,3 +1,8 @@
+//! # Coin
+//!
+//! `coin` is the module providing the `Coin` type, an `Output` already registered or sent to the
+//! distributed ledger, or just past in time.
+
 use base::Result;
 use base::Checkable;
 use base::Datable;
@@ -7,15 +12,21 @@ use base::Numerical;
 use crypto::Hashable;
 use models::Meta;
 
+/// Type used to represent a past `Output`.
 #[derive(Clone, PartialEq, Eq, PartialOrd, Ord, Debug, Default, Hash, Serialize, Deserialize)]
 pub struct Coin<D, A>
     where   D: Datable + FixedSize,
             A: Numerical
 {
+    /// Coin id. It is the digest of the same coin, but with a default `D` id.
     pub id: D,
+    /// Coin metadata.
     pub meta: Meta,
+    /// Coin's `Output` `Transaction`'s id.
     pub tx_id: D,
+    /// Coin`'s `Output` index in the `Transaction`'s outputs field.
     pub out_idx: u64,
+    /// Coin`'s `Output` amount.
     pub out_amount: A,
 }
 
@@ -23,10 +34,12 @@ impl<D, A> Coin<D, A>
     where   D: Datable + FixedSize,
             A: Numerical
 {
+    /// Creates a new `Coin`.
     pub fn new() -> Coin<D, A> {
         Coin::default()
     }
 
+    /// Sets the `Coin`'s metadata.
     pub fn meta(mut self, meta: &Meta) -> Result<Coin<D, A>> {
         meta.check()?;
         self.meta = meta.clone();
@@ -34,6 +47,7 @@ impl<D, A> Coin<D, A>
         Ok(self)
     }
 
+    /// Sets the `Coin`'s output data (tx_id, out_idx, out_amount).
     pub fn output_data(mut self, tx_id: &D, out_idx: u64, out_amount: &A)
         -> Result<Coin<D, A>>
     {
@@ -48,6 +62,7 @@ impl<D, A> Coin<D, A>
         Ok(self)
     }
 
+    /// Finalizes the `Coin`, building its id and returning it's complete form.
     pub fn finalize<HP: Datable>(mut self, params: &HP, cb: &Fn(&Self, &HP) -> Result<D>)
         -> Result<Coin<D, A>>
     {
@@ -60,6 +75,7 @@ impl<D, A> Coin<D, A>
         Ok(self)
     }
 
+    /// Hashes cryptographically the `Coin`.
     pub fn digest<HP: Datable>(&self, params: &HP, cb: &Fn(&Self, &HP) -> Result<D>)
         -> Result<D>
     {
@@ -68,6 +84,7 @@ impl<D, A> Coin<D, A>
         self.digest_cb(params, cb)
     }
 
+    /// Verifies the cryptographic digest against the `Coin`'s digest.
     pub fn verify_digest<HP: Datable>(&self,
                                       params: &HP,
                                       digest: &D,
@@ -80,6 +97,7 @@ impl<D, A> Coin<D, A>
         self.verify_digest_cb(params, digest, cb)
     }
 
+    /// Checks the cryptographic digest against the `Coin`'s digest.
     pub fn check_digest<HP: Datable>(&self,
                                      params: &HP,
                                      digest: &D,

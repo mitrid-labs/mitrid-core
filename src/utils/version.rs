@@ -1,3 +1,7 @@
+//! # Version
+//!
+//! `version` is the module providing the Semver version type and constants.
+
 use std::cmp::Ordering;
 use std::fmt;
 
@@ -8,23 +12,38 @@ use base::Datable;
 use base::Serializable;
 use utils::regex;
 
+/// Current Semver version of the library.
 pub const VERSION: &str = "0.1.0";
 
+/// Regex pattern of a numeric version.
 pub const NUMERIC_VERSION: &str = "^[0-9]*$";
+
+/// Regex pattern of a prerelease version.
 pub const PRERELEASE_VERSION: &str = "^[A-Za-z-]*$";
+
+/// Regex pattern of a buildmeta version.
 pub const BUILDMETA_VERSION: &str = "^[0-9A-Za-z-]*$";
+
+/// Regex pattern of a Semver version.
 pub const SEMVER_VERSION: &str = "^(?P<major>[0-9]*).(?P<minor>[0-9]*).(?P<patch>[0-9]*)(-(?P<prerelease>[A-Za-z-]+))?(\\+(?P<buildmeta>[0-9A-Za-z-]+))?$";
 
+/// Type used to represent a Semver version.
 #[derive(Clone, Debug, Hash, Serialize, Deserialize)]
 pub struct Version {
+    /// Semver version major. Used for API breaking changes.
     pub major: u32,
+    /// Semver version minor. Used for backward-compatible API changes.
     pub minor: u32,
+    /// Semver version patch. Used for changes not affecting the API.
     pub patch: u32,
+    /// Semver version prerelease. Used in prereleases. Optional.
     pub prerelease: String,
+    /// Semver version buildmeta. Build information. Optional.
     pub buildmeta: String,
 }
 
 impl Version {
+    /// Creates a new Semver version.
     pub fn new(major: u32, minor: u32, patch: u32, pre: &str, build: &str)
         -> Result<Version> {
 
@@ -39,6 +58,7 @@ impl Version {
         Ok(ver)
     }
 
+    /// Check a Semver numeric version (major, minor or patch).
     pub fn check_numeric(num: &str) -> Result<()> {
         if regex::is_match(NUMERIC_VERSION, num).unwrap() {
             Ok(())
@@ -47,6 +67,7 @@ impl Version {
         }
     }
 
+    /// Check a Semver prerelease version.
     pub fn check_prerelease(pre: &str) -> Result<()> {
         if regex::is_match(PRERELEASE_VERSION, pre).unwrap() {
             Ok(())
@@ -55,6 +76,7 @@ impl Version {
         }
     }
 
+    /// Check a buildmeta prerelease version.
     pub fn check_buildmeta(build: &str) -> Result<()> {
         if regex::is_match(BUILDMETA_VERSION, build).unwrap() {
             Ok(())
@@ -63,6 +85,7 @@ impl Version {
         }
     }
 
+    /// Check a semver version.
     pub fn check_semver(sv: &str) -> Result<()> {
         if regex::is_match(SEMVER_VERSION, sv).unwrap() {
             Ok(())
@@ -71,6 +94,7 @@ impl Version {
         }
     }
 
+    /// Parse a string as a `Version`.
     pub fn parse(s: &str) -> Result<Version> {
         let matches = regex::captures(SEMVER_VERSION, s)?;
 
@@ -96,6 +120,7 @@ impl Version {
         Ok(ver)
     }
 
+    /// Stringify the `Version`.
     pub fn to_string(&self) -> String {
         let mut res = String::new();
 
@@ -158,6 +183,7 @@ impl Version {
         Self::compare_prerelease(&self.prerelease, &other.prerelease)
     }
 
+    /// Returns if this `Version` is compatible to an other.
     pub fn is_compatible(&self, other: &Version) -> Result<bool> {
         self.check()?;
         other.check()?;

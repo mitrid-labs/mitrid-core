@@ -1,3 +1,8 @@
+//! # Stage
+//!
+//! `stage` is the module providing the type describing the distributed ledger stage (development,
+//! testing or production).
+
 use std::fmt;
 
 use base::Result;
@@ -6,6 +11,7 @@ use base::Sizable;
 use base::Datable;
 use base::Serializable;
 
+/// Enum representing the distributed ledger stage (development, testing or production).
 #[derive(Copy, Clone, PartialEq, Eq, PartialOrd, Ord, Debug, Hash, Serialize, Deserialize)]
 #[repr(u8)]
 pub enum Stage {
@@ -15,6 +21,7 @@ pub enum Stage {
 }
 
 impl Stage {
+    /// Parses a `Stage` from a string.
     pub fn parse(s: &str) -> Result<Stage> {
         match s {
             "development" => Ok(Stage::Development),

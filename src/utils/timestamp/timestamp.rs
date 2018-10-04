@@ -1,3 +1,7 @@
+//! # Timestamp
+//!
+//! `timestamp` is the module providing the `Timestamp` type and methods.
+
 use std::time::{Duration, SystemTime, UNIX_EPOCH};
 use std::ops::{Add, AddAssign};
 use std::ops::{Mul, MulAssign};
@@ -10,31 +14,38 @@ use base::Datable;
 use base::Serializable;
 use utils::timestamp::TimestampDiff;
 
+/// Type representing a numerical timestamp. The 0 is set to the Unix Epoch Time, 01-01-1970.
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Debug, Hash, Serialize, Deserialize)]
 pub struct Timestamp(u64);
 
 impl Timestamp {
+    /// Creates a new timestamp.
     pub fn new(tmstmp: u64) -> Timestamp {
         Timestamp::from_u64(tmstmp)
     }
 
+    /// Creates a new timestamp from an `u64`.
     pub fn from_u64(tmsmp: u64) -> Timestamp {
         Timestamp(tmsmp)
     }
 
+    /// Creates a new timestamp from a `Duration` starting at the Unix Epoch Time (01-01-1970).
     pub fn from_unix_epoch_duration(dur: Duration) -> Timestamp {
         let tmstmp = dur.as_secs() * 1000 + (dur.subsec_millis() as u64);
         Timestamp(tmstmp)
     }
 
+    /// Creates a new timestamp from milliseconds.
     pub fn from_millis(millis: u64) -> Timestamp {
         Timestamp::from_u64(millis)
     }
 
+    /// Creates a new timestamp from seconds.
     pub fn from_secs(secs: u64) -> Timestamp {
         Timestamp::from_u64(secs * 1000)
     }
 
+    /// Converts the `Timestamp` to a `Duration`.
     pub fn as_duration(&self) -> Duration {
         let tmstmp = self.as_u64();
         let secs = tmstmp / 1000;
@@ -45,22 +56,27 @@ impl Timestamp {
         secs_dur + millis_dur
     }
 
+    /// Converts the `Timestamp` to a `TimestampDiff`.
     pub fn as_diff(&self) -> TimestampDiff {
         TimestampDiff::from_u64(self.0)
     }
 
+    /// Converts the `Timestamp` to `u64`.
     pub fn as_u64(&self) -> u64 {
         self.0
     }
 
+    /// Converts the `Timestamp` to milliseconds.
     pub fn as_millis(&self) -> u64 {
         self.as_u64()
     }
 
+    /// Converts the `Timestamp` to seconds.
     pub fn as_secs(&self) -> u64 {
         self.as_u64() / 1000
     }
 
+    /// Returns the current time timestamp.
     pub fn now() -> Result<Timestamp> {
         let dur = SystemTime::now().duration_since(UNIX_EPOCH)
                     .map_err(|e| format!("{}", e))?;

@@ -1,3 +1,8 @@
+//! # TimestampDiff
+//!
+//! `timestamp_diff` is the module providing the `TimestampDiff` type and methods. This type
+//! represents the difference between two `Timestamp`s.
+
 use std::time::Duration;
 use std::ops::{Add, AddAssign};
 use std::ops::{Sub, SubAssign};
@@ -10,47 +15,58 @@ use base::Checkable;
 use base::Datable;
 use base::Serializable;
 
+/// Type representing the difference between two `Timestamp`s.
 #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Debug, Default, Hash, Serialize, Deserialize)]
 pub struct TimestampDiff(i64);
 
 impl TimestampDiff {
+    /// Creates a new `TimestampDiff`.
     pub fn new(tmdiff: i64) -> TimestampDiff {
         TimestampDiff::from_i64(tmdiff)
     }
 
+    /// Creates a new `TimestampDiff` from `i64`.
     pub fn from_i64(tmdiff: i64) -> TimestampDiff {
         TimestampDiff(tmdiff)
     }
 
+    /// Creates a new `TimestampDiff` from `u64`.
     pub fn from_u64(tmdiff: u64) -> TimestampDiff {
         TimestampDiff(tmdiff as i64)
     }
 
+    /// Creates a new `TimestampDiff` from a `Duration`.
     pub fn from_duration(dur: Duration) -> TimestampDiff {
         let _diff = dur.as_secs() * 1000 + (dur.subsec_millis() as u64);
         TimestampDiff(_diff as i64)
     }
 
+    /// Creates a new `TimestampDiff` from milliseconds.
     pub fn from_millis(millis: u64) -> TimestampDiff {
         TimestampDiff::from_u64(millis)
     }
 
+    /// Creates a new `TimestampDiff` from seconds.
     pub fn from_secs(secs: u64) -> TimestampDiff {
         TimestampDiff::from_u64(secs * 1000)
     }
 
+    /// Converts the `TimestampDiff` to `i64`.
     pub fn as_i64(&self) -> i64 {
         self.0
     }
 
+    /// Converts the `TimestampDiff` to its absolute representation.
     pub fn abs(&self) -> u64 {
         self.0.abs() as u64
     }
 
+    /// Converts the `TimestampDiff` to `u64`.
     pub fn as_u64(&self) -> u64 {
         self.abs()
     }
  
+    /// Converts the `TimestampDiff` to a `Duration`.
     pub fn as_duration(&self) -> Duration {
         let abs = self.abs();
         let secs = abs / 1000;
@@ -61,14 +77,17 @@ impl TimestampDiff {
         secs_dur + millis_dur
     }
 
+    /// Converts the `TimestampDiff` to milliseconds.
     pub fn as_millis(&self) -> u64 {
         self.as_u64()
     }
 
+    /// Converts the `TimestampDiff` to seconds.
     pub fn as_secs(&self) -> u64 {
         self.as_u64() / 1000
     }
 
+    /// Returns the sign of the `TimestampDiff`.
     pub fn sign(&self) -> i64 {
         self.as_i64() / (self.abs() as i64)
     }

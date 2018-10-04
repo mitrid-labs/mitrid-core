@@ -1,3 +1,8 @@
+//! # Input
+//!
+//! `input` is the module providing the type used to bind as inputs one or more `Coin`s
+//! in a `Transaction`.
+
 use base::Result;
 use base::Checkable;
 use base::Datable;
@@ -9,6 +14,7 @@ use crypto::{Hashable, Signable};
 use models::Meta;
 use models::Coin;
 
+/// Type used to bind one or more `Coin`s to a `Transaction` as one of its inputs.
 #[derive(Clone, PartialEq, Eq, PartialOrd, Ord, Debug, Default, Hash, Serialize, Deserialize)]
 pub struct Input<D, A, P, Pk, Sig>
     where   D: Datable + FixedSize,
@@ -17,12 +23,19 @@ pub struct Input<D, A, P, Pk, Sig>
             Pk: Datable + FixedSize,
             Sig: Datable + FixedSize
 {
+    /// Input id. It is the digest of the same input, but with a default `D` id.
     pub id: D,
+    /// Input metadata.
     pub meta: Meta,
+    /// Bound coins length.
     pub coins_len: u64,
+    /// Bound coins.
     pub coins: Vec<Coin<D, A>>,
+    /// Custom payload.
     pub payload: P,
+    /// Signature public key.
     pub public_key: Pk,
+    /// Signature of the input with a default id.
     pub signature: Sig,
 }
 
@@ -33,10 +46,12 @@ impl<D, A, P, Pk, Sig> Input<D, A, P, Pk, Sig>
             Pk: Datable + FixedSize,
             Sig: Datable + FixedSize
 {
+    /// Creates a new `Input`.
     pub fn new() -> Input<D, A, P, Pk, Sig> {
         Input::default()
     }
 
+    /// Sets the `Input`'s metadata.
     pub fn meta(mut self, meta: &Meta) -> Result<Input<D, A, P, Pk, Sig>> {
         meta.check()?;
         self.meta = meta.clone();
@@ -44,6 +59,7 @@ impl<D, A, P, Pk, Sig> Input<D, A, P, Pk, Sig>
         Ok(self)
     }
 
+    /// Sets the `Input`s set of coins and its lenght.
     pub fn coins(mut self, coins: &Vec<Coin<D, A>>,) -> Result<Input<D, A, P, Pk, Sig>> {
         coins.check()?;
 
@@ -53,6 +69,7 @@ impl<D, A, P, Pk, Sig> Input<D, A, P, Pk, Sig>
         Ok(self)
     }
 
+    /// Sets the `Input`'s custom payload.
     pub fn payload(mut self, payload: &P) -> Result<Input<D, A, P, Pk, Sig>> {
         payload.check()?;
 
@@ -61,6 +78,7 @@ impl<D, A, P, Pk, Sig> Input<D, A, P, Pk, Sig>
         Ok(self)
     }
 
+    /// Signs cryptographically the `Input`.
     pub fn sign<SP, Sk>(mut self,
                         params: &SP,
                         sk: &Sk,
@@ -80,6 +98,7 @@ impl<D, A, P, Pk, Sig> Input<D, A, P, Pk, Sig>
         Ok(self)
     }
 
+    /// Verifies the cryptographic signature against the `Input`.
     pub fn verify_signature<SP, Sk>(&self,
                                     params: &SP,
                                     sig: &Sig,
@@ -96,6 +115,7 @@ impl<D, A, P, Pk, Sig> Input<D, A, P, Pk, Sig>
         Signable::<SP, Sk, Pk, Sig>::verify_signature_cb(self, params, sig, pk, cb)
     }
 
+    /// Checks the cryptographic signature against the `Input`.
     pub fn check_signature<SP, Sk>(&self,
                                    params: &SP,
                                    sig: &Sig,
@@ -112,6 +132,7 @@ impl<D, A, P, Pk, Sig> Input<D, A, P, Pk, Sig>
         Signable::<SP, Sk, Pk, Sig>::check_signature_cb(self, params, sig, pk, cb)
     }
 
+    /// Finalizes the `Input`, building its id and returning it's complete form.
     pub fn finalize<HP: Datable>(mut self, params: &HP, cb: &Fn(&Self, &HP) -> Result<D>)
         -> Result<Input<D, A, P, Pk, Sig>>
     {
@@ -124,6 +145,7 @@ impl<D, A, P, Pk, Sig> Input<D, A, P, Pk, Sig>
         Ok(self)
     }
 
+    /// Hashes cryptographically the `Input`.
     pub fn digest<HP: Datable>(&self, params: &HP, cb: &Fn(&Self, &HP) -> Result<D>)
         -> Result<D>
     {
@@ -132,6 +154,7 @@ impl<D, A, P, Pk, Sig> Input<D, A, P, Pk, Sig>
         self.digest_cb(params, cb)
     }
 
+    /// Verifies the cryptographic digest against the `Input`'s digest.
     pub fn verify_digest<HP: Datable>(&self,
                                       params: &HP,
                                       digest: &D,
@@ -144,6 +167,7 @@ impl<D, A, P, Pk, Sig> Input<D, A, P, Pk, Sig>
         self.verify_digest_cb(params, digest, cb)
     }
 
+    /// Checks the cryptographic digest against the `Input`'s digest.
     pub fn check_digest<HP: Datable>(&self,
                                      params: &HP,
                                      digest: &D,
@@ -156,6 +180,7 @@ impl<D, A, P, Pk, Sig> Input<D, A, P, Pk, Sig>
         self.check_digest_cb(params, digest, cb)
     }
 
+    /// Evals the `Input`.
     pub fn eval<EP, R>(&self, params: &EP, cb: &Fn(&Self, &EP) -> Result<R>)
         -> Result<R>
         where   EP: Datable,
