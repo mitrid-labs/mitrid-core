@@ -88,3 +88,38 @@ impl<T> Serializable for Option<T>
 impl<T> Serializable for Box<T>
     where   T: Serializable
 {}
+
+impl<A, B> Serializable for (A, B)
+    where   A: Serializable,
+            B: Serializable
+{}
+
+impl<A, B, C> Serializable for (A, B, C)
+    where   A: Serializable,
+            B: Serializable,
+            C: Serializable
+{}
+
+impl<A, B, C, D> Serializable for (A, B, C, D)
+    where   A: Serializable,
+            B: Serializable,
+            C: Serializable,
+            D: Serializable
+{}
+
+impl<A, B, C, D, E> Serializable for (A, B, C, D, E)
+    where   A: Serializable,
+            B: Serializable,
+            C: Serializable,
+            D: Serializable,
+            E: Serializable
+{}
+
+impl<A, B, C, D, E, F> Serializable for (A, B, C, D, E, F)
+    where   A: Serializable,
+            B: Serializable,
+            C: Serializable,
+            D: Serializable,
+            E: Serializable,
+            F: Serializable
+{}

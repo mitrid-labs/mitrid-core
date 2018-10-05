@@ -43,3 +43,38 @@ impl<T> Datable for Option<T>
 impl<T> Datable for Box<T>
     where   T: Datable
 {}
+
+impl<A, B> Datable for (A, B)
+    where   A: Datable,
+            B: Datable
+{}
+
+impl<A, B, C> Datable for (A, B, C)
+    where   A: Datable,
+            B: Datable,
+            C: Datable
+{}
+
+impl<A, B, C, D> Datable for (A, B, C, D)
+    where   A: Datable,
+            B: Datable,
+            C: Datable,
+            D: Datable
+{}
+
+impl<A, B, C, D, E> Datable for (A, B, C, D, E)
+    where   A: Datable,
+            B: Datable,
+            C: Datable,
+            D: Datable,
+            E: Datable
+{}
+
+impl<A, B, C, D, E, F> Datable for (A, B, C, D, E, F)
+    where   A: Datable,
+            B: Datable,
+            C: Datable,
+            D: Datable,
+            E: Datable,
+            F: Datable
+{}

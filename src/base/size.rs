@@ -6,7 +6,7 @@ use base::result::Result;
 
 /// Trait implemented by types that have a size.
 pub trait Sizable {
-    /// Returns the size of the implementor.
+    /// Results the size of the implementor.
     fn size(&self) -> u64;
 }
 
@@ -82,7 +82,7 @@ impl<T> Sizable for Vec<T>
     fn size(&self) -> u64 {
         let mut res = 0u64;
 
-        for el in self.clone() {
+        for ref el in self {
             res += el.size();
         }
 
@@ -94,8 +94,8 @@ impl<T> Sizable for Option<T>
     where   T: Sizable
 {
     fn size(&self) -> u64 {
-        if let Some(internal) = self.clone() {
-            internal.size()
+        if let Some(t) = self.clone() {
+            t.size()
         } else {
             0
         }
@@ -111,16 +111,86 @@ impl<T> Sizable for Box<T>
     }
 }
 
+impl<A, B> Sizable for (A, B)
+    where   A: Sizable,
+            B: Sizable
+{
+    fn size(&self) -> u64 {
+        self.0.size() +
+            self.1.size()
+    }
+}
+
+impl<A, B, C> Sizable for (A, B, C)
+    where   A: Sizable,
+            B: Sizable,
+            C: Sizable
+{
+    fn size(&self) -> u64 {
+        self.0.size() +
+            self.1.size() +
+            self.2.size()
+    }
+}
+
+impl<A, B, C, D> Sizable for (A, B, C, D)
+    where   A: Sizable,
+            B: Sizable,
+            C: Sizable,
+            D: Sizable
+{
+    fn size(&self) -> u64 {
+        self.0.size() +
+            self.1.size() +
+            self.2.size() +
+            self.3.size()
+    }
+}
+
+impl<A, B, C, D, E> Sizable for (A, B, C, D, E)
+    where   A: Sizable,
+            B: Sizable,
+            C: Sizable,
+            D: Sizable,
+            E: Sizable
+{
+    fn size(&self) -> u64 {
+        self.0.size() +
+            self.1.size() +
+            self.2.size() +
+            self.3.size() +
+            self.4.size()
+    }
+}
+
+impl<A, B, C, D, E, F> Sizable for (A, B, C, D, E, F)
+    where   A: Sizable,
+            B: Sizable,
+            C: Sizable,
+            D: Sizable,
+            E: Sizable,
+            F: Sizable
+{
+    fn size(&self) -> u64 {
+        self.0.size() +
+            self.1.size() +
+            self.2.size() +
+            self.3.size() +
+            self.4.size() +
+            self.5.size()
+    }
+}
+
 /// Trait implemented by types that have a variable size.
 pub trait VariableSize:
     where   Self: Sizable
 {
-    /// Returns the minimum size of the implementor.
+    /// Results the minimum size of the implementor.
     fn min_size() -> u64 {
         0
     }
 
-    /// Returns the maximum size of the implementor, if any.
+    /// Results the maximum size of the implementor, if any.
     fn max_size() -> Option<u64> {
         None
     }
@@ -145,7 +215,7 @@ pub trait VariableSize:
 pub trait FixedSize:
     where   Self: Sizable
 {
-    /// Returns the size required by the implementor.
+    /// Results the size required by the implementor.
     fn required_size() -> u64;
 
     /// Check the size of the implementor.
