@@ -31,6 +31,9 @@ pub mod block;
 /// Type used to represent a graph of authenticated `Block`s, represented as `BlockNode`s.
 pub mod blockgraph;
 
+/// Type used to represent a wallet (account) in the protocol.
+pub mod wallet;
+
 /// Type used to represent a node in the distributed ledger network.
 pub mod node;
 
