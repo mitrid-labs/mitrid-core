@@ -46,4 +46,5 @@ pub use self::transaction::Transaction;
 pub use self::blocknode::BlockNode;
 pub use self::block::Block;
 pub use self::blockgraph::BlockGraph;
+pub use self::wallet::Wallet;
 pub use self::node::Node;

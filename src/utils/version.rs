@@ -13,7 +13,7 @@ use base::Serializable;
 use utils::regex;
 
 /// Current Semver version of the library.
-pub const VERSION: &str = "0.2.0";
+pub const VERSION: &str = "0.2.1";
 
 /// Regex pattern of a numeric version.
 pub const NUMERIC_VERSION: &str = "^[0-9]*$";
