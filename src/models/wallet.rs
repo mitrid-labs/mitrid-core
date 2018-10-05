@@ -123,6 +123,8 @@ impl<D, Sk, Pk, Sig, P> Wallet<D, Sk, Pk, Sig, P>
     {
         params.check()?;
 
+        self.meta.size = self.size();
+
         self.id = self.digest(params, cb)?;
 
         self.check()?;

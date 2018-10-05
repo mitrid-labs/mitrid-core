@@ -68,6 +68,8 @@ impl<D, A> Coin<D, A>
     {
         params.check()?;
 
+        self.meta.size = self.size();
+
         self.id = self.digest(params, cb)?;
 
         self.check()?;

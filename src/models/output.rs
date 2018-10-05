@@ -92,6 +92,8 @@ impl<D, Pk, A, P> Output<D, Pk, A, P>
     {
         params.check()?;
 
+        self.meta.size = self.size();
+
         self.id = self.digest(params, cb)?;
 
         self.check()?;

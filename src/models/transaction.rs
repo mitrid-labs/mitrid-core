@@ -102,6 +102,8 @@ impl<D, A, IP, Pk, Sig, OP, P> Transaction<D, A, IP, Pk, Sig, OP, P>
     {
         params.check()?;
 
+        self.meta.size = self.size();
+
         self.id = self.digest(params, cb)?;
 
         self.check()?;

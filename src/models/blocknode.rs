@@ -61,6 +61,8 @@ impl<D> BlockNode<D>
     {
         params.check()?;
 
+        self.meta.size = self.size();
+
         self.id = self.digest(params, cb)?;
 
         self.check()?;
@@ -127,12 +129,13 @@ impl<D> Checkable for BlockNode<D>
         self.id.check()?;
         self.id.check_size()?;
         self.meta.check()?;
-        self.block_id.check()?;
-        self.block_id.check_size()?;
         
         if self.meta.size != self.size() {
             return Err(String::from("invalid meta size"));
         }
+        
+        self.block_id.check()?;
+        self.block_id.check_size()?;
 
         Ok(())
     }

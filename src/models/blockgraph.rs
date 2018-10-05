@@ -103,6 +103,8 @@ impl<D, P> BlockGraph<D, P>
     {
         params.check()?;
 
+        self.meta.size = self.size();
+
         self.id = self.digest(params, cb)?;
 
         self.check()?;

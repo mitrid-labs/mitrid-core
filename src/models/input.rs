@@ -135,6 +135,8 @@ impl<D, A, P, Pk, Sig> Input<D, A, P, Pk, Sig>
     {
         params.check()?;
 
+        self.meta.size = self.size();
+
         self.id = self.digest(params, cb)?;
 
         self.check()?;

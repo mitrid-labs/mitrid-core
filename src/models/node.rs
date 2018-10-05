@@ -74,12 +74,13 @@ impl<A, P> Checkable for Node<A, P>
 {
     fn check(&self) -> Result<()> {
         self.meta.check()?;
-        self.address.check()?;
-        self.payload.check()?;
 
         if self.meta.size != self.size() {
             return Err("invalid size".into());
         }
+        
+        self.address.check()?;
+        self.payload.check()?;
 
         Ok(())
     }
