@@ -31,6 +31,9 @@ pub mod block;
 /// Type used to represent a graph of authenticated `Block`s, represented as `BlockNode`s.
 pub mod blockgraph;
 
+/// Type used to represent a node in the distributed ledger network.
+pub mod node;
+
 pub use self::stage::Stage;
 pub use self::meta::Meta;
 pub use self::coin::Coin;
@@ -40,3 +43,4 @@ pub use self::transaction::Transaction;
 pub use self::blocknode::BlockNode;
 pub use self::block::Block;
 pub use self::blockgraph::BlockGraph;
+pub use self::node::Node;
