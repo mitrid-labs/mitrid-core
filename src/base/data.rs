@@ -12,6 +12,8 @@ pub trait Datable : 'static + Sized + Clone + Eq + Debug + Default + Sizable + C
 
 impl Datable for () {}
 
+impl Datable for bool {}
+
 impl Datable for u8 {}
 
 impl Datable for i8 {}

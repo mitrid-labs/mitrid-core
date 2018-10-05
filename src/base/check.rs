@@ -21,6 +21,8 @@ pub trait Checkable
 
 impl Checkable for () {}
 
+impl Checkable for bool {}
+
 impl Checkable for u8 {}
 
 impl Checkable for i8 {}

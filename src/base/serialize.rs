@@ -61,6 +61,8 @@ pub trait Serializable
 
 impl Serializable for () {}
 
+impl Serializable for bool {}
+
 impl Serializable for u8 {}
 
 impl Serializable for u32 {}
