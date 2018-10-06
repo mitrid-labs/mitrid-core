@@ -3,6 +3,7 @@
 //! `future` is the module providing the `Future` type used throughout the library.
 
 use futures::Future as BasicFuture;
+use futures::Poll;
 use futures::future as base_future;
 
 use std::ops::{Deref, DerefMut};
@@ -35,5 +36,14 @@ impl<T> Deref for Future<T> {
 impl<T> DerefMut for Future<T> {
     fn deref_mut(&mut self) -> &mut Box<BasicFuture<Item=T, Error=String>> {
         &mut self.0
+    }
+}
+
+impl<T> BasicFuture for Future<T> {
+    type Item=T;
+    type Error=String;
+
+    fn poll(&mut self) -> Poll<Self::Item, Self::Error> {
+        self.0.poll()
     }
 }
