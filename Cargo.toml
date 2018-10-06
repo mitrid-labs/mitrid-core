@@ -1,6 +1,6 @@
 [package]
 name = "mitrid_core"
-version = "0.2.2"
+version = "0.2.3"
 authors = ["Christian Nyumbayire <chritchens@gmail.com>"]
 license = "Apache-2.0"
 repository = "https://github.com/mitrid-labs/mitrid-core"
