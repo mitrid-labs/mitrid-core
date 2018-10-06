@@ -11,7 +11,7 @@ use std::ops::{Deref, DerefMut};
 use base::result::Result;
 
 /// Alias to a `futures::Future` with `String` error.
-pub struct Future<T>(pub Box<BasicFuture<Item=T, Error=String>>);
+pub struct Future<T>(Box<BasicFuture<Item=T, Error=String>>);
 
 impl<T: 'static> Future<T> {
     /// Creates a new `Future<T>` from a boxed `futures::Future`.
