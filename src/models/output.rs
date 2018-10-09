@@ -45,10 +45,19 @@ impl<D, Pk, A, P> Output<D, Pk, A, P>
         Output::default()
     }
 
+    /// Updates the `Output` size.
+    pub fn update_size(&mut self) {
+        let size = self.size();
+
+        self.meta.set_size(size);
+    }
+
     /// Sets the `Output`'s metadata.
     pub fn meta(mut self, meta: &Meta) -> Result<Output<D, Pk, A, P>> {
         meta.check()?;
         self.meta = meta.clone();
+
+        self.update_size();
 
         Ok(self)
     }
@@ -58,6 +67,8 @@ impl<D, Pk, A, P> Output<D, Pk, A, P>
         sender.check()?;
         self.sender = sender.clone();
 
+        self.update_size();
+
         Ok(self)
     }
 
@@ -66,6 +77,8 @@ impl<D, Pk, A, P> Output<D, Pk, A, P>
         receiver.check()?;
         self.receiver = receiver.clone();
 
+        self.update_size();
+
         Ok(self)
     }
 
@@ -73,6 +86,8 @@ impl<D, Pk, A, P> Output<D, Pk, A, P>
     pub fn amount(mut self, amount: &A) -> Result<Output<D, Pk, A, P>> {
         amount.check()?;
         self.amount = amount.clone();
+
+        self.update_size();
 
         Ok(self)
     }
@@ -83,6 +98,8 @@ impl<D, Pk, A, P> Output<D, Pk, A, P>
 
         self.payload = payload.clone();
 
+        self.update_size();
+
         Ok(self)
     }
 
@@ -92,7 +109,7 @@ impl<D, Pk, A, P> Output<D, Pk, A, P>
     {
         params.check()?;
 
-        self.meta.size = self.size();
+        self.update_size();
 
         self.id = self.digest(params, cb)?;
 
@@ -183,7 +200,7 @@ impl<D, Pk, A, P> Checkable for Output<D, Pk, A, P>
         self.id.check_size()?;
         self.meta.check()?;
         
-        if self.meta.size != self.size() {
+        if self.meta.get_size() != self.size() {
             return Err(String::from("invalid meta size"));
         }
         

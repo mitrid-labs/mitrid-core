@@ -46,10 +46,19 @@ impl<D, Sk, Pk, Sig, P> Wallet<D, Sk, Pk, Sig, P>
         Wallet::default()
     }
 
+    /// Updates the `Wallet` size.
+    pub fn update_size(&mut self) {
+        let size = self.size();
+
+        self.meta.set_size(size);
+    }
+
     /// Sets the `Wallet`'s metadata.
     pub fn meta(mut self, meta: &Meta) -> Result<Wallet<D, Sk, Pk, Sig, P>> {
         meta.check()?;
         self.meta = meta.clone();
+
+        self.update_size();
 
         Ok(self)
     }
@@ -59,6 +68,8 @@ impl<D, Sk, Pk, Sig, P> Wallet<D, Sk, Pk, Sig, P>
         payload.check()?;
 
         self.payload = payload.clone();
+
+        self.update_size();
 
         Ok(self)
     }
@@ -79,6 +90,8 @@ impl<D, Sk, Pk, Sig, P> Wallet<D, Sk, Pk, Sig, P>
         self.signature = self.sign_cb(params, sk, cb)?;
         self.secret_key = sk.clone();
         self.public_key = pk.clone();
+
+        self.update_size();
 
         Ok(self)
     }
@@ -123,7 +136,7 @@ impl<D, Sk, Pk, Sig, P> Wallet<D, Sk, Pk, Sig, P>
     {
         params.check()?;
 
-        self.meta.size = self.size();
+        self.update_size();
 
         self.id = self.digest(params, cb)?;
 
@@ -226,7 +239,7 @@ impl<D, Sk, Pk, Sig, P> Checkable for Wallet<D, Sk, Pk, Sig, P>
         self.id.check_size()?;
         self.meta.check()?;
         
-        if self.meta.size != self.size() {
+        if self.meta.get_size() != self.size() {
             return Err(String::from("invalid meta size"));
         }
         

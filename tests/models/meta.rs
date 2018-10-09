@@ -11,15 +11,14 @@ fn test_meta_new() {
     let chain = "chain";
     let valid_version = Version::default();
     let stage = Stage::default();
-    let size = 1_000_000;
     
-    let res = Meta::new(code, chain.into(), valid_version, stage, size);
+    let res = Meta::new(code, chain.into(), valid_version, stage);
     assert!(res.is_ok());
 
     let mut invalid_version = Version::default();
     invalid_version.buildmeta = "/\\".into();
 
-    let res = Meta::new(code, chain.into(), invalid_version, stage, size);
+    let res = Meta::new(code, chain.into(), invalid_version, stage);
     assert!(res.is_err());
 }
 
@@ -29,12 +28,15 @@ fn test_meta_check() {
     let chain = "chain";
     let valid_version = Version::default();
     let stage = Stage::default();
-    let size = 1_000_000;
     
-    let res = Meta::new(code, chain.into(), valid_version, stage, size);
+    let res = Meta::new(code, chain.into(), valid_version, stage);
     assert!(res.is_ok());
 
     let mut meta = res.unwrap();
+    
+    let size= 1_000_000;
+    meta.set_size(size);
+
     let mut invalid_version = Version::default();
     invalid_version.buildmeta = "/\\".into();
     meta.version = invalid_version;
@@ -51,7 +53,8 @@ fn test_meta_size() {
                     meta.version.size() +
                     meta.stage.size() +
                     meta.timestamp.size() +
-                    meta.size.size();
+                    0u64.size(); // size field
+
     assert_eq!(meta.size(), meta_size)
 }
 

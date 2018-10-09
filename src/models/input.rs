@@ -49,10 +49,19 @@ impl<D, A, P, Pk, Sig> Input<D, A, P, Pk, Sig>
         Input::default()
     }
 
+    /// Updates the `Input` size.
+    pub fn update_size(&mut self) {
+        let size = self.size();
+
+        self.meta.set_size(size);
+    }
+
     /// Sets the `Input`'s metadata.
     pub fn meta(mut self, meta: &Meta) -> Result<Input<D, A, P, Pk, Sig>> {
         meta.check()?;
         self.meta = meta.clone();
+
+        self.update_size();
 
         Ok(self)
     }
@@ -63,6 +72,8 @@ impl<D, A, P, Pk, Sig> Input<D, A, P, Pk, Sig>
 
         self.coin = coin.clone();
 
+        self.update_size();
+
         Ok(self)
     }
 
@@ -71,6 +82,8 @@ impl<D, A, P, Pk, Sig> Input<D, A, P, Pk, Sig>
         payload.check()?;
 
         self.payload = payload.clone();
+
+        self.update_size();
 
         Ok(self)
     }
@@ -91,6 +104,8 @@ impl<D, A, P, Pk, Sig> Input<D, A, P, Pk, Sig>
 
         self.signature = self.sign_cb(params, sk, cb)?;
         self.public_key = pk.clone();
+
+        self.update_size();
 
         Ok(self)
     }
@@ -135,7 +150,7 @@ impl<D, A, P, Pk, Sig> Input<D, A, P, Pk, Sig>
     {
         params.check()?;
 
-        self.meta.size = self.size();
+        self.update_size();
 
         self.id = self.digest(params, cb)?;
 
@@ -240,7 +255,7 @@ impl<D, A, P, Pk, Sig> Checkable for Input<D, A, P, Pk, Sig>
         self.id.check_size()?;
         self.meta.check()?;
         
-        if self.meta.size != self.size() {
+        if self.meta.get_size() != self.size() {
             return Err(String::from("invalid meta size"));
         }
         

@@ -48,10 +48,19 @@ impl<D, P> BlockGraph<D, P>
         BlockGraph::default()
     }
 
+    /// Updates the `BlockGraph` size.
+    pub fn update_size(&mut self) {
+        let size = self.size();
+
+        self.meta.set_size(size);
+    }
+
     /// Sets the `BlockGraph`'s metadata.
     pub fn meta(mut self, meta: &Meta) -> Result<BlockGraph<D, P>> {
         meta.check()?;
         self.meta = meta.clone();
+
+        self.update_size();
 
         Ok(self)
     }
@@ -85,6 +94,8 @@ impl<D, P> BlockGraph<D, P>
         self.frontier_len = frontier.len() as u64;
         self.frontier = frontier.clone();
 
+        self.update_size();
+
         Ok(self)
     }
 
@@ -93,6 +104,8 @@ impl<D, P> BlockGraph<D, P>
         payload.check()?;
 
         self.payload = payload.clone();
+
+        self.update_size();
 
         Ok(self)
     }
@@ -103,7 +116,7 @@ impl<D, P> BlockGraph<D, P>
     {
         params.check()?;
 
-        self.meta.size = self.size();
+        self.update_size();
 
         self.id = self.digest(params, cb)?;
 
@@ -189,7 +202,7 @@ impl<D, P> Checkable for BlockGraph<D, P>
         self.id.check_size()?;
         self.meta.check()?;
         
-        if self.meta.size != self.size() {
+        if self.meta.get_size() != self.size() {
             return Err(String::from("invalid meta size"));
         }
         

@@ -65,10 +65,19 @@ impl<D, A, IP, Pk, Sig, OP, TP, P, Pr> Block<D, A, IP, Pk, Sig, OP, TP, P, Pr>
         Block::default()
     }
 
+    /// Updates the `Block` size.
+    pub fn update_size(&mut self) {
+        let size = self.size();
+
+        self.meta.set_size(size);
+    }
+
     /// Sets the `Block`'s metadata.
     pub fn meta(mut self, meta: &Meta) -> Result<Block<D, A, IP, Pk, Sig, OP, TP, P, Pr>> {
         meta.check()?;
         self.meta = meta.clone();
+
+        self.update_size();
 
         Ok(self)
     }
@@ -91,6 +100,8 @@ impl<D, A, IP, Pk, Sig, OP, TP, P, Pr> Block<D, A, IP, Pk, Sig, OP, TP, P, Pr>
         self.prev_blocks_len = prev_blocks.len() as u64;
         self.prev_blocks = prev_blocks.clone();
 
+        self.update_size();
+
         Ok(self)
     }
 
@@ -103,6 +114,8 @@ impl<D, A, IP, Pk, Sig, OP, TP, P, Pr> Block<D, A, IP, Pk, Sig, OP, TP, P, Pr>
         self.transactions_len = transactions.len() as u64;
         self.transactions = transactions.clone();
 
+        self.update_size();
+
         Ok(self)
     }
 
@@ -111,6 +124,8 @@ impl<D, A, IP, Pk, Sig, OP, TP, P, Pr> Block<D, A, IP, Pk, Sig, OP, TP, P, Pr>
         payload.check()?;
 
         self.payload = payload.clone();
+
+        self.update_size();
 
         Ok(self)
     }
@@ -122,6 +137,8 @@ impl<D, A, IP, Pk, Sig, OP, TP, P, Pr> Block<D, A, IP, Pk, Sig, OP, TP, P, Pr>
         params.check()?;
 
         self.proof = self.prove_cb(params, cb)?;
+
+        self.update_size();
 
         Ok(self)
     }
@@ -158,7 +175,7 @@ impl<D, A, IP, Pk, Sig, OP, TP, P, Pr> Block<D, A, IP, Pk, Sig, OP, TP, P, Pr>
     {
         params.check()?;
 
-        self.meta.size = self.size();
+        self.update_size();
 
         self.id = self.digest(params, cb)?;
 
@@ -280,7 +297,7 @@ impl<D, A, IP, Pk, Sig, OP, TP, P, Pr> Checkable for Block<D, A, IP, Pk, Sig, OP
         self.id.check_size()?;
         self.meta.check()?;
         
-        if self.meta.size != self.size() {
+        if self.meta.get_size() != self.size() {
             return Err(String::from("invalid meta size"));
         }
         

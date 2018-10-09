@@ -27,7 +27,8 @@ fn test_node_check() {
     let res = node.check();
     assert!(res.is_ok());
 
-    node.meta.size = 0;
+    let invalid_size = 0;
+    node.meta.set_size(invalid_size);
 
     let res = node.check();
     assert!(res.is_err());

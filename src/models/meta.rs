@@ -25,7 +25,7 @@ pub struct Meta {
     /// Timestamp of the metadata owner.
     pub timestamp: Timestamp,
     /// Size of the metadata owner.
-    pub size: u64,
+    size: u64,
 }
 
 impl Meta {
@@ -33,8 +33,7 @@ impl Meta {
     pub fn new(code: u64,
                chain: String,
                version: Version,
-               stage: Stage,
-               size: u64)
+               stage: Stage)
         -> Result<Meta>
     {
         version.check()?;
@@ -42,8 +41,20 @@ impl Meta {
 
         let timestamp = Timestamp::now()?;
 
+        let size = 0;
+
         let meta = Meta { code, chain, version, stage, timestamp, size };
         Ok(meta)
+    }
+
+    /// Gets the `Meta` size.
+    pub fn get_size(&self) -> u64 {
+        self.size
+    }
+
+    /// Sets the `Meta` size.
+    pub fn set_size(&mut self, size: u64) {
+        self.size = size;
     }
 }
 

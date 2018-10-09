@@ -39,10 +39,19 @@ impl<D, A> Coin<D, A>
         Coin::default()
     }
 
+    /// Updates the `Coin` size.
+    pub fn update_size(&mut self) {
+        let size = self.size();
+
+        self.meta.set_size(size);
+    }
+
     /// Sets the `Coin`'s metadata.
     pub fn meta(mut self, meta: &Meta) -> Result<Coin<D, A>> {
         meta.check()?;
         self.meta = meta.clone();
+
+        self.update_size();
 
         Ok(self)
     }
@@ -59,6 +68,8 @@ impl<D, A> Coin<D, A>
         self.out_idx = out_idx;
         self.out_amount = out_amount.clone();
 
+        self.update_size();
+
         Ok(self)
     }
 
@@ -68,7 +79,7 @@ impl<D, A> Coin<D, A>
     {
         params.check()?;
 
-        self.meta.size = self.size();
+        self.update_size();
 
         self.id = self.digest(params, cb)?;
 
@@ -141,7 +152,7 @@ impl<D, A> Checkable for Coin<D, A>
         self.id.check_size()?;
         self.meta.check()?;
         
-        if self.meta.size != self.size() {
+        if self.meta.get_size() != self.size() {
             return Err(String::from("invalid meta size"));
         }
         

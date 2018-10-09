@@ -34,10 +34,19 @@ impl<D> BlockNode<D>
         BlockNode::default()
     }
 
+    /// Updates the `BlockNode` size.
+    pub fn update_size(&mut self) {
+        let size = self.size();
+
+        self.meta.set_size(size);
+    }
+
     /// Sets the `BlockNode`'s metadata.
     pub fn meta(mut self, meta: &Meta) -> Result<BlockNode<D>> {
         meta.check()?;
         self.meta = meta.clone();
+
+        self.update_size();
 
         Ok(self)
     }
@@ -52,6 +61,8 @@ impl<D> BlockNode<D>
         self.block_id = block_id.clone();
         self.block_height = block_height;
 
+        self.update_size();
+
         Ok(self)
     }
 
@@ -61,7 +72,7 @@ impl<D> BlockNode<D>
     {
         params.check()?;
 
-        self.meta.size = self.size();
+        self.update_size();
 
         self.id = self.digest(params, cb)?;
 
@@ -130,7 +141,7 @@ impl<D> Checkable for BlockNode<D>
         self.id.check_size()?;
         self.meta.check()?;
         
-        if self.meta.size != self.size() {
+        if self.meta.get_size() != self.size() {
             return Err(String::from("invalid meta size"));
         }
         

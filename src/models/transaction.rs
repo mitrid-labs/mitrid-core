@@ -55,10 +55,19 @@ impl<D, A, IP, Pk, Sig, OP, P> Transaction<D, A, IP, Pk, Sig, OP, P>
         Transaction::default()
     }
 
+    /// Updates the `Transaction` size.
+    pub fn update_size(&mut self) {
+        let size = self.size();
+
+        self.meta.set_size(size);
+    }
+
     /// Sets the `Transaction`'s metadata.
     pub fn meta(mut self, meta: &Meta) -> Result<Transaction<D, A, IP, Pk, Sig, OP, P>> {
         meta.check()?;
         self.meta = meta.clone();
+
+        self.update_size();
 
         Ok(self)
     }
@@ -72,6 +81,8 @@ impl<D, A, IP, Pk, Sig, OP, P> Transaction<D, A, IP, Pk, Sig, OP, P>
         self.inputs_len = inputs.len() as u64;
         self.inputs = inputs.clone();
 
+        self.update_size();
+
         Ok(self)
     }
 
@@ -84,6 +95,8 @@ impl<D, A, IP, Pk, Sig, OP, P> Transaction<D, A, IP, Pk, Sig, OP, P>
         self.outputs_len = outputs.len() as u64;
         self.outputs = outputs.clone();
 
+        self.update_size();
+
         Ok(self)
     }
 
@@ -92,6 +105,8 @@ impl<D, A, IP, Pk, Sig, OP, P> Transaction<D, A, IP, Pk, Sig, OP, P>
         payload.check()?;
 
         self.payload = payload.clone();
+
+        self.update_size();
 
         Ok(self)
     }
@@ -102,7 +117,7 @@ impl<D, A, IP, Pk, Sig, OP, P> Transaction<D, A, IP, Pk, Sig, OP, P>
     {
         params.check()?;
 
-        self.meta.size = self.size();
+        self.update_size();
 
         self.id = self.digest(params, cb)?;
 
@@ -203,7 +218,7 @@ impl<D, A, IP, Pk, Sig, OP, P> Checkable for Transaction<D, A, IP, Pk, Sig, OP, 
         self.id.check_size()?;
         self.meta.check()?;
         
-        if self.meta.size != self.size() {
+        if self.meta.get_size() != self.size() {
             return Err(String::from("invalid meta size"));
         }
 

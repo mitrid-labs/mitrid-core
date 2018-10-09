@@ -41,9 +41,16 @@ impl<A, P> Node<A, P>
             payload: payload.to_owned(),
         };
 
-        node.meta.size = node.size();
+        node.update_size();
 
         Ok(node)
+    }
+
+    /// Updates the `Node` size.
+    pub fn update_size(&mut self) {
+        let size = self.size();
+
+        self.meta.set_size(size);
     }
 
     /// Evals the `Node`.
@@ -76,7 +83,7 @@ impl<A, P> Checkable for Node<A, P>
     fn check(&self) -> Result<()> {
         self.meta.check()?;
 
-        if self.meta.size != self.size() {
+        if self.meta.get_size() != self.size() {
             return Err("invalid size".into());
         }
         
