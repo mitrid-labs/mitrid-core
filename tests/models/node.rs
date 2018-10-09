@@ -4,10 +4,12 @@ use mitrid_core::base::Checkable;
 use mitrid_core::base::Sizable;
 use mitrid_core::base::Serializable;
 
+use fixtures::Address;
+
 #[test]
 fn test_node_new() {
     let meta = Meta::default();
-    let address: String = "address".into();
+    let address = Address::new("address");
     let payload: String = "payload".into();
     
     let res = Node::new(&meta, &address, &payload);
@@ -17,7 +19,7 @@ fn test_node_new() {
 #[test]
 fn test_node_check() {
     let meta = Meta::default();
-    let address: String = "address".into();
+    let address = Address::new("address");
     let payload: String = "payload".into();
     
     let mut node = Node::new(&meta, &address, &payload).unwrap();
@@ -33,7 +35,7 @@ fn test_node_check() {
 
 #[test]
 fn test_node_size() {
-    let node: Node<String, String> = Node::default();
+    let node: Node<Address, String> = Node::default();
     let node_size = node.meta.size() +
                     node.address.size() +
                     node.payload.size();
@@ -43,7 +45,7 @@ fn test_node_size() {
 #[test]
 fn test_node_serialize_json() {
     let meta = Meta::default();
-    let address: String = "address".into();
+    let address = Address::new("address");
     let payload: String = "payload".into();
     
     let node_a = Node::new(&meta, &address, &payload).unwrap();
@@ -62,7 +64,7 @@ fn test_node_serialize_json() {
 #[test]
 fn test_node_serialize_bytes() {
     let meta = Meta::default();
-    let address: String = "address".into();
+    let address = Address::new("address");
     let payload: String = "payload".into();
     
     let node_a = Node::new(&meta, &address, &payload).unwrap();
@@ -81,7 +83,7 @@ fn test_node_serialize_bytes() {
 #[test]
 fn test_node_serialize_hex() {
     let meta = Meta::default();
-    let address: String = "address".into();
+    let address = Address::new("address");
     let payload: String = "payload".into();
     
     let node_a = Node::new(&meta, &address, &payload).unwrap();
