@@ -14,17 +14,17 @@ use models::Stage;
 /// Type used to convey the distributed ledger models metadata.
 #[derive(Clone, PartialEq, Eq, PartialOrd, Ord, Debug, Default, Hash, Serialize, Deserialize)]
 pub struct Meta {
-    /// Code of the datatype's metadata.
+    /// Code of the metadata owner.
     pub code: u64,
-    /// Chain of the datatype's metadata.
+    /// Chain of the metadata owner.
     pub chain: String,
     /// Version of the chain.
     pub version: Version,
     /// Stage of the chain.
     pub stage: Stage,
-    /// Timestamp of the datatype's metadata.
+    /// Timestamp of the metadata owner.
     pub timestamp: Timestamp,
-    /// Size of the datatype's metadata.
+    /// Size of the metadata owner.
     pub size: u64,
 }
 
