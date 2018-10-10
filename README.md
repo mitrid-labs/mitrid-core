@@ -30,6 +30,11 @@ and in the root of your crate:
 extern crate mitrid_core;
 ```
 
+## Testing
+
+To test the library, just run `cargo run` from the command line.
+Please, don't use in production the cryptographic libraries used in the tests.
+
 
 ## [License](LICENSE)
 
