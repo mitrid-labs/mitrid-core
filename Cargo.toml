@@ -21,3 +21,7 @@ serde_json = "^1"
 serde_cbor = "^0.9"
 hex = "^0.3"
 regex = "^1"
+
+[dev-dependencies]
+rand = "0.3.22"
+rust-crypto-wasm = "^0.3"
