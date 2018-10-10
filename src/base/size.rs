@@ -7,7 +7,9 @@ use base::result::Result;
 /// Trait implemented by types that have a size.
 pub trait Sizable {
     /// Results the size of the implementor.
-    fn size(&self) -> u64;
+    fn size(&self) -> u64 {
+        0
+    }
 }
 
 impl Sizable for () {
