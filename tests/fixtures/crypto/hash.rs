@@ -64,7 +64,6 @@ impl Serializable for Digest {}
 
 impl Datable for Digest {}
 
-#[derive(Clone, Eq, PartialEq, Ord, PartialOrd, Debug, Default, Hash, Serialize, Deserialize)]
 pub struct SHA512 {}
 
 impl SHA512 {
