@@ -4,8 +4,8 @@ use mitrid_core::base::Checkable;
 use mitrid_core::base::Sizable;
 use mitrid_core::base::Serializable;
 
-use fixtures::Payload;
-use fixtures::Address;
+use fixtures::models::Payload;
+use fixtures::models::Address;
 
 #[test]
 fn test_node_new() {
