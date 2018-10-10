@@ -32,7 +32,7 @@ extern crate mitrid_core;
 
 ## Testing
 
-To test the library, just run `cargo run` from the command line.
+To test the library, just run `cargo test` from the command line.
 Please, don't use in production the cryptographic libraries used in the tests.
 
 
