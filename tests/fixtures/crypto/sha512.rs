@@ -1,5 +1,4 @@
 #![allow(dead_code)]
-#![allow(unused_variables)]
 
 use crypto::digest::Digest as _Digest;
 use crypto::sha3::Sha3;
