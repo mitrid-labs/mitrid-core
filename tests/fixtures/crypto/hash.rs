@@ -1,12 +1,14 @@
 #![allow(dead_code)]
 #![allow(unused_variables)]
 
+use crypto::digest::Digest as _Digest;
+use crypto::sha3::Sha3;
+
 use mitrid_core::base::Result;
 use mitrid_core::base::{Sizable, FixedSize};
 use mitrid_core::base::Checkable;
 use mitrid_core::base::Serializable;
 use mitrid_core::base::Datable;
-use mitrid_core::crypto::Hashable;
 
 pub const DIGEST_SIZE: u64 = 64;
 
@@ -14,16 +16,24 @@ pub const DIGEST_SIZE: u64 = 64;
 pub struct Digest(Vec<u8>);
 
 impl Digest {
-    pub fn from_vec(buf: &Vec<u8>) -> Digest {
-        Digest(buf.to_owned())
+    pub fn from_vec(buf: &Vec<u8>) -> Result<Digest> {
+        if buf.len() != DIGEST_SIZE as usize {
+            return Err(String::from("invalid length"));
+        }
+
+        Ok(Digest(buf.to_owned()))
     }
 
     pub fn to_vec(&self) -> Vec<u8> {
         self.0.clone()
     }
 
-    pub fn from_slice(buf: &[u8]) -> Digest {
-        Digest(buf.to_owned())
+    pub fn from_slice(buf: &[u8]) -> Result<Digest> {
+        if buf.len() != DIGEST_SIZE as usize {
+            return Err(String::from("invalid length"));
+        }
+
+        Ok(Digest(buf.to_owned()))
     }
 
     pub fn as_slice(&self) -> &[u8] {
@@ -58,37 +68,25 @@ impl Datable for Digest {}
 pub struct SHA512 {}
 
 impl SHA512 {
-    pub fn new() -> SHA512 {
-        unreachable!()
+    fn digest(msg: &[u8]) -> Result<Digest> {
+        let mut hasher = Sha3::sha3_512();
+        hasher.input(msg);
+
+        let mut buf = Vec::new();
+        hasher.result(&mut buf.as_mut_slice());
+
+        Digest::from_vec(&buf)
     }
 
-    pub fn update(&mut self, msg: &[u8]) {
-        unreachable!()
+    pub fn verify_digest(msg: &[u8], digest: &Digest) -> Result<bool> {
+        Ok(&Self::digest(msg)? == digest)
     }
 
-    pub fn digest(&self) -> Result<Digest> {
-        unreachable!()
-    }
+    pub fn check_digest(msg: &[u8], digest: &Digest) -> Result<()> {
+        if !Self::verify_digest(msg, digest)? {
+            return Err(String::from("invalid digest"));
+        }
 
-    pub fn verify_digest(&self) -> Result<bool> {
-        unreachable!()
-    }
-
-    pub fn check_digest(&self) -> Result<bool> {
-        unreachable!()
-    }
-}
-
-impl Sizable for SHA512 {
-    fn size(&self) -> u64 {
-        0
+        Ok(())
     }
 }
-
-impl Checkable for SHA512 {}
-
-impl Serializable for SHA512 {}
-
-impl Datable for SHA512 {}
-
-impl Hashable<(), Digest> for SHA512 {}
