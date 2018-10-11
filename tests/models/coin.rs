@@ -3,14 +3,12 @@ use mitrid_core::models::Meta;
 /*
 use mitrid_core::base::Checkable;
 use mitrid_core::base::Sizable;
-*/
 use mitrid_core::base::Serializable;
+*/
 
 use fixtures::crypto::Digest;
 use fixtures::models::Amount;
-
-use fixtures::crypto::SHA512;
-use fixtures::models::Coin;
+use fixtures::models::{Coin, coin_digest_cb};
 
 #[test]
 fn test_coin_meta() {
@@ -52,11 +50,7 @@ fn test_coin_finalize() {
                 .output_data(&valid_tx_id, out_idx, &out_amount)
                 .unwrap();
 
-    let coin_bytes = coin.to_bytes().unwrap();
-    let res = coin.finalize(&coin_bytes,
-                            &|_, msg| {
-                                SHA512::digest(&msg)
-                            });
+    let res = coin.finalize(&(), &coin_digest_cb);
 
     println!("res: {:?}", res.clone());
     assert!(res.is_ok());
