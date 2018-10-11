@@ -14,3 +14,19 @@ pub fn wallet_digest_cb(wallet: &Wallet, _: &()) -> Result<Digest> {
     let msg = wallet.to_bytes()?;
     SHA512::digest(&msg)
 }
+
+#[allow(dead_code)]
+pub fn wallet_verify_digest_cb(wallet: &Wallet, _: &(), digest: &Digest) -> Result<bool> {
+    let target = wallet_digest_cb(wallet, &())?;
+    
+    Ok(&target == digest)
+}
+
+#[allow(dead_code)]
+pub fn wallet_check_digest_cb(wallet: &Wallet, _: &(), digest: &Digest) -> Result<()> {
+    if !wallet_verify_digest_cb(wallet, &(), digest)? {
+        return Err("invalid digest".into());
+    }
+
+    Ok(())
+}

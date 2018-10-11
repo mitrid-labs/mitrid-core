@@ -144,7 +144,7 @@ impl<D, Pk, A, P> Output<D, Pk, A, P>
     pub fn check_digest<HP: Datable>(&self,
                                      params: &HP,
                                      digest: &D,
-                                     cb: &Fn(&Self, &HP, &D) -> Result<bool>)
+                                     cb: &Fn(&Self, &HP, &D) -> Result<()>)
         -> Result<()>
     {
         params.check()?;

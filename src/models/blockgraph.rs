@@ -151,7 +151,7 @@ impl<D, P> BlockGraph<D, P>
     pub fn check_digest<HP: Datable>(&self,
                                      params: &HP,
                                      digest: &D,
-                                     cb: &Fn(&Self, &HP, &D) -> Result<bool>)
+                                     cb: &Fn(&Self, &HP, &D) -> Result<()>)
         -> Result<()>
     {
         params.check()?;

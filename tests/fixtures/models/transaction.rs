@@ -15,3 +15,19 @@ pub fn transaction_digest_cb(tx: &Transaction, _: &()) -> Result<Digest> {
     let msg = tx.to_bytes()?;
     SHA512::digest(&msg)
 }
+
+#[allow(dead_code)]
+pub fn transaction_verify_digest_cb(tx: &Transaction, _: &(), digest: &Digest) -> Result<bool> {
+    let target = transaction_digest_cb(tx, &())?;
+    
+    Ok(&target == digest)
+}
+
+#[allow(dead_code)]
+pub fn transaction_check_digest_cb(tx: &Transaction, _: &(), digest: &Digest) -> Result<()> {
+    if !transaction_verify_digest_cb(tx, &(), digest)? {
+        return Err("invalid digest".into());
+    }
+
+    Ok(())
+}

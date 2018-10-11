@@ -15,3 +15,19 @@ pub fn input_digest_cb(input: &Input, _: &()) -> Result<Digest> {
     let msg = input.to_bytes()?;
     SHA512::digest(&msg)
 }
+
+#[allow(dead_code)]
+pub fn input_verify_digest_cb(input: &Input, _: &(), digest: &Digest) -> Result<bool> {
+    let target = input_digest_cb(input, &())?;
+    
+    Ok(&target == digest)
+}
+
+#[allow(dead_code)]
+pub fn input_check_digest_cb(input: &Input, _: &(), digest: &Digest) -> Result<()> {
+    if !input_verify_digest_cb(input, &(), digest)? {
+        return Err("invalid digest".into());
+    }
+
+    Ok(())
+}

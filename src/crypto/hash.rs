@@ -26,13 +26,9 @@ pub trait Hashable<P, D>
     }
 
     /// Verifies the cryptographic digest against the implementor digest.
-    fn check_digest_cb(&self, params: &P, digest: &D, cb: &Fn(&Self, &P, &D) -> Result<bool>)
+    fn check_digest_cb(&self, params: &P, digest: &D, cb: &Fn(&Self, &P, &D) -> Result<()>)
         -> Result<()>
     {
-        if !Self::verify_digest_cb(self, params, digest, cb)? {
-            return Err(String::from("invalid digest"));
-        }
-
-        Ok(())
+        cb(self, params, digest)
     }
 }

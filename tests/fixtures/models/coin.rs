@@ -8,8 +8,23 @@ use fixtures::models::Amount;
 #[allow(dead_code)]
 pub type Coin = BaseCoin<Digest, Amount>;
 
-#[allow(dead_code)]
 pub fn coin_digest_cb(coin: &Coin, _: &()) -> Result<Digest> {
     let msg = coin.to_bytes()?;
     SHA512::digest(&msg)
+}
+
+#[allow(dead_code)]
+pub fn coin_verify_digest_cb(coin: &Coin, _: &(), digest: &Digest) -> Result<bool> {
+    let target = coin_digest_cb(coin, &())?;
+    
+    Ok(&target == digest)
+}
+
+#[allow(dead_code)]
+pub fn coin_check_digest_cb(coin: &Coin, _: &(), digest: &Digest) -> Result<()> {
+    if !coin_verify_digest_cb(coin, &(), digest)? {
+        return Err("invalid digest".into());
+    }
+
+    Ok(())
 }

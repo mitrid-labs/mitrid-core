@@ -152,7 +152,7 @@ impl<D, A, IP, Pk, Sig, OP, P> Transaction<D, A, IP, Pk, Sig, OP, P>
     pub fn check_digest<HP: Datable>(&self,
                                      params: &HP,
                                      digest: &D,
-                                     cb: &Fn(&Self, &HP, &D) -> Result<bool>)
+                                     cb: &Fn(&Self, &HP, &D) -> Result<()>)
         -> Result<()>
     {
         params.check()?;
