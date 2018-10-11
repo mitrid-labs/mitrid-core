@@ -1,5 +1,21 @@
 pub mod payload;
 pub mod address;
+pub mod amount;
+pub mod coin;
+pub mod input;
+pub mod output;
+pub mod transaction;
+pub mod block;
+pub mod blockgraph;
+pub mod wallet;
 
 pub use self::payload::Payload;
 pub use self::address::Address;
+pub use self::amount::Amount;
+pub use self::coin::Coin;
+pub use self::input::Input;
+pub use self::output::Output;
+pub use self::transaction::Transaction;
+pub use self::block::Block;
+pub use self::blockgraph::BlockGraph;
+pub use self::wallet::Wallet;
