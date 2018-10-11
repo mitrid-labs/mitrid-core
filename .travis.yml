@@ -1,51 +1,55 @@
 dist: trusty
 
+sudo: required
+
 language: rust
 
 rust:
   - stable
+  - beta
+  - nightly
 
-sudo: required
+matrix:
+  allow_failure:
+    - rust: nightly
+
+addons:
+  apt:
+    packages:
+      - libssl-dev
+
+cache: cargo
+
+before_cache: |
+  if [[ "$TRAVIS_RUST_VERSION" == nightly ]]; then
+    RUSTFLAGS="--cfg procmacro2_semver_exempt" cargo install cargo-tarpaulin
+  fi
 
 before_install:
   - set -e
   - rustup self update
-  - sudo apt-get install libsodium-dev
 
-before_script:
-  - cargo install cargo-travis && export PATH=$HOME/.cargo/bin:$PATH
+install:
+- wget https://github.com/jedisct1/libsodium/releases/download/1.0.15/libsodium-1.0.15.tar.gz
+- tar xvfz libsodium-1.0.15.tar.gz
+- cd libsodium-1.0.15 && ./configure --prefix=$HOME/installed_libsodium && make && make install &&
+  cd ..
+- export PKG_CONFIG_PATH=$HOME/installed_libsodium/lib/pkgconfig:$PKG_CONFIG_PATH
+- export LD_LIBRARY_PATH=$HOME/installed_libsodium/lib:$LD_LIBRARY_PATH
 
 script:
+  - cargo clean
   - cargo build --verbose
   - cargo test --verbose
-  - cargo bench --verbose
-  - cargo doc --verbose
 
 after_script:
   - set +e
 
-after_success:
-  - cargo coveralls --tests
+after_success: |
+  if [[ "$TRAVIS_RUST_VERSION" == nightly ]]; then
+    cargo tarpaulin --ciserver travis-ci --coveralls $TRAVIS_JOB_ID
+  fi
 
 notifications:
   email:
     on_success: never
-
-addons:
-  apt:
-    update: true
-    packages:
-      - libcurl4-openssl-dev
-      - libelf-dev
-      - libdw-dev
-      - cmake
-      - gcc
-      - binutils-dev
-      - diffutils
-      - make
-      - m4
-      - libgmp-dev
-      - libmpfr-dev
-      - libmpc-dev
-    sources:
-      - kalakris-cmake
