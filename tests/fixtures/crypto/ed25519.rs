@@ -173,7 +173,7 @@ impl Datable for Signature {}
 pub struct Ed25519 {}
 
 impl Ed25519 {
-    pub fn generate_keypair(seed: &[u8]) -> Result<(PublicKey, SecretKey)> {
+    pub fn keypair(seed: &[u8]) -> Result<(PublicKey, SecretKey)> {
         let (_pk, _sk) = ed25519::keypair(seed);
 
         let pk = PublicKey::from_slice(&_pk[..])?;

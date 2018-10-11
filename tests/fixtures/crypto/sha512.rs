@@ -66,7 +66,7 @@ impl Datable for Digest {}
 pub struct SHA512 {}
 
 impl SHA512 {
-    fn digest(msg: &[u8]) -> Result<Digest> {
+    pub fn digest(msg: &[u8]) -> Result<Digest> {
         let mut hasher = Sha3::sha3_512();
         hasher.input(msg);
 
@@ -76,12 +76,12 @@ impl SHA512 {
         Digest::from_vec(&buf)
     }
 
-    pub fn verify_digest(msg: &[u8], digest: &Digest) -> Result<bool> {
+    pub fn verify(msg: &[u8], digest: &Digest) -> Result<bool> {
         Ok(&Self::digest(msg)? == digest)
     }
 
-    pub fn check_digest(msg: &[u8], digest: &Digest) -> Result<()> {
-        if !Self::verify_digest(msg, digest)? {
+    pub fn check(msg: &[u8], digest: &Digest) -> Result<()> {
+        if !Self::verify(msg, digest)? {
             return Err(String::from("invalid digest"));
         }
 
