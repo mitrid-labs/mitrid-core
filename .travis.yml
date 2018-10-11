@@ -10,6 +10,8 @@ sudo: required
 before_install:
   - set -e
   - rustup self update
+  - sudo apt-get update
+  - sudo apt-get install libsodium-dev
 
 before_script:
   - cargo install cargo-travis && export PATH=$HOME/.cargo/bin:$PATH
@@ -45,6 +47,5 @@ addons:
       - libgmp-dev
       - libmpfr-dev
       - libmpc-dev
-      - libsodium-dev
     sources:
       - kalakris-cmake
