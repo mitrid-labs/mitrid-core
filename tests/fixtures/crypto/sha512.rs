@@ -11,7 +11,7 @@ use mitrid_core::base::Datable;
 
 pub const DIGEST_SIZE: u64 = 64;
 
-#[derive(Clone, Eq, PartialEq, Ord, PartialOrd, Debug, Default, Hash, Serialize, Deserialize)]
+#[derive(Clone, Eq, PartialEq, Ord, PartialOrd, Debug, Hash, Serialize, Deserialize)]
 pub struct Digest(Vec<u8>);
 
 impl Digest {
@@ -40,6 +40,18 @@ impl Digest {
     }
 }
 
+impl Default for Digest {
+    fn default() -> Digest {
+        let mut _digest = Vec::new();
+        
+        for _ in 0..DIGEST_SIZE as usize {
+            _digest.push(0);
+        }
+
+        Digest(_digest)
+    }
+}
+
 impl Sizable for Digest {
     fn size(&self) -> u64 {
         self.0.size()
@@ -65,13 +77,14 @@ impl Datable for Digest {}
 
 pub struct SHA512 {}
 
+// NB: Ignore. The hasher is not reliable (different output with the same input...)
 impl SHA512 {
     pub fn digest(msg: &[u8]) -> Result<Digest> {
         let mut hasher = Sha3::sha3_512();
         hasher.input(msg);
 
         let mut buf = Vec::new();
-        hasher.result(&mut buf.as_mut_slice());
+        hasher.result(&mut buf);
 
         Digest::from_vec(&buf)
     }

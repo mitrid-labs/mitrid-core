@@ -10,7 +10,7 @@ use mitrid_core::base::Datable;
 
 pub const SECRETKEY_SIZE: u64 = 64;
 
-#[derive(Clone, Eq, PartialEq, Ord, PartialOrd, Debug, Default, Hash, Serialize, Deserialize)]
+#[derive(Clone, Eq, PartialEq, Ord, PartialOrd, Debug, Hash, Serialize, Deserialize)]
 pub struct SecretKey(Vec<u8>);
 
 impl SecretKey {
@@ -39,6 +39,18 @@ impl SecretKey {
     }
 }
 
+impl Default for SecretKey {
+    fn default() -> SecretKey {
+        let mut _sk = Vec::new();
+        
+        for _ in 0..SECRETKEY_SIZE as usize {
+            _sk.push(0);
+        }
+
+        SecretKey(_sk)
+    }
+}
+
 impl Sizable for SecretKey {
     fn size(&self) -> u64 {
         self.0.size()
@@ -64,7 +76,7 @@ impl Datable for SecretKey {}
 
 pub const PUBLICKEY_SIZE: u64 = 32;
 
-#[derive(Clone, Eq, PartialEq, Ord, PartialOrd, Debug, Default, Hash, Serialize, Deserialize)]
+#[derive(Clone, Eq, PartialEq, Ord, PartialOrd, Debug, Hash, Serialize, Deserialize)]
 pub struct PublicKey(Vec<u8>);
 
 impl PublicKey {
@@ -93,6 +105,18 @@ impl PublicKey {
     }
 }
 
+impl Default for PublicKey {
+    fn default() -> PublicKey {
+        let mut _pk = Vec::new();
+        
+        for _ in 0..PUBLICKEY_SIZE as usize {
+            _pk.push(0);
+        }
+
+        PublicKey(_pk)
+    }
+}
+
 impl Sizable for PublicKey {
     fn size(&self) -> u64 {
         self.0.size()
@@ -118,7 +142,7 @@ impl Datable for PublicKey {}
 
 pub const SIGNATURE_SIZE: u64 = 32;
 
-#[derive(Clone, Eq, PartialEq, Ord, PartialOrd, Debug, Default, Hash, Serialize, Deserialize)]
+#[derive(Clone, Eq, PartialEq, Ord, PartialOrd, Debug, Hash, Serialize, Deserialize)]
 pub struct Signature(Vec<u8>);
 
 impl Signature {
@@ -144,6 +168,18 @@ impl Signature {
 
     pub fn as_slice(&self) -> &[u8] {
         self.0.as_slice()
+    }
+}
+
+impl Default for Signature {
+    fn default() -> Signature {
+        let mut _sig = Vec::new();
+        
+        for _ in 0..SIGNATURE_SIZE as usize {
+            _sig.push(0);
+        }
+
+        Signature(_sig)
     }
 }
 
