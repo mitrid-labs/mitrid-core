@@ -32,9 +32,8 @@ extern crate mitrid_core;
 
 ## Testing
 
-To test the library, just run `cargo test` from the command line.
-Please, don't use in production the cryptographic libraries used in the tests.
-
+To build the tests you need `libsodium` and `libclang` installed on your system.
+If the dependencies are resolved, then you can run the tests by typing `cargo test` on your terminal.
 
 ## [License](LICENSE)
 

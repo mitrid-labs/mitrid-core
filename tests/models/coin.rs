@@ -3,13 +3,13 @@ use mitrid_core::models::Meta;
 /*
 use mitrid_core::base::Checkable;
 use mitrid_core::base::Sizable;
-use mitrid_core::base::Serializable;
 */
+use mitrid_core::base::Serializable;
 
 use fixtures::crypto::Digest;
 use fixtures::models::Amount;
 
-//use fixtures::crypto::SHA512;
+use fixtures::crypto::SHA512;
 use fixtures::models::Coin;
 
 #[test]
@@ -41,9 +41,6 @@ fn test_coin_output() {
 
 #[test]
 fn test_coin_finalize() {
-    /*
-    // No. Just no.
-
     let valid_meta = Meta::default();
     let valid_tx_id = Digest::default();
     let out_idx = 0;
@@ -63,7 +60,6 @@ fn test_coin_finalize() {
 
     println!("res: {:?}", res.clone());
     assert!(res.is_ok());
-    */
 }
 
 #[test]

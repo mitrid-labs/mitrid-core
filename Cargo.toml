@@ -24,4 +24,4 @@ regex = "^1"
 
 [dev-dependencies]
 rand = "0.3.22"
-rust-crypto-wasm = "^0.3"
+sodiumoxide = "^0.1"

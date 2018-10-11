@@ -1,7 +1,7 @@
 #![allow(dead_code)]
 
-use crypto::digest::Digest as _Digest;
-use crypto::sha3::Sha3;
+use sodiumoxide::crypto::hash::DIGESTBYTES;
+use sodiumoxide::crypto::hash::hash;
 
 use mitrid_core::base::Result;
 use mitrid_core::base::{Sizable, FixedSize};
@@ -9,7 +9,7 @@ use mitrid_core::base::Checkable;
 use mitrid_core::base::Serializable;
 use mitrid_core::base::Datable;
 
-pub const DIGEST_SIZE: u64 = 64;
+pub const DIGEST_SIZE: u64 = DIGESTBYTES as u64;
 
 #[derive(Clone, Eq, PartialEq, Ord, PartialOrd, Debug, Hash, Serialize, Deserialize)]
 pub struct Digest(Vec<u8>);
@@ -80,13 +80,7 @@ pub struct SHA512 {}
 // NB: Ignore. The hasher is not reliable (different output with the same input...)
 impl SHA512 {
     pub fn digest(msg: &[u8]) -> Result<Digest> {
-        let mut hasher = Sha3::sha3_512();
-        hasher.input(msg);
-
-        let mut buf = Vec::new();
-        hasher.result(&mut buf);
-
-        Digest::from_vec(&buf)
+        Digest::from_slice(&hash(msg).0[..])
     }
 
     pub fn verify(msg: &[u8], digest: &Digest) -> Result<bool> {

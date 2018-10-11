@@ -1,6 +1,12 @@
 #![allow(dead_code)]
 
-use crypto::ed25519;
+use sodiumoxide::crypto::sign::{SEEDBYTES, SECRETKEYBYTES, PUBLICKEYBYTES, SIGNATUREBYTES};
+use sodiumoxide::crypto::sign::Seed;
+use sodiumoxide::crypto::sign::SecretKey as _SecretKey;
+use sodiumoxide::crypto::sign::PublicKey as _PublicKey;
+use sodiumoxide::crypto::sign::Signature as _Signature;
+use sodiumoxide::crypto::sign::{gen_keypair, keypair_from_seed};
+use sodiumoxide::crypto::sign::{sign_detached, verify_detached};
 
 use mitrid_core::base::Result;
 use mitrid_core::base::{Sizable, FixedSize};
@@ -8,7 +14,50 @@ use mitrid_core::base::Checkable;
 use mitrid_core::base::Serializable;
 use mitrid_core::base::Datable;
 
-pub const SECRETKEY_SIZE: u64 = 64;
+pub const KEYSEED_SIZE: u64 = SEEDBYTES as u64;
+
+#[derive(Clone, Eq, PartialEq, Ord, PartialOrd, Debug, Hash, Serialize, Deserialize)]
+pub struct KeySeed(Vec<u8>);
+
+impl KeySeed {
+    pub fn from_vec(buf: &Vec<u8>) -> Result<KeySeed> {
+        if buf.len() != KEYSEED_SIZE as usize {
+            return Err(String::from("invalid length"));
+        }
+
+        Ok(KeySeed(buf.to_owned()))
+    }
+
+    pub fn to_vec(&self) -> Vec<u8> {
+        self.0.clone()
+    }
+
+    pub fn from_slice(buf: &[u8]) -> Result<KeySeed> {
+        if buf.len() != KEYSEED_SIZE as usize {
+            return Err(String::from("invalid length"));
+        }
+
+        Ok(KeySeed(buf.to_owned()))
+    }
+
+    pub fn as_slice(&self) -> &[u8] {
+        self.0.as_slice()
+    }
+}
+
+impl Default for KeySeed {
+    fn default() -> KeySeed {
+        let mut _ks = Vec::new();
+        
+        for _ in 0..KEYSEED_SIZE as usize {
+            _ks.push(0);
+        }
+
+        KeySeed(_ks)
+    }
+}
+
+pub const SECRETKEY_SIZE: u64 = SECRETKEYBYTES as u64;
 
 #[derive(Clone, Eq, PartialEq, Ord, PartialOrd, Debug, Hash, Serialize, Deserialize)]
 pub struct SecretKey(Vec<u8>);
@@ -74,7 +123,7 @@ impl Serializable for SecretKey {}
 
 impl Datable for SecretKey {}
 
-pub const PUBLICKEY_SIZE: u64 = 32;
+pub const PUBLICKEY_SIZE: u64 = PUBLICKEYBYTES as u64;
 
 #[derive(Clone, Eq, PartialEq, Ord, PartialOrd, Debug, Hash, Serialize, Deserialize)]
 pub struct PublicKey(Vec<u8>);
@@ -140,7 +189,7 @@ impl Serializable for PublicKey {}
 
 impl Datable for PublicKey {}
 
-pub const SIGNATURE_SIZE: u64 = 32;
+pub const SIGNATURE_SIZE: u64 = SIGNATUREBYTES as u64;
 
 #[derive(Clone, Eq, PartialEq, Ord, PartialOrd, Debug, Hash, Serialize, Deserialize)]
 pub struct Signature(Vec<u8>);
@@ -209,8 +258,13 @@ impl Datable for Signature {}
 pub struct Ed25519 {}
 
 impl Ed25519 {
-    pub fn keypair(seed: &[u8]) -> Result<(PublicKey, SecretKey)> {
-        let (_pk, _sk) = ed25519::keypair(seed);
+    pub fn keypair(seed: &Option<KeySeed>) -> Result<(PublicKey, SecretKey)> {
+        let (_pk, _sk) = if let Some(ks) = seed {
+            let key_seed = Seed::from_slice(ks.as_slice()).unwrap();
+            keypair_from_seed(&key_seed)
+        } else {
+            gen_keypair()
+        };
 
         let pk = PublicKey::from_slice(&_pk[..])?;
         let sk = SecretKey::from_slice(&_sk[..])?;
@@ -221,7 +275,9 @@ impl Ed25519 {
     pub fn sign(msg: &[u8], sk: &SecretKey) -> Result<Signature> {
         sk.check()?;
 
-        let _sig = ed25519::signature(msg, sk.as_slice());
+        let _sk = _SecretKey::from_slice(sk.as_slice()).unwrap();
+
+        let _sig = sign_detached(msg, &_sk);
         Signature::from_slice(&_sig[..])
     }
 
@@ -229,7 +285,10 @@ impl Ed25519 {
         pk.check()?;
         sig.check()?;
 
-        let verified = ed25519::verify(msg, pk.as_slice(), sig.as_slice());
+        let _pk = _PublicKey::from_slice(pk.as_slice()).unwrap();
+        let _sig = _Signature::from_slice(sig.as_slice()).unwrap();
+
+        let verified = verify_detached(&_sig, msg, &_pk);
         Ok(verified)
     }
 }
