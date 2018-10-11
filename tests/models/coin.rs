@@ -52,7 +52,6 @@ fn test_coin_finalize() {
 
     let res = coin.finalize(&(), &coin_digest_cb);
 
-    println!("res: {:?}", res.clone());
     assert!(res.is_ok());
 }
 
