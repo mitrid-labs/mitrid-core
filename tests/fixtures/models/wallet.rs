@@ -3,7 +3,7 @@ use mitrid_core::base::Serializable;
 use mitrid_core::models::Wallet as BaseWallet;
 
 use fixtures::crypto::{Digest, SHA512};
-use fixtures::crypto::{SecretKey, PublicKey, Signature};
+use fixtures::crypto::{SecretKey, PublicKey, Signature, Ed25519};
 use fixtures::models::Payload;
 
 #[allow(dead_code)]
@@ -26,6 +26,27 @@ pub fn wallet_verify_digest_cb(wallet: &Wallet, _: &(), digest: &Digest) -> Resu
 pub fn wallet_check_digest_cb(wallet: &Wallet, _: &(), digest: &Digest) -> Result<()> {
     if !wallet_verify_digest_cb(wallet, &(), digest)? {
         return Err("invalid digest".into());
+    }
+
+    Ok(())
+}
+
+#[allow(dead_code)]
+pub fn wallet_sign_cb(wallet: &Wallet, _: &(), sk: &SecretKey) -> Result<Signature> {
+    let msg = wallet.to_bytes()?;
+    Ed25519::sign(&msg, sk)
+}
+
+#[allow(dead_code)]
+pub fn wallet_verify_signature_cb(wallet: &Wallet, _: &(), pk: &PublicKey, sig: &Signature) -> Result<bool> {
+    let msg = wallet.to_bytes()?;
+    Ed25519::verify(&msg, pk, sig)
+}
+
+#[allow(dead_code)]
+pub fn wallet_check_signature_cb(wallet: &Wallet, _: &(), pk: &PublicKey, sig: &Signature) -> Result<()> {
+    if !wallet_verify_signature_cb(wallet, &(), pk, sig)? {
+        return Err("invalid signature".into());
     }
 
     Ok(())

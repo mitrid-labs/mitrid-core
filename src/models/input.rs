@@ -113,9 +113,9 @@ impl<D, A, P, Pk, Sig> Input<D, A, P, Pk, Sig>
     /// Verifies the cryptographic signature against the `Input`.
     pub fn verify_signature<SP, Sk>(&self,
                                     params: &SP,
-                                    sig: &Sig,
                                     pk: &Pk,
-                                    cb: &Fn(&Self, &SP, &Sig, &Pk) -> Result<bool>)
+                                    sig: &Sig,
+                                    cb: &Fn(&Self, &SP, &Pk, &Sig) -> Result<bool>)
         -> Result<bool>
         where   SP: Datable,
                 Sk: Datable + FixedSize
@@ -124,15 +124,15 @@ impl<D, A, P, Pk, Sig> Input<D, A, P, Pk, Sig>
         sig.check()?;
         pk.check()?;
 
-        Signable::<SP, Sk, Pk, Sig>::verify_signature_cb(self, params, sig, pk, cb)
+        Signable::<SP, Sk, Pk, Sig>::verify_signature_cb(self, params, pk, sig, cb)
     }
 
     /// Checks the cryptographic signature against the `Input`.
     pub fn check_signature<SP, Sk>(&self,
                                    params: &SP,
-                                   sig: &Sig,
                                    pk: &Pk,
-                                   cb: &Fn(&Self, &SP, &Sig, &Pk) -> Result<bool>)
+                                   sig: &Sig,
+                                   cb: &Fn(&Self, &SP, &Pk, &Sig) -> Result<bool>)
         -> Result<()>
         where   SP: Datable,
                 Sk: Datable + FixedSize
@@ -141,7 +141,7 @@ impl<D, A, P, Pk, Sig> Input<D, A, P, Pk, Sig>
         sig.check()?;
         pk.check()?;
 
-        Signable::<SP, Sk, Pk, Sig>::check_signature_cb(self, params, sig, pk, cb)
+        Signable::<SP, Sk, Pk, Sig>::check_signature_cb(self, params, pk, sig, cb)
     }
 
     /// Finalizes the `Input`, building its id and returning it's complete form.

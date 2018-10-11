@@ -23,23 +23,23 @@ pub trait Signable<P, Sk, Pk, Sig>
     /// Verifies a cryptographic signature against the implementor using a public key and a callback.
     fn verify_signature_cb(&self,
                            params: &P,
-                           sig: &Sig,
                            pk: &Pk,
-                           cb: &Fn(&Self, &P, &Sig, &Pk) -> Result<bool>)
+                           sig: &Sig,
+                           cb: &Fn(&Self, &P, &Pk, &Sig) -> Result<bool>)
         -> Result<bool>
     {
-        cb(self, params, sig, pk)
+        cb(self, params, pk, sig)
     }
 
     /// Checks a cryptographic signature against the implementor using a public key and a callback.
     fn check_signature_cb(&self,
                           params: &P,
-                          sig: &Sig,
                           pk: &Pk,
-                          cb: &Fn(&Self, &P, &Sig, &Pk) -> Result<bool>)
+                          sig: &Sig,
+                          cb: &Fn(&Self, &P, &Pk, &Sig) -> Result<bool>)
         -> Result<()>
     {
-        if !Self::verify_signature_cb(self, params, sig, pk, cb)? {
+        if !Self::verify_signature_cb(self, params, pk, sig, cb)? {
             return Err(String::from("invalid signature"));
         }
 
