@@ -1,9 +1,16 @@
 use mitrid_core::base::Sizable;
+use mitrid_core::base::Checkable;
 use mitrid_core::base::Serializable;
 use mitrid_core::utils::Version;
 use mitrid_core::models::Meta;
 
+use fixtures::base::eval::*;
+use fixtures::crypto::{PublicKey, Ed25519};
+use fixtures::models::Amount;
 use fixtures::models::Payload;
+use fixtures::models::coin::*;
+use fixtures::models::input::*;
+use fixtures::models::output::*;
 use fixtures::models::transaction::*;
 
 #[test]
@@ -24,10 +31,70 @@ fn test_transaction_meta() {
 }
 
 #[test]
-fn test_transaction_inputs() {}
+fn test_transaction_inputs() {
+    let coin = Coin::new()
+                    .finalize(&(), &coin_digest_cb)
+                    .unwrap();
+
+    let (pk, sk) = Ed25519::keypair(&None).unwrap();
+
+    let mut input = Input::new()
+                        .meta(&Meta::default())
+                        .unwrap()
+                        .coin(&coin)
+                        .unwrap()
+                        .payload(&Payload::default())
+                        .unwrap()
+                        .sign(&(), &sk, &pk, &input_sign_cb)
+                        .unwrap()
+                        .finalize(&(), &input_digest_cb)
+                        .unwrap();
+
+    let res = Transaction::new().inputs(&vec![input.clone()]);
+    assert!(res.is_ok());
+
+    let mut invalid_version = Version::default();
+    invalid_version.buildmeta = "/\\".into();
+
+    let mut invalid_meta = Meta::default();
+    invalid_meta.version = invalid_version;
+
+    input.meta = invalid_meta;
+
+    let res = Transaction::new().inputs(&vec![input]);
+    assert!(res.is_err());
+}
 
 #[test]
-fn test_transaction_outputs() {}
+fn test_transaction_outputs() {
+    let mut output = Output::new()
+                        .meta(&Meta::default())
+                        .unwrap()
+                        .sender(&PublicKey::default())
+                        .unwrap()
+                        .receiver(&PublicKey::default())
+                        .unwrap()
+                        .amount(&Amount::default())
+                        .unwrap()
+                        .payload(&Payload::default())
+                        .unwrap()
+                        .finalize(&(), &output_digest_cb)
+                        .unwrap();
+
+    let res = Transaction::new().outputs(&vec![output.clone()]);
+    assert!(res.is_ok());
+
+    let mut invalid_version = Version::default();
+    invalid_version.buildmeta = "/\\".into();
+
+    let mut invalid_meta = Meta::default();
+    invalid_meta.version = invalid_version;
+
+    output.meta = invalid_meta;
+
+    let res = Transaction::new().outputs(&vec![output]);
+    assert!(res.is_err());
+}
 
 #[test]
 fn test_transaction_payload() {
@@ -56,6 +123,189 @@ fn test_transaction_check_digest() {
     
     let res = tx.check_digest(&(), &transaction_check_digest_cb);
     assert!(res.is_ok())
+}
+
+#[test]
+fn test_transaction_finalize() {
+    let coin = Coin::new()
+                    .finalize(&(), &coin_digest_cb)
+                    .unwrap();
+
+    let (pk, sk) = Ed25519::keypair(&None).unwrap();
+
+    let input = Input::new()
+                    .meta(&Meta::default())
+                    .unwrap()
+                    .coin(&coin)
+                    .unwrap()
+                    .payload(&Payload::default())
+                    .unwrap()
+                    .sign(&(), &sk, &pk, &input_sign_cb)
+                    .unwrap()
+                    .finalize(&(), &input_digest_cb)
+                    .unwrap();
+
+    let output = Output::new()
+                    .meta(&Meta::default())
+                    .unwrap()
+                    .sender(&PublicKey::default())
+                    .unwrap()
+                    .receiver(&PublicKey::default())
+                    .unwrap()
+                    .amount(&Amount::default())
+                    .unwrap()
+                    .payload(&Payload::default())
+                    .unwrap()
+                    .finalize(&(), &output_digest_cb)
+                    .unwrap();
+
+    let payload = Payload::default();
+
+    let mut tx = Transaction::new()
+                    .meta(&Meta::default())
+                    .unwrap()
+                    .inputs(&vec![input])
+                    .unwrap()
+                    .outputs(&vec![output])
+                    .unwrap()
+                    .payload(&payload)
+                    .unwrap();
+
+    let res = tx.clone().finalize(&(), &transaction_digest_cb);
+    assert!(res.is_ok());
+
+    let mut invalid_version = Version::default();
+    invalid_version.buildmeta = "/\\".into();
+
+    let mut invalid_meta = Meta::default();
+    invalid_meta.version = invalid_version;
+
+    tx.inputs[0].meta = invalid_meta;
+
+    let res = tx.finalize(&(), &transaction_digest_cb);
+    assert!(res.is_err());
+}
+
+#[test]
+fn test_transaction_check() {
+    let coin = Coin::new()
+                    .finalize(&(), &coin_digest_cb)
+                    .unwrap();
+
+    let (pk, sk) = Ed25519::keypair(&None).unwrap();
+
+    let input = Input::new()
+                    .meta(&Meta::default())
+                    .unwrap()
+                    .coin(&coin)
+                    .unwrap()
+                    .payload(&Payload::default())
+                    .unwrap()
+                    .sign(&(), &sk, &pk, &input_sign_cb)
+                    .unwrap()
+                    .finalize(&(), &input_digest_cb)
+                    .unwrap();
+
+    let output = Output::new()
+                    .meta(&Meta::default())
+                    .unwrap()
+                    .sender(&PublicKey::default())
+                    .unwrap()
+                    .receiver(&PublicKey::default())
+                    .unwrap()
+                    .amount(&Amount::default())
+                    .unwrap()
+                    .payload(&Payload::default())
+                    .unwrap()
+                    .finalize(&(), &output_digest_cb)
+                    .unwrap();
+
+    let payload = Payload::default();
+
+    let mut tx = Transaction::new()
+                    .meta(&Meta::default())
+                    .unwrap()
+                    .inputs(&vec![input])
+                    .unwrap()
+                    .outputs(&vec![output])
+                    .unwrap()
+                    .payload(&payload)
+                    .unwrap()
+                    .finalize(&(), &transaction_digest_cb)
+                    .unwrap();
+
+    let res = tx.check();
+    assert!(res.is_ok());
+
+    let mut invalid_version = Version::default();
+    invalid_version.buildmeta = "/\\".into();
+
+    let invalid_meta = Meta::default();
+    tx.meta = invalid_meta;
+
+    let res = tx.check();
+    assert!(res.is_err());
+}
+
+#[test]
+fn test_transaction_eval() {
+    let coin = Coin::new()
+                    .finalize(&(), &coin_digest_cb)
+                    .unwrap();
+
+    let (pk, sk) = Ed25519::keypair(&None).unwrap();
+
+    let input = Input::new()
+                    .meta(&Meta::default())
+                    .unwrap()
+                    .coin(&coin)
+                    .unwrap()
+                    .payload(&Payload::default())
+                    .unwrap()
+                    .sign(&(), &sk, &pk, &input_sign_cb)
+                    .unwrap()
+                    .finalize(&(), &input_digest_cb)
+                    .unwrap();
+
+    let output = Output::new()
+                    .meta(&Meta::default())
+                    .unwrap()
+                    .sender(&PublicKey::default())
+                    .unwrap()
+                    .receiver(&PublicKey::default())
+                    .unwrap()
+                    .amount(&Amount::default())
+                    .unwrap()
+                    .payload(&Payload::default())
+                    .unwrap()
+                    .finalize(&(), &output_digest_cb)
+                    .unwrap();
+
+    let payload = Payload::default();
+
+    let tx = Transaction::new()
+                .meta(&Meta::default())
+                .unwrap()
+                .inputs(&vec![input])
+                .unwrap()
+                .outputs(&vec![output])
+                .unwrap()
+                .payload(&payload)
+                .unwrap()
+                .finalize(&(), &transaction_digest_cb)
+                .unwrap();
+
+    let res = tx.eval(&EvalParams::Const, &transaction_eval_cb);
+    assert!(res.is_ok());
+
+    let const_res = res.unwrap();
+    assert_eq!(const_res, EvalReturn::Const(payload.to_string()));
+
+    let res = tx.eval(&EvalParams::ToUppercase, &transaction_eval_cb);
+    assert!(res.is_ok());
+
+    let to_uppercase_res = res.unwrap();
+    assert_eq!(to_uppercase_res, EvalReturn::ToUppercase(payload.to_string().to_uppercase()));
 }
 
 #[test]
