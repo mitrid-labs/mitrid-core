@@ -160,19 +160,19 @@ fn test_output_eval() {
     let amount = Amount::default();
     let payload = Payload::new("pAyLoAd");
 
-    let mut output = Output::new()
-                        .meta(&meta)
-                        .unwrap()
-                        .sender(&sender)
-                        .unwrap()
-                        .receiver(&receiver)
-                        .unwrap()
-                        .amount(&amount)
-                        .unwrap()
-                        .payload(&payload)
-                        .unwrap()
-                        .finalize(&(), &output_digest_cb)
-                        .unwrap();
+    let output = Output::new()
+                    .meta(&meta)
+                    .unwrap()
+                    .sender(&sender)
+                    .unwrap()
+                    .receiver(&receiver)
+                    .unwrap()
+                    .amount(&amount)
+                    .unwrap()
+                    .payload(&payload)
+                    .unwrap()
+                    .finalize(&(), &output_digest_cb)
+                    .unwrap();
 
     let res = output.eval(&EvalParams::Const, &output_eval_cb);
     assert!(res.is_ok());
