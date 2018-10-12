@@ -3,7 +3,6 @@ use mitrid_core::base::Serializable;
 use mitrid_core::models::BlockNode as BaseBlockNode;
 
 use fixtures::crypto::{Digest, SHA512};
-use fixtures::models::Payload;
 
 #[allow(dead_code)]
 pub type BlockNode = BaseBlockNode<Digest>;
