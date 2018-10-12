@@ -143,11 +143,6 @@ fn test_version_serialize_json() {
 
     let version_b = res.unwrap();
     assert_eq!(version_a, version_b);
-
-    let mut invalid_version = Version::default();
-    invalid_version.prerelease = "9".into();
-    let res = invalid_version.to_json();
-    assert!(res.is_err());
 }
 
 #[test]
@@ -162,11 +157,6 @@ fn test_version_serialize_bytes() {
 
     let version_b = res.unwrap();
     assert_eq!(version_a, version_b);
-
-    let mut invalid_version = Version::default();
-    invalid_version.prerelease = "9".into();
-    let res = invalid_version.to_bytes();
-    assert!(res.is_err());
 }
 
 #[test]
@@ -181,9 +171,4 @@ fn test_version_serialize_hex() {
 
     let version_b = res.unwrap();
     assert_eq!(version_a, version_b);
-
-    let mut invalid_version = Version::default();
-    invalid_version.prerelease = "9".into();
-    let res = invalid_version.to_hex();
-    assert!(res.is_err());
 }

@@ -5,6 +5,7 @@ use mitrid_core::models::Meta;
 //use mitrid_core::base::Serializable;
 
 use fixtures::crypto::Digest;
+use fixtures::crypto::{SecretKey, Ed25519};
 use fixtures::models::Amount;
 use fixtures::models::Payload;
 use fixtures::models::coin::*;
@@ -67,13 +68,50 @@ fn test_input_payload() {
 }
 
 #[test]
-fn test_input_sign() {}
+fn test_input_sign() {
+    let (pk, sk) = Ed25519::keypair(&None).unwrap();
+
+    let input = Input::new();
+
+    let res = input.sign(&(), &sk, &pk, &input_sign_cb);
+
+    assert!(res.is_ok());
+}
 
 #[test]
-fn test_input_verify_sign() {}
+fn test_input_verify_sign() {
+    let (pk, sk) = Ed25519::keypair(&None).unwrap();
+
+    let mut input = Input::new()
+                    .sign(&(), &sk, &pk, &input_sign_cb)
+                    .unwrap();
+
+    let res = input.verify_signature::<(), SecretKey>(&(), &input_verify_signature_cb);
+
+    assert!(res.is_ok());
+    assert!(res.unwrap());
+
+    input = input.payload(&Payload::new("a different payload")).unwrap();
+    let res = input.verify_signature::<(), SecretKey>(&(), &input_verify_signature_cb);
+    assert!(res.is_ok());
+    assert!(!res.unwrap());
+}
 
 #[test]
-fn test_input_check_sign() {}
+fn test_input_check_sign() {
+    let (pk, sk) = Ed25519::keypair(&None).unwrap();
+
+    let mut input = Input::new()
+                        .sign(&(), &sk, &pk, &input_sign_cb)
+                        .unwrap();
+
+    let res = input.check_signature::<(), SecretKey>(&(), &input_check_signature_cb);
+    assert!(res.is_ok());
+
+    input = input.payload(&Payload::new("a different payload")).unwrap();
+    let res = input.check_signature::<(), SecretKey>(&(), &input_check_signature_cb);
+    assert!(res.is_err());
+}
 
 #[test]
 fn test_input_finalize() {}

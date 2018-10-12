@@ -36,13 +36,9 @@ pub trait Signable<P, Sk, Pk, Sig>
                           params: &P,
                           pk: &Pk,
                           sig: &Sig,
-                          cb: &Fn(&Self, &P, &Pk, &Sig) -> Result<bool>)
+                          cb: &Fn(&Self, &P, &Pk, &Sig) -> Result<()>)
         -> Result<()>
     {
-        if !Self::verify_signature_cb(self, params, pk, sig, cb)? {
-            return Err(String::from("invalid signature"));
-        }
-
-        Ok(())
+        cb(self, params, pk, sig)
     }
 }

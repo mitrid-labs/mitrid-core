@@ -46,7 +46,9 @@ impl<D, A, P, Pk, Sig> Input<D, A, P, Pk, Sig>
 {
     /// Creates a new `Input`.
     pub fn new() -> Input<D, A, P, Pk, Sig> {
-        Input::default()
+        let mut input = Input::default();
+        input.update_size();
+        input
     }
 
     /// Updates the `Input` size.
@@ -102,8 +104,9 @@ impl<D, A, P, Pk, Sig> Input<D, A, P, Pk, Sig>
         sk.check()?;
         pk.check()?;
 
-        self.signature = self.sign_cb(params, sk, cb)?;
         self.public_key = pk.clone();
+        
+        self.signature = self.sign_cb(params, sk, cb)?;
 
         self.update_size();
 
@@ -113,35 +116,47 @@ impl<D, A, P, Pk, Sig> Input<D, A, P, Pk, Sig>
     /// Verifies the cryptographic signature against the `Input`.
     pub fn verify_signature<SP, Sk>(&self,
                                     params: &SP,
-                                    pk: &Pk,
-                                    sig: &Sig,
                                     cb: &Fn(&Self, &SP, &Pk, &Sig) -> Result<bool>)
         -> Result<bool>
         where   SP: Datable,
                 Sk: Datable + FixedSize
     {
         params.check()?;
-        sig.check()?;
+
+        let pk = self.public_key.clone();
         pk.check()?;
 
-        Signable::<SP, Sk, Pk, Sig>::verify_signature_cb(self, params, pk, sig, cb)
+        let sig = self.signature.clone();
+        sig.check()?;
+
+        let mut input = self.clone();
+        input.signature = Sig::default();
+        input.id = D::default();
+
+        Signable::<SP, Sk, Pk, Sig>::verify_signature_cb(&input, params, &pk, &sig, cb)
     }
 
     /// Checks the cryptographic signature against the `Input`.
     pub fn check_signature<SP, Sk>(&self,
                                    params: &SP,
-                                   pk: &Pk,
-                                   sig: &Sig,
-                                   cb: &Fn(&Self, &SP, &Pk, &Sig) -> Result<bool>)
+                                   cb: &Fn(&Self, &SP, &Pk, &Sig) -> Result<()>)
         -> Result<()>
         where   SP: Datable,
                 Sk: Datable + FixedSize
     {
         params.check()?;
-        sig.check()?;
+
+        let pk = self.public_key.clone();
         pk.check()?;
 
-        Signable::<SP, Sk, Pk, Sig>::check_signature_cb(self, params, pk, sig, cb)
+        let sig = self.signature.clone();
+        sig.check()?;
+
+        let mut input = self.clone();
+        input.signature = Sig::default();
+        input.id = D::default();
+
+        Signable::<SP, Sk, Pk, Sig>::check_signature_cb(&input, params, &pk, &sig, cb)
     }
 
     /// Finalizes the `Input`, building its id and returning it's complete form.
@@ -253,6 +268,7 @@ impl<D, A, P, Pk, Sig> Checkable for Input<D, A, P, Pk, Sig>
     fn check(&self) -> Result<()> {
         self.id.check()?;
         self.id.check_size()?;
+
         self.meta.check()?;
         
         if self.meta.get_size() != self.size() {

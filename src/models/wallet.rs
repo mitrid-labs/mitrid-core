@@ -118,7 +118,7 @@ impl<D, Sk, Pk, Sig, P> Wallet<D, Sk, Pk, Sig, P>
                                params: &SP,
                                pk: &Pk,
                                sig: &Sig,
-                               cb: &Fn(&Self, &SP, &Pk, &Sig) -> Result<bool>)
+                               cb: &Fn(&Self, &SP, &Pk, &Sig) -> Result<()>)
         -> Result<()>
         where   SP: Datable,
                 Sk: Datable + FixedSize

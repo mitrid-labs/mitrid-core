@@ -16,8 +16,6 @@ pub trait Serializable
 {
     /// Serializes the implementor into a json string.
     fn to_json(&self) -> Result<String> {
-        self.check()?;
-
         json::to_string(&self).map_err(|e| format!("{}", e))
     }
 
@@ -31,8 +29,6 @@ pub trait Serializable
 
     /// Serializes the implementor into a byte vector. 
     fn to_bytes(&self) -> Result<Vec<u8>> {
-        self.check()?;
-
         cbor::to_vec(self).map_err(|e| format!("{}", e))
     }
 
