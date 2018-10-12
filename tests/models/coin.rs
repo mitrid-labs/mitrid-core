@@ -93,17 +93,6 @@ fn test_coin_finalize() {
 }
 
 #[test]
-fn test_coin_size() {
-    let coin = Coin::new();
-
-    let coin_size = coin.size();
-
-    let meta_size = coin.meta.get_size();
-
-    assert_eq!(meta_size, coin_size);
-}
-
-#[test]
 fn test_coin_check() {
     let valid_meta = Meta::default();
     let tx_id = Digest::default();
@@ -131,6 +120,17 @@ fn test_coin_check() {
 
     let res = coin.check();
     assert!(res.is_err());
+}
+
+#[test]
+fn test_coin_size() {
+    let coin = Coin::new();
+
+    let coin_size = coin.size();
+
+    let meta_size = coin.meta.get_size();
+
+    assert_eq!(meta_size, coin_size);
 }
 
 #[test]

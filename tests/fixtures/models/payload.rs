@@ -7,8 +7,16 @@ use mitrid_core::base::Datable;
 pub struct Payload(String);
 
 impl Payload {
-    pub fn new(addr: &str) -> Payload {
-        Payload(addr.into())
+    pub fn new(payload: &str) -> Payload {
+        Payload::from_str(payload)
+    }
+
+    pub fn from_str(s: &str) -> Payload {
+        Payload(s.into())
+    }
+
+    pub fn to_string(&self) -> String {
+        self.0.clone()
     }
 }
 
