@@ -5,7 +5,7 @@
 use base::Result;
 use base::Datable;
 
-/// Trait implemented by types that can produce cryptographic proofs and verify them. 
+/// Trait implemented by types that can produce cryptographic proofs and verify them.
 pub trait Provable<P, Pr>
     where   P: Datable,
             Pr: Datable,
@@ -24,13 +24,9 @@ pub trait Provable<P, Pr>
     }
 
     /// Checks a cryptographic proof against the implementor.
-    fn check_proof_cb(&self, params: &P, proof: &Pr, cb: &Fn(&Self, &P, &Pr) -> Result<bool>)
+    fn check_proof_cb(&self, params: &P, proof: &Pr, cb: &Fn(&Self, &P, &Pr) -> Result<()>)
         -> Result<()>
     {
-        if !Self::verify_proof_cb(self, params, proof, cb)? {
-            return Err(String::from("invalid proof"));
-        }
-
-        Ok(())
+        cb(self, params, proof)
     }
 }

@@ -26,13 +26,9 @@ pub trait Authenticated<P, T>
     }
 
     /// Checks an authentication token against the implementor token.
-    fn check_token_cb(&self, params: &P, token: &T, cb: &Fn(&Self, &P, &T) -> Result<bool>)
+    fn check_token_cb(&self, params: &P, token: &T, cb: &Fn(&Self, &P, &T) -> Result<()>)
         -> Result<()>
     {
-        if !Self::verify_token_cb(self, params, token, cb)? {
-            return Err(String::from("invalid authentication token"));
-        }
-
-        Ok(())
+        cb(self, params, token)
     }
 }

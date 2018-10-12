@@ -146,27 +146,29 @@ impl<D, A, IP, Pk, Sig, OP, TP, P, Pr> Block<D, A, IP, Pk, Sig, OP, TP, P, Pr>
     /// Verifies the cryptographic proof against the `Block`.
     pub fn verify_proof<PrP: Datable>(&self,
                                       params: &PrP,
-                                      proof: &Pr,
                                       cb: &Fn(&Self, &PrP, &Pr) -> Result<bool>)
         -> Result<bool>
     {
         params.check()?;
+
+        let proof = self.proof.clone();
         proof.check()?;
 
-        self.verify_proof_cb(params, proof, cb)
+        self.verify_proof_cb(params, &proof, cb)
     }
 
     /// Checks the cryptographic proof against the `Block`.
     pub fn check_proof<PrP: Datable>(&self,
                                      params: &PrP,
-                                     proof: &Pr,
-                                     cb: &Fn(&Self, &PrP, &Pr) -> Result<bool>)
+                                     cb: &Fn(&Self, &PrP, &Pr) -> Result<()>)
         -> Result<()>
     {
         params.check()?;
+
+        let proof = self.proof.clone();
         proof.check()?;
 
-        self.check_proof_cb(params, proof, cb)
+        self.check_proof_cb(params, &proof, cb)
     }
 
     /// Finalizes the `Block`, building its id and returning it's complete form.
@@ -296,11 +298,11 @@ impl<D, A, IP, Pk, Sig, OP, TP, P, Pr> Checkable for Block<D, A, IP, Pk, Sig, OP
         self.id.check()?;
         self.id.check_size()?;
         self.meta.check()?;
-        
+
         if self.meta.get_size() != self.size() {
             return Err(String::from("invalid meta size"));
         }
-        
+
         self.height.check()?;
         self.prev_blocks_len.check()?;
         self.prev_blocks.check()?;
