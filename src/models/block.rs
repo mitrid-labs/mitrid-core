@@ -156,7 +156,11 @@ impl<D, A, IP, Pk, Sig, OP, TP, P, Pr> Block<D, A, IP, Pk, Sig, OP, TP, P, Pr>
         let proof = self.proof.clone();
         proof.check()?;
 
-        self.verify_proof_cb(params, &proof, cb)
+        let mut block = self.clone();
+        block.proof = Pr::default();
+        block.id = D::default();
+
+        block.verify_proof_cb(params, &proof, cb)
     }
 
     /// Checks the cryptographic proof against the `Block`.
@@ -170,7 +174,11 @@ impl<D, A, IP, Pk, Sig, OP, TP, P, Pr> Block<D, A, IP, Pk, Sig, OP, TP, P, Pr>
         let proof = self.proof.clone();
         proof.check()?;
 
-        self.check_proof_cb(params, &proof, cb)
+        let mut block = self.clone();
+        block.proof = Pr::default();
+        block.id = D::default();
+
+        block.check_proof_cb(params, &proof, cb)
     }
 
     /// Finalizes the `Block`, building its id and returning it's complete form.
