@@ -1,8 +1,8 @@
 use mitrid_core::utils::Version;
 use mitrid_core::models::Meta;
 //use mitrid_core::base::Checkable;
-//use mitrid_core::base::Sizable;
-//use mitrid_core::base::Serializable;
+use mitrid_core::base::Sizable;
+use mitrid_core::base::Serializable;
 
 use fixtures::crypto::Digest;
 use fixtures::crypto::{SecretKey, Ed25519};
@@ -126,19 +126,68 @@ fn test_input_verify_digest() {}
 fn test_input_check_digest() {}
 
 #[test]
-fn test_input_check() {}
-
-#[test]
-fn test_input_size() {}
-
-#[test]
 fn test_input_eval() {}
 
 #[test]
-fn test_input_json() {}
+fn test_input_check() {}
 
 #[test]
-fn test_input_bytes() {}
+fn test_input_size() {
+    let input = Input::new();
+
+    let meta_size = input.meta.get_size();
+    let input_size = input.size();
+
+    assert_eq!(meta_size, input_size);
+}
 
 #[test]
-fn test_input_hex() {}
+fn test_input_json() {
+    let input_a = Input::new();
+
+    let res = input_a.to_json();
+    assert!(res.is_ok());
+
+    let input_json = res.unwrap();
+
+    let res = Input::from_json(&input_json);
+    assert!(res.is_ok());
+
+    let input_b = res.unwrap();
+
+    assert_eq!(input_a, input_b);
+}
+
+#[test]
+fn test_input_bytes() {
+    let input_a = Input::new();
+
+    let res = input_a.to_bytes();
+    assert!(res.is_ok());
+
+    let input_bytes = res.unwrap();
+
+    let res = Input::from_bytes(&input_bytes);
+    assert!(res.is_ok());
+
+    let input_b = res.unwrap();
+
+    assert_eq!(input_a, input_b);
+}
+
+#[test]
+fn test_input_hex() {
+    let input_a = Input::new();
+
+    let res = input_a.to_hex();
+    assert!(res.is_ok());
+
+    let input_hex = res.unwrap();
+
+    let res = Input::from_hex(&input_hex);
+    assert!(res.is_ok());
+
+    let input_b = res.unwrap();
+
+    assert_eq!(input_a, input_b);
+}

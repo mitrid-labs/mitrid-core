@@ -134,16 +134,11 @@ fn test_coin_size() {
                 .finalize(&(), &coin_digest_cb)
                 .unwrap();
 
-    let coin_size = coin.id.size() +
-                        coin.meta.size() +
-                        coin.tx_id.size() +
-                        coin.out_idx.size() +
-                        coin.out_amount.size();
+    let coin_size = coin.size();
 
     let meta_size = coin.meta.get_size();
 
-    assert_eq!(coin_size, coin.size());
-    assert_eq!(meta_size, coin.size());
+    assert_eq!(meta_size, coin_size);
 }
 
 #[test]

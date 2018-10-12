@@ -8,11 +8,10 @@ use cbor;
 use hex;
 
 use base::result::Result;
-use base::check::Checkable;
 
 /// Trait implemented by types that can be serialized.
 pub trait Serializable
-    where   for<'a> Self: Serialize + Deserialize<'a> + Checkable
+    where   for<'a> Self: Serialize + Deserialize<'a>
 {
     /// Serializes the implementor into a json string.
     fn to_json(&self) -> Result<String> {
@@ -21,10 +20,7 @@ pub trait Serializable
 
     /// Deserializes a json string into the implementor type.
     fn from_json(s: &str) -> Result<Self> {
-        let t: Self = json::from_str(s).map_err(|e| format!("{}", e))?;
-
-        t.check()?;
-        Ok(t)
+        json::from_str(s).map_err(|e| format!("{}", e))
     }
 
     /// Serializes the implementor into a byte vector. 
@@ -34,10 +30,7 @@ pub trait Serializable
 
     /// Deserializes a byte vector into the implementor type.
     fn from_bytes(b: &[u8]) -> Result<Self> {
-        let t: Self = cbor::from_slice(b).map_err(|e| format!("{}", e))?;
-
-        t.check()?;
-        Ok(t)
+        cbor::from_slice(b).map_err(|e| format!("{}", e))
     }
 
     /// Serializes the implementor into a hex string.
