@@ -5,9 +5,6 @@
 /// Trait implemented by types that can be cryptographically hashed.
 pub mod hash;
 
-/// Traits implemented by cryptographic key generators.
-pub mod keys;
-
 /// Trait implemented by types that can be cryptographically signed.
 pub mod sign;
 
@@ -21,7 +18,6 @@ pub mod authenticate;
 pub mod prove;
 
 pub use self::hash::Hashable;
-pub use self::keys::{Key, KeyPair};
 pub use self::sign::Signable;
 pub use self::commit::Committable;
 pub use self::authenticate::Authenticated;
