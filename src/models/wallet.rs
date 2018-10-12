@@ -89,9 +89,9 @@ impl<D, Sk, Pk, Sig, P> Wallet<D, Sk, Pk, Sig, P>
         sk.check()?;
         pk.check()?;
 
-        self.signature = self.sign_cb(params, sk, cb)?;
-        self.secret_key = sk.clone();
         self.public_key = pk.clone();
+        
+        self.signature = self.sign_cb(params, sk, cb)?;
 
         self.update_size();
 
@@ -101,35 +101,47 @@ impl<D, Sk, Pk, Sig, P> Wallet<D, Sk, Pk, Sig, P>
     /// Verifies the cryptographic signature against the `Wallet`.
     pub fn verify_signature<SP>(&self,
                                 params: &SP,
-                                pk: &Pk,
-                                sig: &Sig,
                                 cb: &Fn(&Self, &SP, &Pk, &Sig) -> Result<bool>)
         -> Result<bool>
         where   SP: Datable,
                 Sk: Datable + FixedSize
     {
         params.check()?;
-        sig.check()?;
+
+        let pk = self.public_key.clone();
         pk.check()?;
 
-        Signable::<SP, Sk, Pk, Sig>::verify_signature_cb(self, params, pk, sig, cb)
+        let sig = self.signature.clone();
+        sig.check()?;
+
+        let mut wallet = self.clone();
+        wallet.signature = Sig::default();
+        wallet.id = D::default();
+
+        Signable::<SP, Sk, Pk, Sig>::verify_signature_cb(&wallet, params, &pk, &sig, cb)
     }
 
     /// Checks the cryptographic signature against the `Wallet`.
     pub fn check_signature<SP>(&self,
                                params: &SP,
-                               pk: &Pk,
-                               sig: &Sig,
                                cb: &Fn(&Self, &SP, &Pk, &Sig) -> Result<()>)
         -> Result<()>
         where   SP: Datable,
                 Sk: Datable + FixedSize
     {
         params.check()?;
-        sig.check()?;
+
+        let pk = self.public_key.clone();
         pk.check()?;
 
-        Signable::<SP, Sk, Pk, Sig>::check_signature_cb(self, params, pk, sig, cb)
+        let sig = self.signature.clone();
+        sig.check()?;
+
+        let mut wallet = self.clone();
+        wallet.signature = Sig::default();
+        wallet.id = D::default();
+
+        Signable::<SP, Sk, Pk, Sig>::check_signature_cb(&wallet, params, &pk, &sig, cb)
     }
 
     /// Finalizes the `Wallet`, building its id and returning it's complete form.
