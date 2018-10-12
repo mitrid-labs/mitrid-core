@@ -37,16 +37,7 @@ fn test_coin_output() {
 
 #[test]
 fn test_digest() {
-    let meta = Meta::default();
-    let tx_id = Digest::default();
-    let out_idx = 0;
-    let out_amount = Amount::default();
-
-    let coin = Coin::new()
-                .meta(&meta)
-                .unwrap()
-                .output_data(&tx_id, out_idx, &out_amount)
-                .unwrap();
+    let coin = Coin::new();
 
     let res = coin.digest(&(), &coin_digest_cb);
     assert!(res.is_ok());
@@ -54,16 +45,7 @@ fn test_digest() {
 
 #[test]
 fn test_verify_digest() {
-    let meta = Meta::default();
-    let tx_id = Digest::default();
-    let out_idx = 0;
-    let out_amount = Amount::default();
-
-    let mut coin = Coin::new()
-                    .meta(&meta)
-                    .unwrap()
-                    .output_data(&tx_id, out_idx, &out_amount)
-                    .unwrap();
+    let mut coin = Coin::new();
 
     coin.id = coin.digest(&(), &coin_digest_cb).unwrap();
     
@@ -74,16 +56,7 @@ fn test_verify_digest() {
 
 #[test]
 fn test_check_digest() {
-    let meta = Meta::default();
-    let tx_id = Digest::default();
-    let out_idx = 0;
-    let out_amount = Amount::default();
-
-    let mut coin = Coin::new()
-                    .meta(&meta)
-                    .unwrap()
-                    .output_data(&tx_id, out_idx, &out_amount)
-                    .unwrap();
+    let mut coin = Coin::new();
 
     coin.id = coin.digest(&(), &coin_digest_cb).unwrap();
     
@@ -121,18 +94,7 @@ fn test_coin_finalize() {
 
 #[test]
 fn test_coin_size() {
-    let meta = Meta::default();
-    let tx_id = Digest::default();
-    let out_idx = 0;
-    let out_amount = Amount::default();
-
-    let coin = Coin::new()
-                .meta(&meta)
-                .unwrap()
-                .output_data(&tx_id, out_idx, &out_amount)
-                .unwrap()
-                .finalize(&(), &coin_digest_cb)
-                .unwrap();
+    let coin = Coin::new();
 
     let coin_size = coin.size();
 
@@ -173,18 +135,7 @@ fn test_coin_check() {
 
 #[test]
 fn test_coin_json() {
-    let meta = Meta::default();
-    let tx_id = Digest::default();
-    let out_idx = 0;
-    let out_amount = Amount::default();
-
-    let coin_a = Coin::new()
-                    .meta(&meta)
-                    .unwrap()
-                    .output_data(&tx_id, out_idx, &out_amount)
-                    .unwrap()
-                    .finalize(&(), &coin_digest_cb)
-                    .unwrap();
+    let coin_a = Coin::new();
 
     let res = coin_a.to_json();
     assert!(res.is_ok());
@@ -201,18 +152,7 @@ fn test_coin_json() {
 
 #[test]
 fn test_coin_bytes() {
-    let meta = Meta::default();
-    let tx_id = Digest::default();
-    let out_idx = 0;
-    let out_amount = Amount::default();
-
-    let coin_a = Coin::new()
-                    .meta(&meta)
-                    .unwrap()
-                    .output_data(&tx_id, out_idx, &out_amount)
-                    .unwrap()
-                    .finalize(&(), &coin_digest_cb)
-                    .unwrap();
+    let coin_a = Coin::new();
 
     let res = coin_a.to_bytes();
     assert!(res.is_ok());
@@ -229,18 +169,7 @@ fn test_coin_bytes() {
 
 #[test]
 fn test_coin_hex() {
-    let meta = Meta::default();
-    let tx_id = Digest::default();
-    let out_idx = 0;
-    let out_amount = Amount::default();
-
-    let coin_a = Coin::new()
-                    .meta(&meta)
-                    .unwrap()
-                    .output_data(&tx_id, out_idx, &out_amount)
-                    .unwrap()
-                    .finalize(&(), &coin_digest_cb)
-                    .unwrap();
+    let coin_a = Coin::new();
 
     let res = coin_a.to_hex();
     assert!(res.is_ok());
