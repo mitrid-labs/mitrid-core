@@ -96,33 +96,44 @@ impl<D, A> Coin<D, A>
     {
         params.check()?;
 
-        self.digest_cb(params, cb)
+        let mut coin = self.clone();
+        coin.id = D::default();
+
+        coin.digest_cb(params, cb)
     }
 
     /// Verifies the cryptographic digest against the `Coin`'s digest.
     pub fn verify_digest<HP: Datable>(&self,
                                       params: &HP,
-                                      digest: &D,
                                       cb: &Fn(&Self, &HP, &D) -> Result<bool>)
         -> Result<bool>
     {
         params.check()?;
+
+        let digest = self.id.clone();
         digest.check()?;
 
-        self.verify_digest_cb(params, digest, cb)
+        let mut coin = self.clone();
+        coin.id = D::default();
+
+        coin.verify_digest_cb(params, &digest, cb)
     }
 
     /// Checks the cryptographic digest against the `Coin`'s digest.
     pub fn check_digest<HP: Datable>(&self,
                                      params: &HP,
-                                     digest: &D,
                                      cb: &Fn(&Self, &HP, &D) -> Result<()>)
         -> Result<()>
     {
         params.check()?;
+
+        let digest = self.id.clone();
         digest.check()?;
 
-        self.check_digest_cb(params, digest, cb)
+        let mut coin = self.clone();
+        coin.id = D::default();
+
+        coin.check_digest_cb(params, &digest, cb)
     }
 }
 

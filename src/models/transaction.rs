@@ -134,33 +134,44 @@ impl<D, A, IP, Pk, Sig, OP, P> Transaction<D, A, IP, Pk, Sig, OP, P>
     {
         params.check()?;
 
-        self.digest_cb(params, cb)
+        let mut tx = self.clone();
+        tx.id = D::default();
+
+        tx.digest_cb(params, cb)
     }
 
     /// Verifies the cryptographic digest against the `Transaction`'s digest.
     pub fn verify_digest<HP: Datable>(&self,
                                       params: &HP,
-                                      digest: &D,
                                       cb: &Fn(&Self, &HP, &D) -> Result<bool>)
         -> Result<bool>
     {
         params.check()?;
+
+        let digest = self.id.clone();
         digest.check()?;
 
-        self.verify_digest_cb(params, digest, cb)
+        let mut tx = self.clone();
+        tx.id = D::default();
+
+        tx.verify_digest_cb(params, &digest, cb)
     }
 
     /// Checks the cryptographic digest against the `Transaction`'s digest.
     pub fn check_digest<HP: Datable>(&self,
                                      params: &HP,
-                                     digest: &D,
                                      cb: &Fn(&Self, &HP, &D) -> Result<()>)
         -> Result<()>
     {
         params.check()?;
+
+        let digest = self.id.clone();
         digest.check()?;
 
-        self.check_digest_cb(params, digest, cb)
+        let mut tx = self.clone();
+        tx.id = D::default();
+
+        tx.check_digest_cb(params, &digest, cb)
     }
 
     /// Evals the `Transaction`.

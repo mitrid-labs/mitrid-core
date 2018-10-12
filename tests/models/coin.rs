@@ -59,15 +59,15 @@ fn test_verify_digest() {
     let out_idx = 0;
     let out_amount = Amount::default();
 
-    let coin = Coin::new()
-                .meta(&meta)
-                .unwrap()
-                .output_data(&tx_id, out_idx, &out_amount)
-                .unwrap();
+    let mut coin = Coin::new()
+                    .meta(&meta)
+                    .unwrap()
+                    .output_data(&tx_id, out_idx, &out_amount)
+                    .unwrap();
 
-    let digest = coin.digest(&(), &coin_digest_cb).unwrap();
+    coin.id = coin.digest(&(), &coin_digest_cb).unwrap();
     
-    let res = coin.verify_digest(&(), &digest, &coin_verify_digest_cb);
+    let res = coin.verify_digest(&(), &coin_verify_digest_cb);
     assert!(res.is_ok());
     assert!(res.unwrap())
 }
@@ -79,15 +79,15 @@ fn test_check_digest() {
     let out_idx = 0;
     let out_amount = Amount::default();
 
-    let coin = Coin::new()
-                .meta(&meta)
-                .unwrap()
-                .output_data(&tx_id, out_idx, &out_amount)
-                .unwrap();
+    let mut coin = Coin::new()
+                    .meta(&meta)
+                    .unwrap()
+                    .output_data(&tx_id, out_idx, &out_amount)
+                    .unwrap();
 
-    let digest = coin.digest(&(), &coin_digest_cb).unwrap();
+    coin.id = coin.digest(&(), &coin_digest_cb).unwrap();
     
-    let res = coin.check_digest(&(), &digest, &coin_check_digest_cb);
+    let res = coin.check_digest(&(), &coin_check_digest_cb);
     assert!(res.is_ok())
 }
 

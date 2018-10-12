@@ -194,33 +194,44 @@ impl<D, A, IP, Pk, Sig, OP, TP, P, Pr> Block<D, A, IP, Pk, Sig, OP, TP, P, Pr>
     {
         params.check()?;
 
-        self.digest_cb(params, cb)
+        let mut block = self.clone();
+        block.id = D::default();
+
+        block.digest_cb(params, cb)
     }
 
     /// Verifies the cryptographic digest against the `Block`'s digest.
     pub fn verify_digest<HP: Datable>(&self,
                                       params: &HP,
-                                      digest: &D,
                                       cb: &Fn(&Self, &HP, &D) -> Result<bool>)
         -> Result<bool>
     {
         params.check()?;
+
+        let digest = self.id.clone();
         digest.check()?;
 
-        self.verify_digest_cb(params, digest, cb)
+        let mut block = self.clone();
+        block.id = D::default();
+
+        block.verify_digest_cb(params, &digest, cb)
     }
 
    /// Checks the cryptographic digest against the `Block`'s digest.
     pub fn check_digest<HP: Datable>(&self,
                                      params: &HP,
-                                     digest: &D,
                                      cb: &Fn(&Self, &HP, &D) -> Result<()>)
         -> Result<()>
     {
         params.check()?;
+
+        let digest = self.id.clone();
         digest.check()?;
 
-        self.check_digest_cb(params, digest, cb)
+        let mut block = self.clone();
+        block.id = D::default();
+
+        block.check_digest_cb(params, &digest, cb)
     }
 
     /// Evals the `Block`.

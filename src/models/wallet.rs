@@ -153,33 +153,44 @@ impl<D, Sk, Pk, Sig, P> Wallet<D, Sk, Pk, Sig, P>
     {
         params.check()?;
 
-        self.digest_cb(params, cb)
+        let mut wallet = self.clone();
+        wallet.id = D::default();
+
+        wallet.digest_cb(params, cb)
     }
 
     /// Verifies the cryptographic digest against the `Wallet`'s digest.
     pub fn verify_digest<HP: Datable>(&self,
                                       params: &HP,
-                                      digest: &D,
                                       cb: &Fn(&Self, &HP, &D) -> Result<bool>)
         -> Result<bool>
     {
         params.check()?;
+
+        let digest = self.id.clone();
         digest.check()?;
 
-        self.verify_digest_cb(params, digest, cb)
+        let mut wallet = self.clone();
+        wallet.id = D::default();
+
+        wallet.verify_digest_cb(params, &digest, cb)
     }
 
     /// Checks the cryptographic digest against the `Wallet`'s digest.
     pub fn check_digest<HP: Datable>(&self,
                                      params: &HP,
-                                     digest: &D,
                                      cb: &Fn(&Self, &HP, &D) -> Result<()>)
         -> Result<()>
     {
         params.check()?;
+
+        let digest = self.id.clone();
         digest.check()?;
 
-        self.check_digest_cb(params, digest, cb)
+        let mut wallet = self.clone();
+        wallet.id = D::default();
+
+        wallet.check_digest_cb(params, &digest, cb)
     }
 
     /// Evals the `Wallet`.
