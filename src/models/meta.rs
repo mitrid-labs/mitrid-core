@@ -14,8 +14,6 @@ use models::Stage;
 /// Type used to convey the distributed ledger models metadata.
 #[derive(Clone, PartialEq, Eq, PartialOrd, Ord, Debug, Default, Hash, Serialize, Deserialize)]
 pub struct Meta {
-    /// Code of the metadata owner.
-    pub code: u64,
     /// Chain of the metadata owner.
     pub chain: String,
     /// Version of the chain.
@@ -30,8 +28,7 @@ pub struct Meta {
 
 impl Meta {
     /// Creates a new `Meta`.
-    pub fn new(code: u64,
-               chain: String,
+    pub fn new(chain: String,
                version: Version,
                stage: Stage)
         -> Result<Meta>
@@ -43,7 +40,7 @@ impl Meta {
 
         let size = 0;
 
-        let meta = Meta { code, chain, version, stage, timestamp, size };
+        let meta = Meta { chain, version, stage, timestamp, size };
         Ok(meta)
     }
 
@@ -60,8 +57,7 @@ impl Meta {
 
 impl Sizable for Meta {
     fn size(&self) -> u64 {
-        self.code.size() +
-            self.chain.size() +
+        self.chain.size() +
             self.version.size() +
             self.stage.size() +
             self.timestamp.size() +
