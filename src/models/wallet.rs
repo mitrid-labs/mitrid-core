@@ -43,7 +43,9 @@ impl<D, Sk, Pk, Sig, P> Wallet<D, Sk, Pk, Sig, P>
 {
     /// Creates a new `Wallet`.
     pub fn new() -> Wallet<D, Sk, Pk, Sig, P> {
-        Wallet::default()
+        let mut wallet = Wallet::default();
+        wallet.update_size();
+        wallet
     }
 
     /// Updates the `Wallet` size.

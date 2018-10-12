@@ -45,7 +45,9 @@ impl<D, P> BlockGraph<D, P>
 {
     /// Creates a new `BlockGraph`.
     pub fn new() -> BlockGraph<D, P> {
-        BlockGraph::default()
+        let mut bg = BlockGraph::default();
+        bg.update_size();
+        bg
     }
 
     /// Updates the `BlockGraph` size.

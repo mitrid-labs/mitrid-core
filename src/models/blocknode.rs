@@ -31,7 +31,9 @@ impl<D> BlockNode<D>
 {
     /// Creates a new `BlockNode`.
     pub fn new() -> BlockNode<D> {
-        BlockNode::default()
+        let mut bn = BlockNode::default();
+        bn.update_size();
+        bn
     }
 
     /// Updates the `BlockNode` size.

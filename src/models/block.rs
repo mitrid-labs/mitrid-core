@@ -62,7 +62,9 @@ impl<D, A, IP, Pk, Sig, OP, TP, P, Pr> Block<D, A, IP, Pk, Sig, OP, TP, P, Pr>
 {
     /// Creates a new `Block`.
     pub fn new() -> Block<D, A, IP, Pk, Sig, OP, TP, P, Pr> {
-        Block::default()
+        let mut block = Block::default();
+        block.update_size();
+        block
     }
 
     /// Updates the `Block` size.

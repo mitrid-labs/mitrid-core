@@ -42,7 +42,9 @@ impl<D, Pk, A, P> Output<D, Pk, A, P>
 {
     /// Creates a new `Output`.
     pub fn new() -> Output<D, Pk, A, P> {
-        Output::default()
+        let mut output = Output::default();
+        output.update_size();
+        output
     }
 
     /// Updates the `Output` size.

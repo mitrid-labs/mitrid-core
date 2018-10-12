@@ -36,7 +36,9 @@ impl<D, A> Coin<D, A>
 {
     /// Creates a new `Coin`.
     pub fn new() -> Coin<D, A> {
-        Coin::default()
+        let mut coin = Coin::default();
+        coin.update_size();
+        coin
     }
 
     /// Updates the `Coin` size.

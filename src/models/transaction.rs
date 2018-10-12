@@ -52,7 +52,9 @@ impl<D, A, IP, Pk, Sig, OP, P> Transaction<D, A, IP, Pk, Sig, OP, P>
 {
     /// Creates a new `Transaction`.
     pub fn new() -> Transaction<D, A, IP, Pk, Sig, OP, P> {
-        Transaction::default()
+        let mut tx = Transaction::default();
+        tx.update_size();
+        tx
     }
 
     /// Updates the `Transaction` size.
