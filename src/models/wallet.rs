@@ -24,8 +24,8 @@ pub struct Wallet<D, Sk, Pk, Sig, P>
     pub id: D,
     /// Wallet metadata.
     pub meta: Meta,
-    /// Wallet secret key.
-    pub secret_key: Sk,
+    /// Wallet secret key, if known.
+    pub secret_key: Option<Sk>,
     /// Wallet public key.
     pub public_key: Pk,
     /// Custom payload.
@@ -93,6 +93,8 @@ impl<D, Sk, Pk, Sig, P> Wallet<D, Sk, Pk, Sig, P>
         
         self.signature = self.sign_cb(params, sk, cb)?;
 
+        self.secret_key = Some(sk.clone());
+
         self.update_size();
 
         Ok(self)
@@ -115,8 +117,11 @@ impl<D, Sk, Pk, Sig, P> Wallet<D, Sk, Pk, Sig, P>
         sig.check()?;
 
         let mut wallet = self.clone();
+
         wallet.signature = Sig::default();
+        wallet.secret_key = None;
         wallet.id = D::default();
+        wallet.update_size();
 
         Signable::<SP, Sk, Pk, Sig>::verify_signature_cb(&wallet, params, &pk, &sig, cb)
     }
@@ -139,7 +144,9 @@ impl<D, Sk, Pk, Sig, P> Wallet<D, Sk, Pk, Sig, P>
 
         let mut wallet = self.clone();
         wallet.signature = Sig::default();
+        wallet.secret_key = None;
         wallet.id = D::default();
+        wallet.update_size();
 
         Signable::<SP, Sk, Pk, Sig>::check_signature_cb(&wallet, params, &pk, &sig, cb)
     }
@@ -268,8 +275,11 @@ impl<D, Sk, Pk, Sig, P> Checkable for Wallet<D, Sk, Pk, Sig, P>
             return Err(String::from("invalid meta size"));
         }
         
-        self.secret_key.check()?;
-        self.secret_key.check_size()?;
+        if let Some(ref sk) = self.secret_key {
+            sk.check()?;
+            sk.check_size()?;
+        }
+
         self.public_key.check()?;
         self.public_key.check_size()?;
         self.payload.check()?;

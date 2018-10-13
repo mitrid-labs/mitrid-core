@@ -5,4 +5,5 @@ mod input;
 mod output;
 mod transaction;
 mod blocknode;
+mod wallet;
 mod node;
