@@ -1,11 +1,10 @@
-//use mitrid_core::base::Checkable;
+use mitrid_core::base::Checkable;
 use mitrid_core::base::Sizable;
 use mitrid_core::base::Serializable;
 use mitrid_core::utils::Version;
 use mitrid_core::models::Meta;
 
-//use fixtures::models::Amount;
-//use fixtures::models::Payload;
+use fixtures::crypto::Digest;
 use fixtures::models::blocknode::*;
 
 #[test]
@@ -26,7 +25,13 @@ fn test_blocknode_meta() {
 }
 
 #[test]
-fn test_blocknode_block_data() {}
+fn test_blocknode_block_data() {
+    let block_id = Digest::default();
+    let block_height = 0;
+
+    let res = BlockNode::new().block_data(&block_id, block_height);
+    assert!(res.is_ok());
+}
 
 #[test]
 fn test_blocknode_digest() {
@@ -58,10 +63,55 @@ fn test_blocknode_check_digest() {
 }
 
 #[test]
-fn test_blocknode_finalize() {}
+fn test_blocknode_finalize() {
+    let block_id = Digest::default();
+    let block_height = 0;
+
+    let mut blocknode = BlockNode::new()
+                            .meta(&Meta::default())
+                            .unwrap()
+                            .block_data(&block_id, block_height)
+                            .unwrap();
+
+    let res = blocknode.clone().finalize(&(), &blocknode_digest_cb);
+    assert!(res.is_ok());
+
+    let mut invalid_version = Version::default();
+    invalid_version.buildmeta = "/\\".into();
+
+    let mut invalid_meta = Meta::default();
+    invalid_meta.version = invalid_version;
+    blocknode.meta = invalid_meta;
+
+    let res = blocknode.finalize(&(), &blocknode_digest_cb);
+    assert!(res.is_err());
+}
 
 #[test]
-fn test_blocknode_check() {}
+fn test_blocknode_check() {
+    let block_id = Digest::default();
+    let block_height = 0;
+
+    let mut blocknode = BlockNode::new()
+                            .meta(&Meta::default())
+                            .unwrap()
+                            .block_data(&block_id, block_height)
+                            .unwrap()
+                            .finalize(&(), &blocknode_digest_cb)
+                            .unwrap();
+
+    let res = blocknode.check();
+    assert!(res.is_ok());
+
+    let mut invalid_version = Version::default();
+    invalid_version.buildmeta = "/\\".into();
+
+    let invalid_meta = Meta::default();
+    blocknode.meta = invalid_meta;
+
+    let res = blocknode.check();
+    assert!(res.is_err());
+}
 
 #[test]
 fn test_blocknode_size() {
