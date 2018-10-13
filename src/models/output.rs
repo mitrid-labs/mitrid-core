@@ -145,6 +145,7 @@ impl<D, Pk, A, P> Output<D, Pk, A, P>
 
         let mut output = self.clone();
         output.id = D::default();
+        output.update_size();
 
         output.verify_digest_cb(params, &digest, cb)
     }
@@ -162,6 +163,7 @@ impl<D, Pk, A, P> Output<D, Pk, A, P>
 
         let mut output = self.clone();
         output.id = D::default();
+        output.update_size();
 
         output.check_digest_cb(params, &digest, cb)
     }

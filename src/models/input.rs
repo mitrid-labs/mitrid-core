@@ -132,6 +132,7 @@ impl<D, A, P, Pk, Sig> Input<D, A, P, Pk, Sig>
         let mut input = self.clone();
         input.signature = Sig::default();
         input.id = D::default();
+        input.update_size();
 
         Signable::<SP, Sk, Pk, Sig>::verify_signature_cb(&input, params, &pk, &sig, cb)
     }
@@ -155,6 +156,7 @@ impl<D, A, P, Pk, Sig> Input<D, A, P, Pk, Sig>
         let mut input = self.clone();
         input.signature = Sig::default();
         input.id = D::default();
+        input.update_size();
 
         Signable::<SP, Sk, Pk, Sig>::check_signature_cb(&input, params, &pk, &sig, cb)
     }
@@ -199,6 +201,7 @@ impl<D, A, P, Pk, Sig> Input<D, A, P, Pk, Sig>
 
         let mut input = self.clone();
         input.id = D::default();
+        input.update_size();
 
         input.verify_digest_cb(params, &digest, cb)
     }
@@ -216,6 +219,7 @@ impl<D, A, P, Pk, Sig> Input<D, A, P, Pk, Sig>
 
         let mut input = self.clone();
         input.id = D::default();
+        input.update_size();
 
         input.check_digest_cb(params, &digest, cb)
     }

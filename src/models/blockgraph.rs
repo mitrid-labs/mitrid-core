@@ -152,6 +152,7 @@ impl<D, P> BlockGraph<D, P>
 
         let mut bg = self.clone();
         bg.id = D::default();
+        bg.update_size();
 
         bg.verify_digest_cb(params, &digest, cb)
     }
@@ -169,6 +170,7 @@ impl<D, P> BlockGraph<D, P>
 
         let mut bg = self.clone();
         bg.id = D::default();
+        bg.update_size();
 
         bg.check_digest_cb(params, &digest, cb)
     }

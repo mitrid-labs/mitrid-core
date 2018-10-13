@@ -191,6 +191,7 @@ impl<D, Sk, Pk, Sig, P> Wallet<D, Sk, Pk, Sig, P>
 
         let mut wallet = self.clone();
         wallet.id = D::default();
+        wallet.update_size();
 
         wallet.verify_digest_cb(params, &digest, cb)
     }
@@ -208,6 +209,7 @@ impl<D, Sk, Pk, Sig, P> Wallet<D, Sk, Pk, Sig, P>
 
         let mut wallet = self.clone();
         wallet.id = D::default();
+        wallet.update_size();
 
         wallet.check_digest_cb(params, &digest, cb)
     }

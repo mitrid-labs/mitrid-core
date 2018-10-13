@@ -153,6 +153,7 @@ impl<D, A, IP, Pk, Sig, OP, P> Transaction<D, A, IP, Pk, Sig, OP, P>
 
         let mut tx = self.clone();
         tx.id = D::default();
+        tx.update_size();
 
         tx.verify_digest_cb(params, &digest, cb)
     }
@@ -170,6 +171,7 @@ impl<D, A, IP, Pk, Sig, OP, P> Transaction<D, A, IP, Pk, Sig, OP, P>
 
         let mut tx = self.clone();
         tx.id = D::default();
+        tx.update_size();
 
         tx.check_digest_cb(params, &digest, cb)
     }

@@ -108,6 +108,7 @@ impl<D> BlockNode<D>
 
         let mut bn = self.clone();
         bn.id = D::default();
+        bn.update_size();
 
         bn.verify_digest_cb(params, &digest, cb)
     }
@@ -125,6 +126,7 @@ impl<D> BlockNode<D>
 
         let mut bn = self.clone();
         bn.id = D::default();
+        bn.update_size();
 
         bn.check_digest_cb(params, &digest, cb)
     }

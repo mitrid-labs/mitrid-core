@@ -115,6 +115,7 @@ impl<D, A> Coin<D, A>
 
         let mut coin = self.clone();
         coin.id = D::default();
+        coin.update_size();
 
         coin.verify_digest_cb(params, &digest, cb)
     }
@@ -132,6 +133,7 @@ impl<D, A> Coin<D, A>
 
         let mut coin = self.clone();
         coin.id = D::default();
+        coin.update_size();
 
         coin.check_digest_cb(params, &digest, cb)
     }

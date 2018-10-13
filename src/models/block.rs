@@ -159,6 +159,7 @@ impl<D, A, IP, Pk, Sig, OP, TP, P, Pr> Block<D, A, IP, Pk, Sig, OP, TP, P, Pr>
         let mut block = self.clone();
         block.proof = Pr::default();
         block.id = D::default();
+        block.update_size();
 
         block.verify_proof_cb(params, &proof, cb)
     }
@@ -177,6 +178,7 @@ impl<D, A, IP, Pk, Sig, OP, TP, P, Pr> Block<D, A, IP, Pk, Sig, OP, TP, P, Pr>
         let mut block = self.clone();
         block.proof = Pr::default();
         block.id = D::default();
+        block.update_size();
 
         block.check_proof_cb(params, &proof, cb)
     }
@@ -221,6 +223,7 @@ impl<D, A, IP, Pk, Sig, OP, TP, P, Pr> Block<D, A, IP, Pk, Sig, OP, TP, P, Pr>
 
         let mut block = self.clone();
         block.id = D::default();
+        block.update_size();
 
         block.verify_digest_cb(params, &digest, cb)
     }
@@ -238,6 +241,7 @@ impl<D, A, IP, Pk, Sig, OP, TP, P, Pr> Block<D, A, IP, Pk, Sig, OP, TP, P, Pr>
 
         let mut block = self.clone();
         block.id = D::default();
+        block.update_size();
 
         block.check_digest_cb(params, &digest, cb)
     }
