@@ -77,7 +77,6 @@ impl Datable for Digest {}
 
 pub struct SHA512 {}
 
-// NB: Ignore. The hasher is not reliable (different output with the same input...)
 impl SHA512 {
     pub fn digest(msg: &[u8]) -> Result<Digest> {
         Digest::from_slice(&hash(msg).0[..])
