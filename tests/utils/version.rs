@@ -95,8 +95,23 @@ fn test_version_parse() {
     let res = Version::parse(invalid_version_a);
     assert!(res.is_err());
 
-    let invalid_version_b = "a.b.c";
+    let invalid_version_b = "a.10.1947";
+
     let res = Version::parse(invalid_version_b);
+    assert!(res.is_err());
+
+    let invalid_version_c = "1.b.1947";
+
+    let res = Version::parse(invalid_version_c);
+    assert!(res.is_err());
+
+    let invalid_version_d = "1.10.c";
+
+    let res = Version::parse(invalid_version_d);
+    assert!(res.is_err());
+
+    let invalid_version_e = "a.b.c";
+    let res = Version::parse(invalid_version_e);
     assert!(res.is_err());
 }
 
@@ -109,6 +124,39 @@ fn test_version_to_string() {
 
     let version_b = Version::parse(&version_a_str).unwrap();
     assert_eq!(version_a, version_b);
+}
+
+#[test]
+fn test_version_format() {
+    let valid_version = "1.10.1947-abcd-EFG+1A-bc-2";
+
+    let version_a = Version::parse(valid_version).unwrap();
+    let version_a_str = format!("{}", version_a);
+
+    let version_b = Version::parse(&version_a_str).unwrap();
+    assert_eq!(version_a, version_b);
+}
+
+#[test]
+fn test_version_ord() {
+    let version_a = Version::parse("0.1.0").unwrap();
+    let version_b = Version::parse("0.2.0").unwrap();
+    let version_c = Version::parse("1.0.0").unwrap();
+    let version_d = Version::parse("0.0.6").unwrap();
+    let version_e = Version::parse("0.0.6-alpha").unwrap();
+    let version_f = Version::parse("0.0.6-beta").unwrap();
+    let version_g = Version::parse("0.0.6-beta+abuild").unwrap();
+
+    assert!(version_a < version_b);
+    assert!(version_a < version_c);
+    assert!(version_b < version_c);
+    assert!(version_d < version_a);
+    assert!(version_d < version_b);
+    assert!(version_d < version_c);
+    assert!(version_e < version_d);
+    assert!(version_e < version_f);
+    assert!(version_f < version_d);
+    assert!(version_g == version_f);
 }
 
 #[test]
