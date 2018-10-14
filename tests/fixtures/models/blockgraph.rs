@@ -1,7 +1,9 @@
 use mitrid_core::base::Result;
+use mitrid_core::base::Checkable;
 use mitrid_core::base::Serializable;
 use mitrid_core::models::BlockGraph as BaseBlockGraph;
 
+use fixtures::base::eval::*;
 use fixtures::crypto::{Digest, SHA512};
 use fixtures::models::Payload;
 
@@ -28,4 +30,31 @@ pub fn blockgraph_check_digest_cb(bg: &BlockGraph, _: &(), digest: &Digest) -> R
     }
 
     Ok(())
+}
+
+#[allow(dead_code)]
+pub fn blockgraph_eval_cb(bg: &BlockGraph, params: &EvalParams) -> Result<EvalReturn> {
+    bg.check()?;
+    params.check()?;
+
+    let s = bg.payload.to_string();
+
+    match params {
+        &EvalParams::Const => {
+            let res = EvalReturn::Const(s);
+            Ok(res)
+        },
+        &EvalParams::IsEmpty => {
+            let res = EvalReturn::IsEmpty(s.is_empty());
+            Ok(res)
+        },
+        &EvalParams::ToUppercase => {
+            let res = EvalReturn::ToUppercase(s.to_uppercase());
+            Ok(res)
+        },
+        &EvalParams::ToLowercase => {
+            let res = EvalReturn::ToLowercase(s.to_lowercase());
+            Ok(res)
+        },
+    }
 }

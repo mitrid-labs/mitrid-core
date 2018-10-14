@@ -29,8 +29,8 @@ pub struct BlockGraph<D, P>
     pub meta: Meta,
     /// Blockgraph tip's or frontier's height.
     pub height: u64,
-    /// BlockGraph's frontier tip, if any.
-    pub tip: Option<BlockNode<D>>,
+    /// BlockGraph's frontier tip idx, if any.
+    pub tip_idx: Option<u64>,
     /// BlockGraph's frontier length.
     pub frontier_len: u64,
     /// BlockGraph's frontier.
@@ -81,18 +81,14 @@ impl<D, P> BlockGraph<D, P>
             }
         }
 
-        let mut tip = None;
-
         if let Some(idx) = tip_idx {
             if idx > (frontier.len() -1) as u64 {
                 return Err(String::from("invalid tip index"));
             }
-
-            tip = Some(frontier[idx as usize].clone());
         }
 
         self.height = height;
-        self.tip = tip;
+        self.tip_idx = tip_idx;
         self.frontier_len = frontier.len() as u64;
         self.frontier = frontier.clone();
 
@@ -201,7 +197,7 @@ impl<D, P> Sizable for BlockGraph<D, P>
         self.id.size() +
             self.meta.size() +
             self.height.size() +
-            self.tip.size() +
+            self.tip_idx.size() +
             self.frontier_len.size() +
             self.frontier.size() +
             self.payload.size()
@@ -222,7 +218,7 @@ impl<D, P> Checkable for BlockGraph<D, P>
         }
         
         self.height.check()?;
-        self.tip.check()?;
+        self.tip_idx.check()?;
         self.frontier_len.check()?;
 
         if self.frontier.len() != self.frontier_len as usize {
@@ -231,6 +227,12 @@ impl<D, P> Checkable for BlockGraph<D, P>
         
         for node in self.frontier.clone() {
             node.check()?;
+        }
+
+        if let Some(idx) = self.tip_idx {
+            if idx > self.frontier_len -1 {
+                return Err(String::from("invalid frontier tip idx"));
+            }
         }
 
         self.payload.check()?;
