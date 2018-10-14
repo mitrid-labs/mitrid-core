@@ -36,7 +36,7 @@ fn test_wallet_payload() {
 
 #[test]
 fn test_wallet_sign() {
-    let (pk, sk) = Ed25519::keypair(&None).unwrap();
+    let (pk, sk) = Ed25519::keypair(None).unwrap();
 
     let wallet = Wallet::new();
 
@@ -47,7 +47,7 @@ fn test_wallet_sign() {
 
 #[test]
 fn test_wallet_verify_sign() {
-    let (pk, sk) = Ed25519::keypair(&None).unwrap();
+    let (pk, sk) = Ed25519::keypair(None).unwrap();
 
     let mut wallet = Wallet::new()
                     .sign(&(), &sk, &pk, &wallet_sign_cb)
@@ -66,7 +66,7 @@ fn test_wallet_verify_sign() {
 
 #[test]
 fn test_wallet_check_sign() {
-    let (pk, sk) = Ed25519::keypair(&None).unwrap();
+    let (pk, sk) = Ed25519::keypair(None).unwrap();
 
     let mut wallet = Wallet::new()
                         .sign(&(), &sk, &pk, &wallet_sign_cb)
@@ -111,7 +111,7 @@ fn test_wallet_check_digest() {
 
 #[test]
 fn test_wallet_finalize() {
-    let (pk, sk) = Ed25519::keypair(&None).unwrap();
+    let (pk, sk) = Ed25519::keypair(None).unwrap();
 
     let mut wallet = Wallet::new()
                         .meta(&Meta::default())
@@ -137,7 +137,7 @@ fn test_wallet_finalize() {
 
 #[test]
 fn test_wallet_check() {
-    let (pk, sk) = Ed25519::keypair(&None).unwrap();
+    let (pk, sk) = Ed25519::keypair(None).unwrap();
 
     let mut wallet = Wallet::new()
                         .meta(&Meta::default())
@@ -167,7 +167,7 @@ fn test_wallet_check() {
 fn test_wallet_eval() {
     let payload = Payload::new("pAyLoAd");
 
-    let (pk, sk) = Ed25519::keypair(&None).unwrap();
+    let (pk, sk) = Ed25519::keypair(None).unwrap();
 
     let wallet = Wallet::new()
                     .meta(&Meta::default())

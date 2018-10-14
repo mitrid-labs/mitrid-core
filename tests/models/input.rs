@@ -70,7 +70,7 @@ fn test_input_payload() {
 
 #[test]
 fn test_input_sign() {
-    let (pk, sk) = Ed25519::keypair(&None).unwrap();
+    let (pk, sk) = Ed25519::keypair(None).unwrap();
 
     let input = Input::new();
 
@@ -81,7 +81,7 @@ fn test_input_sign() {
 
 #[test]
 fn test_input_verify_sign() {
-    let (pk, sk) = Ed25519::keypair(&None).unwrap();
+    let (pk, sk) = Ed25519::keypair(None).unwrap();
 
     let mut input = Input::new()
                     .sign(&(), &sk, &pk, &input_sign_cb)
@@ -100,7 +100,7 @@ fn test_input_verify_sign() {
 
 #[test]
 fn test_input_check_sign() {
-    let (pk, sk) = Ed25519::keypair(&None).unwrap();
+    let (pk, sk) = Ed25519::keypair(None).unwrap();
 
     let mut input = Input::new()
                         .sign(&(), &sk, &pk, &input_sign_cb)
@@ -160,7 +160,7 @@ fn test_input_finalize() {
 
     let payload = Payload::default();
 
-    let (pk, sk) = Ed25519::keypair(&None).unwrap();
+    let (pk, sk) = Ed25519::keypair(None).unwrap();
 
     let mut input = Input::new()
                         .meta(&meta)
@@ -204,7 +204,7 @@ fn test_input_check() {
 
     let payload = Payload::default();
 
-    let (pk, sk) = Ed25519::keypair(&None).unwrap();
+    let (pk, sk) = Ed25519::keypair(None).unwrap();
 
     let mut input = Input::new()
                         .meta(&meta)
@@ -250,7 +250,7 @@ fn test_input_eval() {
 
     let payload = Payload::new("pAyLoAd");
 
-    let (pk, sk) = Ed25519::keypair(&None).unwrap();
+    let (pk, sk) = Ed25519::keypair(None).unwrap();
 
     let input = Input::new()
                     .meta(&meta)

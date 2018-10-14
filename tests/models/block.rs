@@ -67,7 +67,7 @@ fn test_block_transactions() {
                     .finalize(&(), &coin_digest_cb)
                     .unwrap();
 
-    let (pk, sk) = Ed25519::keypair(&None).unwrap();
+    let (pk, sk) = Ed25519::keypair(None).unwrap();
 
     let input = Input::new()
                     .meta(&Meta::default())
@@ -221,7 +221,7 @@ fn test_block_finalize() {
                     .finalize(&(), &coin_digest_cb)
                     .unwrap();
 
-    let (pk, sk) = Ed25519::keypair(&None).unwrap();
+    let (pk, sk) = Ed25519::keypair(None).unwrap();
 
     let input = Input::new()
                     .meta(&Meta::default())
@@ -298,7 +298,7 @@ fn test_block_check() {
                     .finalize(&(), &coin_digest_cb)
                     .unwrap();
 
-    let (pk, sk) = Ed25519::keypair(&None).unwrap();
+    let (pk, sk) = Ed25519::keypair(None).unwrap();
 
     let input = Input::new()
                     .meta(&Meta::default())
@@ -377,7 +377,7 @@ fn test_block_eval() {
                     .finalize(&(), &coin_digest_cb)
                     .unwrap();
 
-    let (pk, sk) = Ed25519::keypair(&None).unwrap();
+    let (pk, sk) = Ed25519::keypair(None).unwrap();
 
     let input = Input::new()
                     .meta(&Meta::default())
