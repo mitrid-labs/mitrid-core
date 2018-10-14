@@ -33,7 +33,7 @@ impl HashCash {
             }
             
             let leading: u32 = unsafe { mem::transmute(__digest) };
-            if leading <= bits {
+            if leading.leading_zeros() >= bits {
                 found = true;
             } else {
                 if nonce == u32::MAX {
@@ -71,7 +71,7 @@ impl HashCash {
 
             let leading: u32 = unsafe { mem::transmute(__digest) };
 
-            if leading.leading_zeros() > bits {
+            if leading.leading_zeros() < bits {
                 Ok(false)
             } else {
                 Ok(true)
