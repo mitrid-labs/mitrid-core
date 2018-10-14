@@ -25,8 +25,8 @@ fn test_timestamp_sub() {
     let tmsp_a = Timestamp::now().unwrap();
     let tmsp_b = Timestamp::now().unwrap();
 
-    let tmsp_diff = tmsp_a - tmsp_b;
-    assert_eq!(tmsp_diff.as_millis(), tmsp_a.as_millis() - tmsp_b.as_millis());
+    let tmsp_diff = tmsp_b - tmsp_a;
+    assert_eq!(tmsp_diff.as_millis(), tmsp_b.as_millis() - tmsp_a.as_millis());
 }
 
 #[test]
@@ -53,8 +53,8 @@ fn test_timestamp_div() {
     let tmsp_a = Timestamp::now().unwrap();
     let tmsp_b = Timestamp::now().unwrap();
 
-    let div = tmsp_a / tmsp_b;
-    assert_eq!(div, tmsp_a.as_millis() / tmsp_b.as_millis());
+    let div = tmsp_b / tmsp_a;
+    assert_eq!(div, tmsp_b.as_millis() / tmsp_a.as_millis());
 }
 
 #[test]
@@ -62,8 +62,8 @@ fn test_timestamp_rem() {
     let tmsp_a = Timestamp::now().unwrap();
     let tmsp_b = Timestamp::now().unwrap();
 
-    let rem = tmsp_a % tmsp_b;
-    assert_eq!(rem, tmsp_a.as_millis() % tmsp_b.as_millis());
+    let rem = tmsp_b % tmsp_a;
+    assert_eq!(rem, tmsp_b.as_millis() % tmsp_a.as_millis());
 }
 
 #[test]
