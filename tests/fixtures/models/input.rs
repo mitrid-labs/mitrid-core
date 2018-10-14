@@ -9,23 +9,19 @@ use fixtures::crypto::{SecretKey, PublicKey, Signature, Ed25519};
 use fixtures::models::Amount;
 use fixtures::models::Payload;
 
-#[allow(dead_code)]
 pub type Input = BaseInput<Digest, Amount, Payload, PublicKey, Signature>;
 
-#[allow(dead_code)]
 pub fn input_digest_cb(input: &Input, _: &()) -> Result<Digest> {
     let msg = input.to_bytes()?;
     SHA512::digest(&msg)
 }
 
-#[allow(dead_code)]
 pub fn input_verify_digest_cb(input: &Input, _: &(), digest: &Digest) -> Result<bool> {
     let target = input_digest_cb(input, &())?;
     
     Ok(&target == digest)
 }
 
-#[allow(dead_code)]
 pub fn input_check_digest_cb(input: &Input, _: &(), digest: &Digest) -> Result<()> {
     if !input_verify_digest_cb(input, &(), digest)? {
         return Err("invalid digest".into());
@@ -34,19 +30,16 @@ pub fn input_check_digest_cb(input: &Input, _: &(), digest: &Digest) -> Result<(
     Ok(())
 }
 
-#[allow(dead_code)]
 pub fn input_sign_cb(input: &Input, _: &(), sk: &SecretKey) -> Result<Signature> {
     let msg = input.to_bytes()?;
     Ed25519::sign(&msg, sk)
 }
 
-#[allow(dead_code)]
 pub fn input_verify_signature_cb(input: &Input, _: &(), pk: &PublicKey, sig: &Signature) -> Result<bool> {
     let msg = input.to_bytes()?;
     Ed25519::verify(&msg, pk, sig)
 }
 
-#[allow(dead_code)]
 pub fn input_check_signature_cb(input: &Input, _: &(), pk: &PublicKey, sig: &Signature) -> Result<()> {
     if !input_verify_signature_cb(input, &(), pk, sig)? {
         return Err("invalid signature".into());
@@ -55,7 +48,6 @@ pub fn input_check_signature_cb(input: &Input, _: &(), pk: &PublicKey, sig: &Sig
     Ok(())
 }
 
-#[allow(dead_code)]
 pub fn input_eval_cb(input: &Input, params: &EvalParams) -> Result<EvalReturn> {
     input.check()?;
     params.check()?;

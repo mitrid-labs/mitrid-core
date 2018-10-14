@@ -5,7 +5,6 @@ use mitrid_core::models::Coin as BaseCoin;
 use fixtures::crypto::{Digest, SHA512};
 use fixtures::models::Amount;
 
-#[allow(dead_code)]
 pub type Coin = BaseCoin<Digest, Amount>;
 
 pub fn coin_digest_cb(coin: &Coin, _: &()) -> Result<Digest> {
@@ -13,14 +12,12 @@ pub fn coin_digest_cb(coin: &Coin, _: &()) -> Result<Digest> {
     SHA512::digest(&msg)
 }
 
-#[allow(dead_code)]
 pub fn coin_verify_digest_cb(coin: &Coin, _: &(), digest: &Digest) -> Result<bool> {
     let target = coin_digest_cb(coin, &())?;
     
     Ok(&target == digest)
 }
 
-#[allow(dead_code)]
 pub fn coin_check_digest_cb(coin: &Coin, _: &(), digest: &Digest) -> Result<()> {
     if !coin_verify_digest_cb(coin, &(), digest)? {
         return Err("invalid digest".into());

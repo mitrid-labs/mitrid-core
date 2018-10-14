@@ -8,23 +8,19 @@ use fixtures::crypto::{Digest, SHA512};
 use fixtures::crypto::{SecretKey, PublicKey, Signature, Ed25519};
 use fixtures::models::Payload;
 
-#[allow(dead_code)]
 pub type Wallet = BaseWallet<Digest, SecretKey, PublicKey, Signature, Payload>;
 
-#[allow(dead_code)]
 pub fn wallet_digest_cb(wallet: &Wallet, _: &()) -> Result<Digest> {
     let msg = wallet.to_bytes()?;
     SHA512::digest(&msg)
 }
 
-#[allow(dead_code)]
 pub fn wallet_verify_digest_cb(wallet: &Wallet, _: &(), digest: &Digest) -> Result<bool> {
     let target = wallet_digest_cb(wallet, &())?;
     
     Ok(&target == digest)
 }
 
-#[allow(dead_code)]
 pub fn wallet_check_digest_cb(wallet: &Wallet, _: &(), digest: &Digest) -> Result<()> {
     if !wallet_verify_digest_cb(wallet, &(), digest)? {
         return Err("invalid digest".into());
@@ -33,19 +29,16 @@ pub fn wallet_check_digest_cb(wallet: &Wallet, _: &(), digest: &Digest) -> Resul
     Ok(())
 }
 
-#[allow(dead_code)]
 pub fn wallet_sign_cb(wallet: &Wallet, _: &(), sk: &SecretKey) -> Result<Signature> {
     let msg = wallet.to_bytes()?;
     Ed25519::sign(&msg, sk)
 }
 
-#[allow(dead_code)]
 pub fn wallet_verify_signature_cb(wallet: &Wallet, _: &(), pk: &PublicKey, sig: &Signature) -> Result<bool> {
     let msg = wallet.to_bytes()?;
     Ed25519::verify(&msg, pk, sig)
 }
 
-#[allow(dead_code)]
 pub fn wallet_check_signature_cb(wallet: &Wallet, _: &(), pk: &PublicKey, sig: &Signature) -> Result<()> {
     if !wallet_verify_signature_cb(wallet, &(), pk, sig)? {
         return Err("invalid signature".into());
@@ -54,7 +47,6 @@ pub fn wallet_check_signature_cb(wallet: &Wallet, _: &(), pk: &PublicKey, sig: &
     Ok(())
 }
 
-#[allow(dead_code)]
 pub fn wallet_eval_cb(wallet: &Wallet, params: &EvalParams) -> Result<EvalReturn> {
     wallet.check()?;
     params.check()?;

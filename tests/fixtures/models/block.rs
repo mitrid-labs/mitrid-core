@@ -10,23 +10,19 @@ use fixtures::crypto::{Proof, HashCash};
 use fixtures::models::Amount;
 use fixtures::models::Payload;
 
-#[allow(dead_code)]
 pub type Block = BaseBlock<Digest, Amount, Payload, PublicKey, Signature, Payload, Payload, Payload, Proof>;
 
-#[allow(dead_code)]
 pub fn block_digest_cb(block: &Block, _: &()) -> Result<Digest> {
     let msg = block.to_bytes()?;
     SHA512::digest(&msg)
 }
 
-#[allow(dead_code)]
 pub fn block_verify_digest_cb(block: &Block, _: &(), digest: &Digest) -> Result<bool> {
     let target = block_digest_cb(block, &())?;
     
     Ok(&target == digest)
 }
 
-#[allow(dead_code)]
 pub fn block_check_digest_cb(block: &Block, _: &(), digest: &Digest) -> Result<()> {
     if !block_verify_digest_cb(block, &(), digest)? {
         return Err("invalid digest".into());
@@ -35,19 +31,16 @@ pub fn block_check_digest_cb(block: &Block, _: &(), digest: &Digest) -> Result<(
     Ok(())
 }
 
-#[allow(dead_code)]
 pub fn block_prove_cb(block: &Block, bits: &Option<u32>) -> Result<Proof> {
     let msg = block.to_bytes()?;
     HashCash::prove(&msg, bits.unwrap_or(0))
 }
 
-#[allow(dead_code)]
 pub fn block_verify_proof_cb(block: &Block, bits: &Option<u32>, proof: &Proof) -> Result<bool> {
     let msg = block.to_bytes()?;
     HashCash::verify(&msg, bits.unwrap_or(0), proof)
 }
 
-#[allow(dead_code)]
 pub fn block_check_proof_cb(block: &Block, bits: &Option<u32>, proof: &Proof) -> Result<()> {
     if !block_verify_proof_cb(block, bits, proof)? {
         return Err("invalid proof".into());
@@ -56,7 +49,6 @@ pub fn block_check_proof_cb(block: &Block, bits: &Option<u32>, proof: &Proof) ->
     Ok(())
 }
 
-#[allow(dead_code)]
 pub fn block_eval_cb(block: &Block, params: &EvalParams) -> Result<EvalReturn> {
     block.check()?;
     params.check()?;
