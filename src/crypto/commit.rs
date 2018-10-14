@@ -3,13 +3,13 @@
 //! `commit` is the module providing the trait used to implement a cryptographic commitment scheme.
 
 use base::Result;
-use base::FixedSize;
+use base::ConstantSize;
 use base::Datable;
 
 /// Trait used by types that can be cryptographically committed.
 pub trait Committable<P, C>
     where   P: Datable,
-            C: Datable + FixedSize,
+            C: Datable + ConstantSize,
             Self: 'static + Sized
 {
     /// Commits cryptographically the implementor using `Datable` params and a callback.

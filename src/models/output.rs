@@ -6,7 +6,7 @@ use base::Result;
 use base::Checkable;
 use base::Datable;
 use base::Serializable;
-use base::{Sizable, FixedSize};
+use base::{Sizable, ConstantSize};
 use base::Numerical;
 use base::Evaluable;
 use crypto::Hashable;
@@ -15,8 +15,8 @@ use models::Meta;
 /// Type representing the output of a `Transaction`.
 #[derive(Clone, PartialEq, Eq, PartialOrd, Ord, Debug, Default, Hash, Serialize, Deserialize)]
 pub struct Output<D, Pk, A, P>
-    where   D: Datable + FixedSize,
-            Pk: Datable + FixedSize,
+    where   D: Datable + ConstantSize,
+            Pk: Datable + ConstantSize,
             A: Numerical,
             P: Datable
 {
@@ -35,8 +35,8 @@ pub struct Output<D, Pk, A, P>
 }
 
 impl<D, Pk, A, P> Output<D, Pk, A, P>
-    where   D: Datable + FixedSize,
-            Pk: Datable + FixedSize,
+    where   D: Datable + ConstantSize,
+            Pk: Datable + ConstantSize,
             A: Numerical,
             P: Datable
 {
@@ -182,15 +182,15 @@ impl<D, Pk, A, P> Output<D, Pk, A, P>
 
 impl<HP, D, Pk, A, P> Hashable<HP, D> for Output<D, Pk, A, P>
     where   HP: Datable,
-            D: Datable + FixedSize,
-            Pk: Datable + FixedSize,
+            D: Datable + ConstantSize,
+            Pk: Datable + ConstantSize,
             A: Numerical,
             P: Datable
 {}
 
 impl<D, Pk, A, P> Sizable for Output<D, Pk, A, P>
-    where   D: Datable + FixedSize,
-            Pk: Datable + FixedSize,
+    where   D: Datable + ConstantSize,
+            Pk: Datable + ConstantSize,
             A: Numerical,
             P: Datable
 {
@@ -205,8 +205,8 @@ impl<D, Pk, A, P> Sizable for Output<D, Pk, A, P>
 }
 
 impl<D, Pk, A, P> Checkable for Output<D, Pk, A, P>
-    where   D: Datable + FixedSize,
-            Pk: Datable + FixedSize,
+    where   D: Datable + ConstantSize,
+            Pk: Datable + ConstantSize,
             A: Numerical,
             P: Datable
 {
@@ -231,22 +231,22 @@ impl<D, Pk, A, P> Checkable for Output<D, Pk, A, P>
 }
 
 impl<D, Pk, A, P> Serializable for Output<D, Pk, A, P>
-    where   D: Datable + FixedSize + Serializable,
-            Pk: Datable + FixedSize + Serializable,
+    where   D: Datable + ConstantSize + Serializable,
+            Pk: Datable + ConstantSize + Serializable,
             A: Numerical + Serializable,
             P: Datable + Serializable
 {}
 
 impl<D, Pk, A, P> Datable for Output<D, Pk, A, P>
-    where   D: Datable + FixedSize,
-            Pk: Datable + FixedSize,
+    where   D: Datable + ConstantSize,
+            Pk: Datable + ConstantSize,
             A: Numerical,
             P: Datable
 {}
 
 impl<D, Pk, A, P> Evaluable for Output<D, Pk, A, P>
-    where   D: Datable + FixedSize,
-            Pk: Datable + FixedSize,
+    where   D: Datable + ConstantSize,
+            Pk: Datable + ConstantSize,
             A: Numerical,
             P: Datable
 {}

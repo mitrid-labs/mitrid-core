@@ -7,14 +7,14 @@ use base::Result;
 use base::Checkable;
 use base::Datable;
 use base::Serializable;
-use base::{Sizable, FixedSize};
+use base::{Sizable, ConstantSize};
 use crypto::Hashable;
 use models::Meta;
 
 /// Type used to represent a node in the `BlockGraph` and that references a `Block`.
 #[derive(Clone, PartialEq, Eq, PartialOrd, Ord, Debug, Default, Hash, Serialize, Deserialize)]
 pub struct BlockNode<D>
-    where   D: Datable + FixedSize
+    where   D: Datable + ConstantSize
 {
     /// BlockNode id. It is the digest of the same coin, but with a default `D` id.
     pub id: D,
@@ -27,7 +27,7 @@ pub struct BlockNode<D>
 }
 
 impl<D> BlockNode<D>
-    where   D: Datable + FixedSize
+    where   D: Datable + ConstantSize
 {
     /// Creates a new `BlockNode`.
     pub fn new() -> BlockNode<D> {
@@ -134,11 +134,11 @@ impl<D> BlockNode<D>
 
 impl<P, D> Hashable<P, D> for BlockNode<D>
     where   P: Datable,
-            D: Datable + FixedSize
+            D: Datable + ConstantSize
 {}
 
 impl<D> Sizable for BlockNode<D>
-    where   D: Datable + FixedSize
+    where   D: Datable + ConstantSize
 {
     fn size(&self) -> u64 {
         self.id.size() +
@@ -149,7 +149,7 @@ impl<D> Sizable for BlockNode<D>
 }
 
 impl<D> Checkable for BlockNode<D>
-    where   D: Datable + FixedSize
+    where   D: Datable + ConstantSize
 {
     fn check(&self) -> Result<()> {
         self.id.check()?;
@@ -168,9 +168,9 @@ impl<D> Checkable for BlockNode<D>
 }
 
 impl<D> Serializable for BlockNode<D>
-    where   D: Datable + FixedSize + Serializable
+    where   D: Datable + ConstantSize + Serializable
 {}
 
 impl<D> Datable for BlockNode<D>
-    where   D: Datable + FixedSize
+    where   D: Datable + ConstantSize
 {}

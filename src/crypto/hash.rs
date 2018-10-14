@@ -3,13 +3,13 @@
 //! `hash` is the module providing the trait used to implement cryptographic hashing.
 
 use base::Result;
-use base::FixedSize;
+use base::ConstantSize;
 use base::Datable;
 
 /// Trait implemented by types that can be cryptographically hashed.
 pub trait Hashable<P, D>
     where   P: Datable,
-            D: Datable + FixedSize,
+            D: Datable + ConstantSize,
             Self: Datable
 {
     /// Hashes cryptographically the implementor using `Datable` params and a callback.

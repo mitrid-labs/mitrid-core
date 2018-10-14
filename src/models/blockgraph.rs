@@ -10,7 +10,7 @@ use base::Result;
 use base::Checkable;
 use base::Datable;
 use base::Serializable;
-use base::{Sizable, FixedSize};
+use base::{Sizable, ConstantSize};
 use base::Evaluable;
 use crypto::Hashable;
 use models::Meta;
@@ -20,7 +20,7 @@ use models::BlockNode;
 /// one can span the entire graph after following the `BlockNode`s' `Block`s `prev_block_id` links.
 #[derive(Clone, PartialEq, Eq, PartialOrd, Ord, Debug, Default, Hash, Serialize, Deserialize)]
 pub struct BlockGraph<D, P>
-    where   D: Datable + FixedSize,
+    where   D: Datable + ConstantSize,
             P: Datable
 {
     /// BlockGraph id. It is the digest of the same blockgraph, but with a default `D` id.
@@ -40,7 +40,7 @@ pub struct BlockGraph<D, P>
 }
 
 impl<D, P> BlockGraph<D, P>
-    where   D: Datable + FixedSize,
+    where   D: Datable + ConstantSize,
             P: Datable
 {
     /// Creates a new `BlockGraph`.
@@ -185,12 +185,12 @@ impl<D, P> BlockGraph<D, P>
 
 impl<HP, D, P> Hashable<HP, D> for BlockGraph<D, P>
     where   HP: Datable,
-            D: Datable + FixedSize,
+            D: Datable + ConstantSize,
             P: Datable
 {}
 
 impl<D, P> Sizable for BlockGraph<D, P>
-    where   D: Datable + FixedSize,
+    where   D: Datable + ConstantSize,
             P: Datable
 {
     fn size(&self) -> u64 {
@@ -205,7 +205,7 @@ impl<D, P> Sizable for BlockGraph<D, P>
 }
 
 impl<D, P> Checkable for BlockGraph<D, P>
-    where   D: Datable + FixedSize,
+    where   D: Datable + ConstantSize,
             P: Datable
 {
     fn check(&self) -> Result<()> {
@@ -242,16 +242,16 @@ impl<D, P> Checkable for BlockGraph<D, P>
 }
 
 impl<D, P> Serializable for BlockGraph<D, P>
-    where   D: Datable + FixedSize + Serializable,
+    where   D: Datable + ConstantSize + Serializable,
             P: Datable + Serializable
 {}
 
 impl<D, P> Datable for BlockGraph<D, P>
-    where   D: Datable + FixedSize,
+    where   D: Datable + ConstantSize,
             P: Datable
 {}
 
 impl<D, P> Evaluable for BlockGraph<D, P>
-    where   D: Datable + FixedSize,
+    where   D: Datable + ConstantSize,
             P: Datable
 {}

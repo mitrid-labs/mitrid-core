@@ -3,13 +3,13 @@
 //! `authenticate` is the module providing the trait used to implement cryptographic authentication.
 
 use base::Result;
-use base::FixedSize;
+use base::ConstantSize;
 use base::Datable;
 
 /// Trait used by types that can be cryptographically authenticated.
 pub trait Authenticated<P, T>
     where   P: Datable,
-            T: Datable + FixedSize,
+            T: Datable + ConstantSize,
             Self: Datable
 {
     /// Authenticates cryptographhically the implementor using `Datable` params and a callback.

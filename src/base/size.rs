@@ -214,16 +214,16 @@ pub trait VariableSize:
 }
 
 /// Trait implemented by types that have a fixed size.
-pub trait FixedSize:
+pub trait ConstantSize:
     where   Self: Sizable
 {
-    /// Results the size required by the implementor.
-    fn required_size() -> u64;
+    /// Results the constant size.
+    fn constant_size() -> u64;
 
     /// Check the size of the implementor.
     fn check_size(&self) -> Result<()> {
-        if self.size() != Self::required_size() {
-            return Err(String::from("size different from the required size"))
+        if self.size() != Self::constant_size() {
+            return Err(String::from("size different from the constant size"))
         }
 
         Ok(())

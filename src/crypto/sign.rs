@@ -4,14 +4,14 @@
 
 use base::Result;
 use base::Datable;
-use base::FixedSize;
+use base::ConstantSize;
 
 /// Trait implemented by types that can produce and verify cryptographic signatures.
 pub trait Signable<P, Sk, Pk, Sig>
     where   P: Datable,
-            Sk: Datable + FixedSize,
-            Pk: Datable + FixedSize,
-            Sig: Datable + FixedSize,
+            Sk: Datable + ConstantSize,
+            Pk: Datable + ConstantSize,
+            Sig: Datable + ConstantSize,
             Self: 'static + Sized
 {
     /// Signs cryptographically the implementor using `Datable` params, a secret key and a callback.

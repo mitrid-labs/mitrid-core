@@ -6,7 +6,7 @@ use base::Result;
 use base::Checkable;
 use base::Datable;
 use base::Serializable;
-use base::{Sizable, FixedSize};
+use base::{Sizable, ConstantSize};
 use base::Evaluable;
 use crypto::{Hashable, Signable};
 use models::Meta;
@@ -14,10 +14,10 @@ use models::Meta;
 /// Type used to represent a wallet (account) in the distributed ledger.
 #[derive(Clone, PartialEq, Eq, PartialOrd, Ord, Debug, Default, Hash, Serialize, Deserialize)]
 pub struct Wallet<D, Sk, Pk, Sig, P>
-    where   D: Datable + FixedSize,
-            Sk: Datable + FixedSize,
-            Pk: Datable + FixedSize,
-            Sig: Datable + FixedSize,
+    where   D: Datable + ConstantSize,
+            Sk: Datable + ConstantSize,
+            Pk: Datable + ConstantSize,
+            Sig: Datable + ConstantSize,
             P: Datable
 {
     /// Wallet id. It is the digest of the same wallet, but with a default `D` id.
@@ -35,10 +35,10 @@ pub struct Wallet<D, Sk, Pk, Sig, P>
 }
 
 impl<D, Sk, Pk, Sig, P> Wallet<D, Sk, Pk, Sig, P>
-    where   D: Datable + FixedSize,
-            Sk: Datable + FixedSize,
-            Pk: Datable + FixedSize,
-            Sig: Datable + FixedSize,
+    where   D: Datable + ConstantSize,
+            Sk: Datable + ConstantSize,
+            Pk: Datable + ConstantSize,
+            Sig: Datable + ConstantSize,
             P: Datable
 {
     /// Creates a new `Wallet`.
@@ -106,7 +106,7 @@ impl<D, Sk, Pk, Sig, P> Wallet<D, Sk, Pk, Sig, P>
                                 cb: &Fn(&Self, &SP, &Pk, &Sig) -> Result<bool>)
         -> Result<bool>
         where   SP: Datable,
-                Sk: Datable + FixedSize
+                Sk: Datable + ConstantSize
     {
         params.check()?;
 
@@ -132,7 +132,7 @@ impl<D, Sk, Pk, Sig, P> Wallet<D, Sk, Pk, Sig, P>
                                cb: &Fn(&Self, &SP, &Pk, &Sig) -> Result<()>)
         -> Result<()>
         where   SP: Datable,
-                Sk: Datable + FixedSize
+                Sk: Datable + ConstantSize
     {
         params.check()?;
 
@@ -228,27 +228,27 @@ impl<D, Sk, Pk, Sig, P> Wallet<D, Sk, Pk, Sig, P>
 
 impl<HP, D, Sk, Pk, Sig, P> Hashable<HP, D> for Wallet<D, Sk, Pk, Sig, P>
     where   HP: Datable,
-            D: Datable + FixedSize,
-            Sk: Datable + FixedSize,
-            Pk: Datable + FixedSize,
-            Sig: Datable + FixedSize,
+            D: Datable + ConstantSize,
+            Sk: Datable + ConstantSize,
+            Pk: Datable + ConstantSize,
+            Sig: Datable + ConstantSize,
             P: Datable
 {}
 
 impl<SP, D, Sk, Pk, Sig, P> Signable<SP, Sk, Pk, Sig> for Wallet<D, Sk, Pk, Sig, P>
     where   SP: Datable,
-            D: Datable + FixedSize,
-            Sk: Datable + FixedSize,
-            Pk: Datable + FixedSize,
-            Sig: Datable + FixedSize,
+            D: Datable + ConstantSize,
+            Sk: Datable + ConstantSize,
+            Pk: Datable + ConstantSize,
+            Sig: Datable + ConstantSize,
             P: Datable
 {}
 
 impl<D, Sk, Pk, Sig, P> Sizable for Wallet<D, Sk, Pk, Sig, P>
-    where   D: Datable + FixedSize,
-            Sk: Datable + FixedSize,
-            Pk: Datable + FixedSize,
-            Sig: Datable + FixedSize,
+    where   D: Datable + ConstantSize,
+            Sk: Datable + ConstantSize,
+            Pk: Datable + ConstantSize,
+            Sig: Datable + ConstantSize,
             P: Datable
 {
     fn size(&self) -> u64 {
@@ -262,10 +262,10 @@ impl<D, Sk, Pk, Sig, P> Sizable for Wallet<D, Sk, Pk, Sig, P>
 }
 
 impl<D, Sk, Pk, Sig, P> Checkable for Wallet<D, Sk, Pk, Sig, P>
-    where   D: Datable + FixedSize,
-            Sk: Datable + FixedSize,
-            Pk: Datable + FixedSize,
-            Sig: Datable + FixedSize,
+    where   D: Datable + ConstantSize,
+            Sk: Datable + ConstantSize,
+            Pk: Datable + ConstantSize,
+            Sig: Datable + ConstantSize,
             P: Datable
 {
     fn check(&self) -> Result<()> {
@@ -293,25 +293,25 @@ impl<D, Sk, Pk, Sig, P> Checkable for Wallet<D, Sk, Pk, Sig, P>
 }
 
 impl<D, Sk, Pk, Sig, P> Serializable for Wallet<D, Sk, Pk, Sig, P>
-    where   D: Datable + FixedSize + Serializable,
-            Sk: Datable + FixedSize + Serializable,
-            Pk: Datable + FixedSize + Serializable,
-            Sig: Datable + FixedSize + Serializable,
+    where   D: Datable + ConstantSize + Serializable,
+            Sk: Datable + ConstantSize + Serializable,
+            Pk: Datable + ConstantSize + Serializable,
+            Sig: Datable + ConstantSize + Serializable,
             P: Datable + Serializable
 {}
 
 impl<D, Sk, Pk, Sig, P> Datable for Wallet<D, Sk, Pk, Sig, P>
-    where   D: Datable + FixedSize,
-            Sk: Datable + FixedSize,
-            Pk: Datable + FixedSize,
-            Sig: Datable + FixedSize,
+    where   D: Datable + ConstantSize,
+            Sk: Datable + ConstantSize,
+            Pk: Datable + ConstantSize,
+            Sig: Datable + ConstantSize,
             P: Datable
 {}
 
 impl<D, Sk, Pk, Sig, P> Evaluable for Wallet<D, Sk, Pk, Sig, P>
-    where   D: Datable + FixedSize,
-            Sk: Datable + FixedSize,
-            Pk: Datable + FixedSize,
-            Sig: Datable + FixedSize,
+    where   D: Datable + ConstantSize,
+            Sk: Datable + ConstantSize,
+            Pk: Datable + ConstantSize,
+            Sig: Datable + ConstantSize,
             P: Datable
 {}

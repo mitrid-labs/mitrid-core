@@ -4,7 +4,7 @@ use sodiumoxide::crypto::hash::DIGESTBYTES;
 use sodiumoxide::crypto::hash::hash;
 
 use mitrid_core::base::Result;
-use mitrid_core::base::{Sizable, FixedSize};
+use mitrid_core::base::{Sizable, ConstantSize};
 use mitrid_core::base::Checkable;
 use mitrid_core::base::Serializable;
 use mitrid_core::base::Datable;
@@ -58,8 +58,8 @@ impl Sizable for Digest {
     }
 }
 
-impl FixedSize for Digest {
-    fn required_size() -> u64 {
+impl ConstantSize for Digest {
+    fn constant_size() -> u64 {
         DIGEST_SIZE
     }
 }

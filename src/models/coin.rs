@@ -7,7 +7,7 @@ use base::Result;
 use base::Checkable;
 use base::Datable;
 use base::Serializable;
-use base::{Sizable, FixedSize};
+use base::{Sizable, ConstantSize};
 use base::Numerical;
 use crypto::Hashable;
 use models::Meta;
@@ -15,7 +15,7 @@ use models::Meta;
 /// Type used to represent a past `Output`.
 #[derive(Clone, PartialEq, Eq, PartialOrd, Ord, Debug, Default, Hash, Serialize, Deserialize)]
 pub struct Coin<D, A>
-    where   D: Datable + FixedSize,
+    where   D: Datable + ConstantSize,
             A: Numerical
 {
     /// Coin id. It is the digest of the same coin, but with a default `D` id.
@@ -31,7 +31,7 @@ pub struct Coin<D, A>
 }
 
 impl<D, A> Coin<D, A>
-    where   D: Datable + FixedSize,
+    where   D: Datable + ConstantSize,
             A: Numerical
 {
     /// Creates a new `Coin`.
@@ -141,12 +141,12 @@ impl<D, A> Coin<D, A>
 
 impl<P, D, A> Hashable<P, D> for Coin<D, A>
     where   P: Datable,
-            D: Datable + FixedSize,
+            D: Datable + ConstantSize,
             A: Numerical
 {}
 
 impl<D, A> Sizable for Coin<D, A>
-    where   D: Datable + FixedSize,
+    where   D: Datable + ConstantSize,
             A: Numerical
 {
     fn size(&self) -> u64 {
@@ -159,7 +159,7 @@ impl<D, A> Sizable for Coin<D, A>
 }
 
 impl<D, A> Checkable for Coin<D, A>
-    where   D: Datable + FixedSize,
+    where   D: Datable + ConstantSize,
             A: Numerical
 {
     fn check(&self) -> Result<()> {
@@ -180,11 +180,11 @@ impl<D, A> Checkable for Coin<D, A>
 }
 
 impl<D, A> Serializable for Coin<D, A>
-    where   D: Datable + FixedSize + Serializable,
+    where   D: Datable + ConstantSize + Serializable,
             A: Numerical + Serializable
 {}
 
 impl<D, A> Datable for Coin<D, A>
-    where   D: Datable + FixedSize,
+    where   D: Datable + ConstantSize,
             A: Numerical
 {}

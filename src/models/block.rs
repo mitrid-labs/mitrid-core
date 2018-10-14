@@ -8,7 +8,7 @@ use base::Result;
 use base::Checkable;
 use base::Datable;
 use base::Serializable;
-use base::{Sizable, FixedSize};
+use base::{Sizable, ConstantSize};
 use base::Numerical;
 use base::Evaluable;
 use crypto::{Hashable, Provable};
@@ -19,11 +19,11 @@ use models::BlockNode;
 /// Type used to represent a bundle of confirmed `Transaction`s.
 #[derive(Clone, PartialEq, Eq, PartialOrd, Ord, Debug, Default, Hash, Serialize, Deserialize)]
 pub struct Block<D, A, IP, Pk, Sig, OP, TP, P, Pr>
-    where   D: Datable + FixedSize,
+    where   D: Datable + ConstantSize,
             A: Numerical,
             IP: Datable,
-            Pk: Datable + FixedSize,
-            Sig: Datable + FixedSize,
+            Pk: Datable + ConstantSize,
+            Sig: Datable + ConstantSize,
             OP: Datable,
             TP: Datable,
             P: Datable,
@@ -50,11 +50,11 @@ pub struct Block<D, A, IP, Pk, Sig, OP, TP, P, Pr>
 }
 
 impl<D, A, IP, Pk, Sig, OP, TP, P, Pr> Block<D, A, IP, Pk, Sig, OP, TP, P, Pr>
-    where   D: Datable + FixedSize,
+    where   D: Datable + ConstantSize,
             A: Numerical,
             IP: Datable,
-            Pk: Datable + FixedSize,
-            Sig: Datable + FixedSize,
+            Pk: Datable + ConstantSize,
+            Sig: Datable + ConstantSize,
             OP: Datable,
             TP: Datable,
             P: Datable,
@@ -260,11 +260,11 @@ impl<D, A, IP, Pk, Sig, OP, TP, P, Pr> Block<D, A, IP, Pk, Sig, OP, TP, P, Pr>
 
 impl<HP, D, A, IP, Pk, Sig, OP, TP, P, Pr> Hashable<HP, D> for Block<D, A, IP, Pk, Sig, OP, TP, P, Pr>
     where   HP: Datable,
-            D: Datable + FixedSize,
+            D: Datable + ConstantSize,
             A: Numerical,
             IP: Datable,
-            Pk: Datable + FixedSize,
-            Sig: Datable + FixedSize,
+            Pk: Datable + ConstantSize,
+            Sig: Datable + ConstantSize,
             OP: Datable,
             TP: Datable,
             P: Datable,
@@ -273,11 +273,11 @@ impl<HP, D, A, IP, Pk, Sig, OP, TP, P, Pr> Hashable<HP, D> for Block<D, A, IP, P
 
 impl<PrP, D, A, IP, Pk, Sig, OP, TP, P, Pr> Provable<PrP, Pr> for Block<D, A, IP, Pk, Sig, OP, TP, P, Pr>
     where   PrP: Datable,
-            D: Datable + FixedSize,
+            D: Datable + ConstantSize,
             A: Numerical,
             IP: Datable,
-            Pk: Datable + FixedSize,
-            Sig: Datable + FixedSize,
+            Pk: Datable + ConstantSize,
+            Sig: Datable + ConstantSize,
             OP: Datable,
             TP: Datable,
             P: Datable,
@@ -285,11 +285,11 @@ impl<PrP, D, A, IP, Pk, Sig, OP, TP, P, Pr> Provable<PrP, Pr> for Block<D, A, IP
 {}
 
 impl<D, A, IP, Pk, Sig, OP, TP, P, Pr> Sizable for Block<D, A, IP, Pk, Sig, OP, TP, P, Pr>
-    where   D: Datable + FixedSize,
+    where   D: Datable + ConstantSize,
             A: Numerical,
             IP: Datable,
-            Pk: Datable + FixedSize,
-            Sig: Datable + FixedSize,
+            Pk: Datable + ConstantSize,
+            Sig: Datable + ConstantSize,
             OP: Datable,
             TP: Datable,
             P: Datable,
@@ -309,11 +309,11 @@ impl<D, A, IP, Pk, Sig, OP, TP, P, Pr> Sizable for Block<D, A, IP, Pk, Sig, OP, 
 }
 
 impl<D, A, IP, Pk, Sig, OP, TP, P, Pr> Checkable for Block<D, A, IP, Pk, Sig, OP, TP, P, Pr>
-    where   D: Datable + FixedSize,
+    where   D: Datable + ConstantSize,
             A: Numerical,
             IP: Datable,
-            Pk: Datable + FixedSize,
-            Sig: Datable + FixedSize,
+            Pk: Datable + ConstantSize,
+            Sig: Datable + ConstantSize,
             OP: Datable,
             TP: Datable,
             P: Datable,
@@ -351,11 +351,11 @@ impl<D, A, IP, Pk, Sig, OP, TP, P, Pr> Checkable for Block<D, A, IP, Pk, Sig, OP
 }
 
 impl<D, A, IP, Pk, Sig, OP, TP, P, Pr> Serializable for Block<D, A, IP, Pk, Sig, OP, TP, P, Pr>
-    where   D: Datable + FixedSize + Serializable,
+    where   D: Datable + ConstantSize + Serializable,
             A: Numerical + Serializable,
             IP: Datable + Serializable,
-            Pk: Datable + FixedSize + Serializable,
-            Sig: Datable + FixedSize + Serializable,
+            Pk: Datable + ConstantSize + Serializable,
+            Sig: Datable + ConstantSize + Serializable,
             OP: Datable + Serializable,
             TP: Datable + Serializable,
             P: Datable + Serializable,
@@ -363,11 +363,11 @@ impl<D, A, IP, Pk, Sig, OP, TP, P, Pr> Serializable for Block<D, A, IP, Pk, Sig,
 {}
 
 impl<D, A, IP, Pk, Sig, OP, TP, P, Pr> Datable for Block<D, A, IP, Pk, Sig, OP, TP, P, Pr>
-    where   D: Datable + FixedSize,
+    where   D: Datable + ConstantSize,
             A: Numerical,
             IP: Datable,
-            Pk: Datable + FixedSize,
-            Sig: Datable + FixedSize,
+            Pk: Datable + ConstantSize,
+            Sig: Datable + ConstantSize,
             OP: Datable,
             TP: Datable,
             P: Datable,
@@ -375,11 +375,11 @@ impl<D, A, IP, Pk, Sig, OP, TP, P, Pr> Datable for Block<D, A, IP, Pk, Sig, OP, 
 {}
 
 impl<D, A, IP, Pk, Sig, OP, TP, P, Pr> Evaluable for Block<D, A, IP, Pk, Sig, OP, TP, P, Pr>
-    where   D: Datable + FixedSize,
+    where   D: Datable + ConstantSize,
             A: Numerical,
             IP: Datable,
-            Pk: Datable + FixedSize,
-            Sig: Datable + FixedSize,
+            Pk: Datable + ConstantSize,
+            Sig: Datable + ConstantSize,
             OP: Datable,
             TP: Datable,
             P: Datable,

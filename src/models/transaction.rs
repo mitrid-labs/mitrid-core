@@ -6,7 +6,7 @@ use base::Result;
 use base::Checkable;
 use base::Datable;
 use base::Serializable;
-use base::{Sizable, FixedSize};
+use base::{Sizable, ConstantSize};
 use base::Numerical;
 use base::Evaluable;
 use crypto::Hashable;
@@ -17,11 +17,11 @@ use models::Output;
 /// Type used to produce one or more `Output`s from one or more `Input`s.
 #[derive(Clone, PartialEq, Eq, PartialOrd, Ord, Debug, Default, Hash, Serialize, Deserialize)]
 pub struct Transaction<D, A, IP, Pk, Sig, OP, P>
-    where   D: Datable + FixedSize,
+    where   D: Datable + ConstantSize,
             A: Numerical,
             IP: Datable,
-            Pk: Datable + FixedSize,
-            Sig: Datable + FixedSize,
+            Pk: Datable + ConstantSize,
+            Sig: Datable + ConstantSize,
             OP: Datable,
             P: Datable
 {
@@ -42,11 +42,11 @@ pub struct Transaction<D, A, IP, Pk, Sig, OP, P>
 }
 
 impl<D, A, IP, Pk, Sig, OP, P> Transaction<D, A, IP, Pk, Sig, OP, P>
-    where   D: Datable + FixedSize,
+    where   D: Datable + ConstantSize,
             A: Numerical,
             IP: Datable,
-            Pk: Datable + FixedSize,
-            Sig: Datable + FixedSize,
+            Pk: Datable + ConstantSize,
+            Sig: Datable + ConstantSize,
             OP: Datable,
             P: Datable
 {
@@ -190,21 +190,21 @@ impl<D, A, IP, Pk, Sig, OP, P> Transaction<D, A, IP, Pk, Sig, OP, P>
 
 impl<HP, D, A, IP, Pk, Sig, OP, P> Hashable<HP, D> for Transaction<D, A, IP, Pk, Sig, OP, P>
     where   HP: Datable,
-            D: Datable + FixedSize,
+            D: Datable + ConstantSize,
             A: Numerical,
             IP: Datable,
-            Pk: Datable + FixedSize,
-            Sig: Datable + FixedSize,
+            Pk: Datable + ConstantSize,
+            Sig: Datable + ConstantSize,
             OP: Datable,
             P: Datable
 {}
 
 impl<D, A, IP, Pk, Sig, OP, P> Sizable for Transaction<D, A, IP, Pk, Sig, OP, P>
-    where   D: Datable + FixedSize,
+    where   D: Datable + ConstantSize,
             A: Numerical,
             IP: Datable,
-            Pk: Datable + FixedSize,
-            Sig: Datable + FixedSize,
+            Pk: Datable + ConstantSize,
+            Sig: Datable + ConstantSize,
             OP: Datable,
             P: Datable
 {
@@ -220,11 +220,11 @@ impl<D, A, IP, Pk, Sig, OP, P> Sizable for Transaction<D, A, IP, Pk, Sig, OP, P>
 }
 
 impl<D, A, IP, Pk, Sig, OP, P> Checkable for Transaction<D, A, IP, Pk, Sig, OP, P>
-    where   D: Datable + FixedSize,
+    where   D: Datable + ConstantSize,
             A: Numerical,
             IP: Datable,
-            Pk: Datable + FixedSize,
-            Sig: Datable + FixedSize,
+            Pk: Datable + ConstantSize,
+            Sig: Datable + ConstantSize,
             OP: Datable,
             P: Datable
 {
@@ -258,31 +258,31 @@ impl<D, A, IP, Pk, Sig, OP, P> Checkable for Transaction<D, A, IP, Pk, Sig, OP, 
 }
 
 impl<D, A, IP, Pk, Sig, OP, P> Serializable for Transaction<D, A, IP, Pk, Sig, OP, P>
-    where   D: Datable + FixedSize + Serializable,
+    where   D: Datable + ConstantSize + Serializable,
             A: Numerical + Serializable,
             IP: Datable + Serializable,
-            Pk: Datable + FixedSize + Serializable,
-            Sig: Datable + FixedSize + Serializable,
+            Pk: Datable + ConstantSize + Serializable,
+            Sig: Datable + ConstantSize + Serializable,
             OP: Datable + Serializable,
             P: Datable + Serializable
 {}
 
 impl<D, A, IP, Pk, Sig, OP, P> Datable for Transaction<D, A, IP, Pk, Sig, OP, P>
-    where   D: Datable + FixedSize,
+    where   D: Datable + ConstantSize,
             A: Numerical,
             IP: Datable,
-            Pk: Datable + FixedSize,
-            Sig: Datable + FixedSize,
+            Pk: Datable + ConstantSize,
+            Sig: Datable + ConstantSize,
             OP: Datable,
             P: Datable
 {}
 
 impl<D, A, IP, Pk, Sig, OP, P> Evaluable for Transaction<D, A, IP, Pk, Sig, OP, P>
-    where   D: Datable + FixedSize,
+    where   D: Datable + ConstantSize,
             A: Numerical,
             IP: Datable,
-            Pk: Datable + FixedSize,
-            Sig: Datable + FixedSize,
+            Pk: Datable + ConstantSize,
+            Sig: Datable + ConstantSize,
             OP: Datable,
             P: Datable
 {}

@@ -7,7 +7,7 @@ use base::Result;
 use base::Checkable;
 use base::Datable;
 use base::Serializable;
-use base::{Sizable, FixedSize};
+use base::{Sizable, ConstantSize};
 use base::Numerical;
 use base::Evaluable;
 use crypto::{Hashable, Signable};
@@ -17,11 +17,11 @@ use models::Coin;
 /// Type used to bind one or more `Coin`s to a `Transaction` as one of its inputs.
 #[derive(Clone, PartialEq, Eq, PartialOrd, Ord, Debug, Default, Hash, Serialize, Deserialize)]
 pub struct Input<D, A, P, Pk, Sig>
-    where   D: Datable + FixedSize,
+    where   D: Datable + ConstantSize,
             A: Numerical,
             P: Datable,
-            Pk: Datable + FixedSize,
-            Sig: Datable + FixedSize
+            Pk: Datable + ConstantSize,
+            Sig: Datable + ConstantSize
 {
     /// Input id. It is the digest of the same input, but with a default `D` id.
     pub id: D,
@@ -38,11 +38,11 @@ pub struct Input<D, A, P, Pk, Sig>
 }
 
 impl<D, A, P, Pk, Sig> Input<D, A, P, Pk, Sig>
-    where   D: Datable + FixedSize,
+    where   D: Datable + ConstantSize,
             A: Numerical,
             P: Datable,
-            Pk: Datable + FixedSize,
-            Sig: Datable + FixedSize
+            Pk: Datable + ConstantSize,
+            Sig: Datable + ConstantSize
 {
     /// Creates a new `Input`.
     pub fn new() -> Input<D, A, P, Pk, Sig> {
@@ -98,7 +98,7 @@ impl<D, A, P, Pk, Sig> Input<D, A, P, Pk, Sig>
                         cb: &Fn(&Self, &SP, &Sk) -> Result<Sig>)
         -> Result<Input<D, A, P, Pk, Sig>>
         where   SP: Datable,
-                Sk: Datable + FixedSize
+                Sk: Datable + ConstantSize
     {
         params.check()?;
         sk.check()?;
@@ -119,7 +119,7 @@ impl<D, A, P, Pk, Sig> Input<D, A, P, Pk, Sig>
                                     cb: &Fn(&Self, &SP, &Pk, &Sig) -> Result<bool>)
         -> Result<bool>
         where   SP: Datable,
-                Sk: Datable + FixedSize
+                Sk: Datable + ConstantSize
     {
         params.check()?;
 
@@ -143,7 +143,7 @@ impl<D, A, P, Pk, Sig> Input<D, A, P, Pk, Sig>
                                    cb: &Fn(&Self, &SP, &Pk, &Sig) -> Result<()>)
         -> Result<()>
         where   SP: Datable,
-                Sk: Datable + FixedSize
+                Sk: Datable + ConstantSize
     {
         params.check()?;
 
@@ -238,30 +238,30 @@ impl<D, A, P, Pk, Sig> Input<D, A, P, Pk, Sig>
 
 impl<HP, D, A, P, Pk, Sig> Hashable<HP, D> for Input<D, A, P, Pk, Sig>
     where   HP: Datable,
-            D: Datable + FixedSize,
+            D: Datable + ConstantSize,
             A: Numerical,
             P: Datable,
-            Pk: Datable + FixedSize,
-            Sig: Datable + FixedSize
+            Pk: Datable + ConstantSize,
+            Sig: Datable + ConstantSize
 {}
 
 impl<SP, Sk, D, A, P, Pk, Sig> Signable<SP, Sk, Pk, Sig> for Input<D, A, P, Pk, Sig>
     where   SP: Datable,
-            Sk: Datable + FixedSize,
-            Sig: Datable + FixedSize,
-            D: Datable + FixedSize,
+            Sk: Datable + ConstantSize,
+            Sig: Datable + ConstantSize,
+            D: Datable + ConstantSize,
             A: Numerical,
             P: Datable,
-            Pk: Datable + FixedSize,
-            Sig: Datable + FixedSize
+            Pk: Datable + ConstantSize,
+            Sig: Datable + ConstantSize
 {}
 
 impl<D, A, P, Pk, Sig> Sizable for Input<D, A, P, Pk, Sig>
-    where   D: Datable + FixedSize,
+    where   D: Datable + ConstantSize,
             A: Numerical,
             P: Datable,
-            Pk: Datable + FixedSize,
-            Sig: Datable + FixedSize
+            Pk: Datable + ConstantSize,
+            Sig: Datable + ConstantSize
 {
     fn size(&self) -> u64 {
         self.id.size() +
@@ -274,11 +274,11 @@ impl<D, A, P, Pk, Sig> Sizable for Input<D, A, P, Pk, Sig>
 }
 
 impl<D, A, P, Pk, Sig> Checkable for Input<D, A, P, Pk, Sig>
-    where   D: Datable + FixedSize,
+    where   D: Datable + ConstantSize,
             A: Numerical,
             P: Datable,
-            Pk: Datable + FixedSize,
-            Sig: Datable + FixedSize
+            Pk: Datable + ConstantSize,
+            Sig: Datable + ConstantSize
 {
     fn check(&self) -> Result<()> {
         self.id.check()?;
@@ -303,25 +303,25 @@ impl<D, A, P, Pk, Sig> Checkable for Input<D, A, P, Pk, Sig>
 }
 
 impl<D, A, P, Pk, Sig> Serializable for Input<D, A, P, Pk, Sig>
-    where   D: Datable + FixedSize + Serializable,
+    where   D: Datable + ConstantSize + Serializable,
             A: Numerical + Serializable,
             P: Datable + Serializable,
-            Pk: Datable + FixedSize + Serializable,
-            Sig: Datable + FixedSize + Serializable
+            Pk: Datable + ConstantSize + Serializable,
+            Sig: Datable + ConstantSize + Serializable
 {}
 
 impl<D, A, P, Pk, Sig> Datable for Input<D, A, P, Pk, Sig>
-    where   D: Datable + FixedSize,
+    where   D: Datable + ConstantSize,
             A: Numerical,
             P: Datable,
-            Pk: Datable + FixedSize,
-            Sig: Datable + FixedSize
+            Pk: Datable + ConstantSize,
+            Sig: Datable + ConstantSize
 {}
 
 impl<D, A, P, Pk, Sig> Evaluable for Input<D, A, P, Pk, Sig>
-    where   D: Datable + FixedSize,
+    where   D: Datable + ConstantSize,
             A: Numerical,
             P: Datable,
-            Pk: Datable + FixedSize,
-            Sig: Datable + FixedSize
+            Pk: Datable + ConstantSize,
+            Sig: Datable + ConstantSize
 {}

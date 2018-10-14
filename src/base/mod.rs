@@ -34,5 +34,5 @@ pub use self::check::Checkable;
 pub use self::data::Datable;
 pub use self::serialize::Serializable;
 pub use self::numerical::Numerical;
-pub use self::size::{Sizable, VariableSize, FixedSize};
+pub use self::size::{Sizable, VariableSize, ConstantSize};
 pub use self::eval::Evaluable;

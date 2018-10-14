@@ -9,7 +9,7 @@ use sodiumoxide::crypto::sign::{gen_keypair, keypair_from_seed};
 use sodiumoxide::crypto::sign::{sign_detached, verify_detached};
 
 use mitrid_core::base::Result;
-use mitrid_core::base::{Sizable, FixedSize};
+use mitrid_core::base::{Sizable, ConstantSize};
 use mitrid_core::base::Checkable;
 use mitrid_core::base::Serializable;
 use mitrid_core::base::Datable;
@@ -106,8 +106,8 @@ impl Sizable for SecretKey {
     }
 }
 
-impl FixedSize for SecretKey {
-    fn required_size() -> u64 {
+impl ConstantSize for SecretKey {
+    fn constant_size() -> u64 {
         SECRETKEY_SIZE
     }
 }
@@ -172,8 +172,8 @@ impl Sizable for PublicKey {
     }
 }
 
-impl FixedSize for PublicKey {
-    fn required_size() -> u64 {
+impl ConstantSize for PublicKey {
+    fn constant_size() -> u64 {
         PUBLICKEY_SIZE
     }
 }
@@ -238,8 +238,8 @@ impl Sizable for Signature {
     }
 }
 
-impl FixedSize for Signature {
-    fn required_size() -> u64 {
+impl ConstantSize for Signature {
+    fn constant_size() -> u64 {
         SIGNATURE_SIZE
     }
 }
