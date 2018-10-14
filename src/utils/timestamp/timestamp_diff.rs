@@ -7,8 +7,8 @@ use std::time::Duration;
 use std::ops::{Add, AddAssign};
 use std::ops::{Sub, SubAssign};
 use std::ops::{Mul, MulAssign};
-use std::ops::{Div, DivAssign};
-use std::ops::{Rem, RemAssign};
+use std::ops::Div;
+use std::ops::Rem;
 
 use base::Sizable;
 use base::Checkable;
@@ -93,7 +93,7 @@ impl TimestampDiff {
     }
 }
 
-impl Add for TimestampDiff {
+impl Add<TimestampDiff> for TimestampDiff {
     type Output = TimestampDiff;
 
     fn add(self, other: TimestampDiff) -> TimestampDiff {
@@ -101,10 +101,10 @@ impl Add for TimestampDiff {
     }
 }
 
-impl<'a> Add for &'a TimestampDiff {
+impl<'a> Add<TimestampDiff> for &'a TimestampDiff {
     type Output = TimestampDiff;
 
-    fn add(self, other: &'a TimestampDiff) -> TimestampDiff {
+    fn add(self, other: TimestampDiff) -> TimestampDiff {
         TimestampDiff(self.0 + other.0)
     }
 }
@@ -113,6 +113,14 @@ impl<'a> Add<&'a TimestampDiff> for TimestampDiff {
     type Output = TimestampDiff;
 
     fn add(self, other: &'a TimestampDiff) -> TimestampDiff {
+        TimestampDiff(self.0 + other.0)
+    }
+}
+
+impl<'a, 'b> Add<&'b TimestampDiff> for &'a TimestampDiff {
+    type Output = TimestampDiff;
+
+    fn add(self, other: &'b TimestampDiff) -> TimestampDiff {
         TimestampDiff(self.0 + other.0)
     }
 }
@@ -129,13 +137,19 @@ impl<'a> AddAssign<&'a TimestampDiff> for TimestampDiff {
     }
 }
 
+impl<'a> AddAssign<TimestampDiff> for &'a mut TimestampDiff {
+    fn add_assign(&mut self, other: TimestampDiff) {
+        self.0 += other.0
+    }
+}
+
 impl<'a, 'b> AddAssign<&'b TimestampDiff> for &'a mut TimestampDiff {
     fn add_assign(&mut self, other: &'b TimestampDiff) {
         self.0 += other.0
     }
 }
 
-impl Sub for TimestampDiff {
+impl Sub<TimestampDiff> for TimestampDiff {
     type Output = TimestampDiff;
 
     fn sub(self, other: TimestampDiff) -> TimestampDiff {
@@ -143,10 +157,10 @@ impl Sub for TimestampDiff {
     }
 }
 
-impl<'a> Sub for &'a TimestampDiff {
+impl<'a> Sub<TimestampDiff> for &'a TimestampDiff {
     type Output = TimestampDiff;
 
-    fn sub(self, other: &'a TimestampDiff) -> TimestampDiff {
+    fn sub(self, other: TimestampDiff) -> TimestampDiff {
         TimestampDiff(self.0 - other.0)
     }
 }
@@ -155,6 +169,14 @@ impl<'a> Sub<&'a TimestampDiff> for TimestampDiff {
     type Output = TimestampDiff;
 
     fn sub(self, other: &'a TimestampDiff) -> TimestampDiff {
+        TimestampDiff(self.0 - other.0)
+    }
+}
+
+impl<'a, 'b> Sub<&'b TimestampDiff> for &'a TimestampDiff {
+    type Output = TimestampDiff;
+
+    fn sub(self, other: &'b TimestampDiff) -> TimestampDiff {
         TimestampDiff(self.0 - other.0)
     }
 }
@@ -171,135 +193,135 @@ impl<'a> SubAssign<&'a TimestampDiff> for TimestampDiff {
     }
 }
 
+impl<'a> SubAssign<TimestampDiff> for &'a mut TimestampDiff {
+    fn sub_assign(&mut self, other: TimestampDiff) {
+        self.0 -= other.0
+    }
+}
+
 impl<'a, 'b> SubAssign<&'b TimestampDiff> for &'a mut TimestampDiff {
     fn sub_assign(&mut self, other: &'b TimestampDiff) {
         self.0 -= other.0
     }
 }
 
-impl Mul for TimestampDiff {
+impl Mul<i64> for TimestampDiff {
     type Output = TimestampDiff;
 
-    fn mul(self, other: TimestampDiff) -> TimestampDiff {
-        TimestampDiff(self.0 * other.0)
+    fn mul(self, other: i64) -> TimestampDiff {
+        TimestampDiff(self.0 * other)
     }
 }
 
-impl<'a> Mul for &'a TimestampDiff {
+impl<'a> Mul<i64> for &'a TimestampDiff {
     type Output = TimestampDiff;
 
-    fn mul(self, other: &'a TimestampDiff) -> TimestampDiff {
-        TimestampDiff(self.0 * other.0)
+    fn mul(self, other: i64) -> TimestampDiff {
+        TimestampDiff(self.0 * other)
     }
 }
 
-impl<'a> Mul<&'a TimestampDiff> for TimestampDiff {
+impl<'a> Mul<&'a i64> for TimestampDiff {
     type Output = TimestampDiff;
 
-    fn mul(self, other: &'a TimestampDiff) -> TimestampDiff {
-        TimestampDiff(self.0 * other.0)
+    fn mul(self, other: &'a i64) -> TimestampDiff {
+        TimestampDiff(self.0 * other)
     }
 }
 
-impl MulAssign for TimestampDiff {
-    fn mul_assign(&mut self, other: TimestampDiff) {
-        self.0 *= other.0
-    }
-}
-
-impl<'a> MulAssign<&'a TimestampDiff> for TimestampDiff {
-    fn mul_assign(&mut self, other: &'a TimestampDiff) {
-        self.0 *= other.0
-    }
-}
-
-impl<'a, 'b> MulAssign<&'b TimestampDiff> for &'a mut TimestampDiff {
-    fn mul_assign(&mut self, other: &'b TimestampDiff) {
-        self.0 *= other.0
-    }
-}
-
-impl Div for TimestampDiff {
+impl<'a, 'b> Mul<&'b i64> for &'a TimestampDiff {
     type Output = TimestampDiff;
 
-    fn div(self, other: TimestampDiff) -> TimestampDiff {
-        TimestampDiff(self.0 / other.0)
+    fn mul(self, other: &'b i64) -> TimestampDiff {
+        TimestampDiff(self.0 * other)
     }
 }
 
-impl<'a> Div for &'a TimestampDiff {
-    type Output = TimestampDiff;
+impl MulAssign<i64> for TimestampDiff {
+    fn mul_assign(&mut self, other: i64) {
+        self.0 *= other
+    }
+}
 
-    fn div(self, other: &'a TimestampDiff) -> TimestampDiff {
-        TimestampDiff(self.0 / other.0)
+impl<'a> MulAssign<&'a i64> for TimestampDiff {
+    fn mul_assign(&mut self, other: &'a i64) {
+        self.0 *= other
+    }
+}
+
+impl<'a> MulAssign<i64> for &'a mut TimestampDiff {
+    fn mul_assign(&mut self, other: i64) {
+        self.0 *= other
+    }
+}
+
+impl<'a, 'b> MulAssign<&'b i64> for &'a mut TimestampDiff {
+    fn mul_assign(&mut self, other: &'b i64) {
+        self.0 *= other
+    }
+}
+
+impl Div<TimestampDiff> for TimestampDiff {
+    type Output = i64;
+
+    fn div(self, other: TimestampDiff) -> i64 {
+        self.0 / other.0
+    }
+}
+
+impl<'a> Div<TimestampDiff> for &'a TimestampDiff {
+    type Output = i64;
+
+    fn div(self, other: TimestampDiff) -> i64 {
+        self.0 / other.0
     }
 }
 
 impl<'a> Div<&'a TimestampDiff> for TimestampDiff {
-    type Output = TimestampDiff;
+    type Output = i64;
 
-    fn div(self, other: &'a TimestampDiff) -> TimestampDiff {
-        TimestampDiff(self.0 / other.0)
+    fn div(self, other: &'a TimestampDiff) -> i64 {
+        self.0 / other.0
     }
 }
 
-impl DivAssign for TimestampDiff {
-    fn div_assign(&mut self, other: TimestampDiff) {
-        self.0 /= other.0
+impl<'a, 'b> Div<&'b TimestampDiff> for &'a TimestampDiff {
+    type Output = i64;
+
+    fn div(self, other: &'b TimestampDiff) -> i64 {
+        self.0 / other.0
     }
 }
 
-impl<'a> DivAssign<&'a TimestampDiff> for TimestampDiff {
-    fn div_assign(&mut self, other: &'a TimestampDiff) {
-        self.0 /= other.0
-    }
-}
+impl Rem<TimestampDiff> for TimestampDiff {
+    type Output = i64;
 
-impl<'a, 'b> DivAssign<&'b TimestampDiff> for &'a mut TimestampDiff {
-    fn div_assign(&mut self, other: &'b TimestampDiff) {
-        self.0 /= other.0
-    }
-}
-
-impl Rem for TimestampDiff {
-    type Output = TimestampDiff;
-
-    fn rem(self, other: TimestampDiff) -> TimestampDiff {
-        TimestampDiff(self.0 % other.0)
-    }
-}
-
-impl<'a> Rem for &'a TimestampDiff {
-    type Output = TimestampDiff;
-
-    fn rem(self, other: &'a TimestampDiff) -> TimestampDiff {
-        TimestampDiff(self.0 % other.0)
+    fn rem(self, other: TimestampDiff) -> i64 {
+        self.0 % other.0
     }
 }
 
 impl<'a> Rem<&'a TimestampDiff> for TimestampDiff {
-    type Output = TimestampDiff;
+    type Output = i64;
 
-    fn rem(self, other: &'a TimestampDiff) -> TimestampDiff {
-        TimestampDiff(self.0 % other.0)
+    fn rem(self, other: &'a TimestampDiff) -> i64 {
+        self.0 % other.0
     }
 }
 
-impl RemAssign for TimestampDiff {
-    fn rem_assign(&mut self, other: TimestampDiff) {
-        self.0 %= other.0
+impl<'a> Rem<TimestampDiff> for &'a TimestampDiff {
+    type Output = i64;
+
+    fn rem(self, other: TimestampDiff) -> i64 {
+        self.0 % other.0
     }
 }
 
-impl<'a> RemAssign<&'a TimestampDiff> for TimestampDiff {
-    fn rem_assign(&mut self, other: &'a TimestampDiff) {
-        self.0 %= other.0
-    }
-}
+impl<'a, 'b> Rem<&'b TimestampDiff> for &'a TimestampDiff {
+    type Output = i64;
 
-impl<'a, 'b> RemAssign<&'b TimestampDiff> for &'a mut TimestampDiff {
-    fn rem_assign(&mut self, other: &'b TimestampDiff) {
-        self.0 %= other.0
+    fn rem(self, other: &'b TimestampDiff) -> i64 {
+        self.0 % other.0
     }
 }
 

@@ -8,6 +8,9 @@ fn test_timestamp_add() {
 
     let tmsp_b = tmsp_a + tmsp_diff;
     assert_eq!(tmsp_b.as_millis(), tmsp_a.as_millis() + tmsp_diff.as_millis());
+    assert_eq!(tmsp_b, tmsp_a + &tmsp_diff);
+    assert_eq!(tmsp_b, &tmsp_a + tmsp_diff);
+    assert_eq!(tmsp_b, &tmsp_a + &tmsp_diff);
 }
 
 #[test]
@@ -27,6 +30,9 @@ fn test_timestamp_sub() {
 
     let tmsp_diff = tmsp_b - tmsp_a;
     assert_eq!(tmsp_diff.as_millis(), tmsp_b.as_millis() - tmsp_a.as_millis());
+    assert_eq!(tmsp_diff, tmsp_b - &tmsp_a);
+    assert_eq!(tmsp_diff, &tmsp_b - tmsp_a);
+    assert_eq!(tmsp_diff, &tmsp_b - &tmsp_a);
 }
 
 #[test]
@@ -36,6 +42,9 @@ fn test_timestamp_mul() {
 
     let tmsp_b = tmsp_a * multiplier;
     assert_eq!(tmsp_b.as_millis(), tmsp_a.as_millis() * multiplier);
+    assert_eq!(tmsp_b, tmsp_a * &multiplier);
+    assert_eq!(tmsp_b, &tmsp_a * multiplier);
+    assert_eq!(tmsp_b, &tmsp_a * &multiplier);
 }
 
 #[test]
@@ -55,6 +64,9 @@ fn test_timestamp_div() {
 
     let div = tmsp_b / tmsp_a;
     assert_eq!(div, tmsp_b.as_millis() / tmsp_a.as_millis());
+    assert_eq!(div, tmsp_b / &tmsp_a);
+    assert_eq!(div, &tmsp_b / tmsp_a);
+    assert_eq!(div, &tmsp_b / &tmsp_a);
 }
 
 #[test]
@@ -64,6 +76,9 @@ fn test_timestamp_rem() {
 
     let rem = tmsp_b % tmsp_a;
     assert_eq!(rem, tmsp_b.as_millis() % tmsp_a.as_millis());
+    assert_eq!(rem, tmsp_b % &tmsp_a);
+    assert_eq!(rem, &tmsp_b % tmsp_a);
+    assert_eq!(rem, &tmsp_b % &tmsp_a);
 }
 
 #[test]
