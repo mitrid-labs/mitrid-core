@@ -224,6 +224,47 @@ impl<D, A, P, Pk, Sig> Input<D, A, P, Pk, Sig>
         input.check_digest_cb(params, &digest, cb)
     }
 
+    /// Commits cryptographically the `Input`.
+    pub fn commit<CP, C>(&self, params: &CP, cb: &Fn(&Self, &CP) -> Result<C>)
+        -> Result<C>
+        where   CP: Datable,
+                C: Datable + ConstantSize
+    {
+        params.check()?;
+
+        self.commit_cb(params, cb)
+    }
+
+    /// Verifies the cryptographic commitment against the `Input`'s commitment.
+    pub fn verify_commitment<CP, C>(&self,
+                                    params: &CP,
+                                    commitment: &C,
+                                    cb: &Fn(&Self, &CP, &C) -> Result<bool>)
+        -> Result<bool>
+        where   CP: Datable,
+                C: Datable + ConstantSize
+    {
+        params.check()?;
+        commitment.check()?;
+
+        self.verify_commitment_cb(params, commitment, cb)
+    }
+
+    /// Checks the cryptographic commitment against the `Input`'s commitment.
+    pub fn check_commitment<CP, C>(&self,
+                                   params: &CP,
+                                   commitment: &C,
+                                   cb: &Fn(&Self, &CP, &C) -> Result<()>)
+        -> Result<()>
+        where   CP: Datable,
+                C: Datable + ConstantSize
+    {
+        params.check()?;
+        commitment.check()?;
+
+        self.check_commitment_cb(params, commitment, cb)
+    }
+
     /// Evals the `Input`.
     pub fn eval<EP, R>(&self, params: &EP, cb: &Fn(&Self, &EP) -> Result<R>)
         -> Result<R>

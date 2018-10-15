@@ -137,6 +137,47 @@ impl<D, A> Coin<D, A>
 
         coin.check_digest_cb(params, &digest, cb)
     }
+
+    /// Commits cryptographically the `Coin`.
+    pub fn commit<CP, C>(&self, params: &CP, cb: &Fn(&Self, &CP) -> Result<C>)
+        -> Result<C>
+        where   CP: Datable,
+                C: Datable + ConstantSize
+    {
+        params.check()?;
+
+        self.commit_cb(params, cb)
+    }
+
+    /// Verifies the cryptographic commitment against the `Coin`'s commitment.
+    pub fn verify_commitment<CP, C>(&self,
+                                    params: &CP,
+                                    commitment: &C,
+                                    cb: &Fn(&Self, &CP, &C) -> Result<bool>)
+        -> Result<bool>
+        where   CP: Datable,
+                C: Datable + ConstantSize
+    {
+        params.check()?;
+        commitment.check()?;
+
+        self.verify_commitment_cb(params, commitment, cb)
+    }
+
+    /// Checks the cryptographic commitment against the `Coin`'s commitment.
+    pub fn check_commitment<CP, C>(&self,
+                                   params: &CP,
+                                   commitment: &C,
+                                   cb: &Fn(&Self, &CP, &C) -> Result<()>)
+        -> Result<()>
+        where   CP: Datable,
+                C: Datable + ConstantSize
+    {
+        params.check()?;
+        commitment.check()?;
+
+        self.check_commitment_cb(params, commitment, cb)
+    }
 }
 
 impl<P, D, A> Hashable<P, D> for Coin<D, A>

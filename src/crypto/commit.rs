@@ -19,16 +19,16 @@ pub trait Committable<P, C>
     }
 
     /// Verifies a commitment against the implementor commit.
-    fn verify_commit_cb(&self, params: &P, commit: &C, cb: &Fn(&Self, &P, &C) -> Result<bool>)
+    fn verify_commitment_cb(&self, params: &P, commitment: &C, cb: &Fn(&Self, &P, &C) -> Result<bool>)
         -> Result<bool>
     {
-        cb(self, params, commit)
+        cb(self, params, commitment)
     }
 
     /// Checks a commitment against the implementor commit.
-    fn check_commit_cb(&self, params: &P, commit: &C, cb: &Fn(&Self, &P, &C) -> Result<()>)
+    fn check_commitment_cb(&self, params: &P, commitment: &C, cb: &Fn(&Self, &P, &C) -> Result<()>)
         -> Result<()>
     {
-        cb(self, params, commit)
+        cb(self, params, commitment)
     }
 }
