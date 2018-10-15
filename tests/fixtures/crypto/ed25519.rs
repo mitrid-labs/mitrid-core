@@ -1,5 +1,6 @@
 #![allow(dead_code)]
 
+use sodiumoxide::init;
 use sodiumoxide::crypto::sign::{SEEDBYTES, SECRETKEYBYTES, PUBLICKEYBYTES, SIGNATUREBYTES};
 use sodiumoxide::crypto::sign::Seed;
 use sodiumoxide::crypto::sign::SecretKey as _SecretKey;
@@ -282,6 +283,8 @@ pub struct Ed25519 {}
 
 impl Ed25519 {
     pub fn keypair(seed: Option<KeySeed>) -> Result<(PublicKey, SecretKey)> {
+        init().unwrap();
+
         let (_pk, _sk) = if let Some(ks) = seed {
             let key_seed = Seed::from_slice(ks.as_slice()).unwrap();
             keypair_from_seed(&key_seed)
@@ -296,6 +299,8 @@ impl Ed25519 {
     }
 
     pub fn sign(msg: &[u8], sk: &SecretKey) -> Result<Signature> {
+        init().unwrap();
+
         sk.check()?;
 
         let _sk = _SecretKey::from_slice(sk.as_slice()).unwrap();
@@ -305,6 +310,8 @@ impl Ed25519 {
     }
 
     pub fn verify(msg: &[u8], pk: &PublicKey, sig: &Signature) -> Result<bool> {
+        init().unwrap();
+
         pk.check()?;
         sig.check()?;
 
@@ -316,6 +323,8 @@ impl Ed25519 {
     }
 
     pub fn check(msg: &[u8], pk: &PublicKey, sig: &Signature) -> Result<()> {
+        init().unwrap();
+
         if !Self::verify(msg, pk, sig)? {
             return Err(String::from("invalid signature"));
         }

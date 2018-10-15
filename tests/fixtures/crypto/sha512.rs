@@ -1,5 +1,6 @@
 #![allow(dead_code)]
 
+use sodiumoxide::init;
 use sodiumoxide::crypto::hash::DIGESTBYTES;
 use sodiumoxide::crypto::hash::hash;
 
@@ -79,14 +80,20 @@ pub struct SHA512 {}
 
 impl SHA512 {
     pub fn digest(msg: &[u8]) -> Result<Digest> {
+        init().unwrap();
+
         Digest::from_slice(&hash(msg).0[..])
     }
 
     pub fn verify(msg: &[u8], digest: &Digest) -> Result<bool> {
+        init().unwrap();
+
         Ok(&Self::digest(msg)? == digest)
     }
 
     pub fn check(msg: &[u8], digest: &Digest) -> Result<()> {
+        init().unwrap();
+
         if !Self::verify(msg, digest)? {
             return Err(String::from("invalid digest"));
         }

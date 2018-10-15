@@ -1,3 +1,5 @@
+use sodiumoxide::init;
+
 use mitrid_core::base::Result;
 
 use std::mem;
@@ -13,6 +15,8 @@ pub struct HashCash {}
 
 impl HashCash {
     pub fn prove(msg: &[u8], bits: u32) -> Result<Proof> {
+        init().unwrap();
+
         let base_digest = SHA512::digest(msg)?;
         let mut nonce: u32 = 0;
         let mut found = false;
@@ -51,6 +55,8 @@ impl HashCash {
     }
 
     pub fn verify(msg: &[u8], bits: u32, proof: &Proof) -> Result<bool> {
+        init().unwrap();
+
         if let Some(nonce) = proof {
             let nonce_arr: [u8; 4] = unsafe { mem::transmute(*nonce) };
 

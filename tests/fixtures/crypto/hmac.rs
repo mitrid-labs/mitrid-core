@@ -1,5 +1,6 @@
 #![allow(dead_code)]
 
+use sodiumoxide::init;
 use sodiumoxide::crypto::auth::hmacsha512::KEYBYTES;
 use sodiumoxide::crypto::auth::hmacsha512::Key as _Key;
 use sodiumoxide::crypto::auth::hmacsha512::Tag as _Tag;
@@ -87,11 +88,15 @@ pub struct SHA512HMAC;
 
 impl SHA512HMAC {
     pub fn genkey() -> Result<AuthKey> {
+        init().unwrap();
+
         let _key = gen_key();
         AuthKey::from_slice(&_key.0[..])
     }
 
     pub fn authenticate(msg: &[u8], key: &AuthKey) -> Result<Tag> {
+        init().unwrap();
+
         key.check()?;
 
         let _key = _Key::from_slice(key.as_slice()).unwrap();
@@ -101,6 +106,8 @@ impl SHA512HMAC {
     }
 
     pub fn verify(msg: &[u8], key: &AuthKey, tag: &Tag) -> Result<bool> {
+        init().unwrap();
+
         key.check()?;
         tag.check()?;
 
@@ -111,6 +118,8 @@ impl SHA512HMAC {
     }
 
     pub fn check(msg: &[u8], key: &AuthKey, tag: &Tag) -> Result<()> {
+        init().unwrap();
+
         if !Self::verify(msg, key, tag)? {
             return Err(String::from("invalid tag"));
         }

@@ -1,5 +1,7 @@
 #![allow(dead_code)]
 
+use sodiumoxide::init;
+
 use mitrid_core::base::Result;
 
 use fixtures::crypto::{Digest, SHA512};
@@ -10,14 +12,20 @@ pub struct SHA512Commit;
 
 impl SHA512Commit {
     pub fn commit(msg: &[u8]) -> Result<Commitment> {
+        init().unwrap();
+
         SHA512::digest(msg)
     }
 
     pub fn verify(msg: &[u8], commitment: &Commitment) -> Result<bool> {
+        init().unwrap();
+
         SHA512::verify(msg, commitment)
     }
 
     pub fn check(msg: &[u8], commitment: &Commitment) -> Result<()> {
+        init().unwrap();
+
         if !Self::verify(msg, commitment)? {
             return Err(String::from("invalid commitment"));
         }
