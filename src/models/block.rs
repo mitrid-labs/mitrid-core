@@ -11,7 +11,7 @@ use base::Serializable;
 use base::{Sizable, ConstantSize};
 use base::Numerical;
 use base::Evaluable;
-use crypto::{Hashable, Provable, Committable};
+use crypto::{Hashable, Provable, Committable, Authenticated};
 use models::Meta;
 use models::Transaction;
 use models::BlockNode;
@@ -224,6 +224,47 @@ impl<D, A, IP, Pk, Sig, OP, TP, P, Pr> Block<D, A, IP, Pk, Sig, OP, TP, P, Pr>
         self.check_commitment_cb(params, commitment, cb)
     }
 
+    /// Authenticates cryptographically the `Block`.
+    pub fn authenticate<AP, T>(&self, params: &AP, cb: &Fn(&Self, &AP) -> Result<T>)
+        -> Result<T>
+        where   AP: Datable,
+                T: Datable + ConstantSize
+    {
+        params.check()?;
+
+        self.authenticate_cb(params, cb)
+    }
+
+    /// Verifies the cryptographic authentication of the `Block` against a tag.
+    pub fn verify_tag<AP, T>(&self,
+                             params: &AP,
+                             tag: &T,
+                             cb: &Fn(&Self, &AP, &T) -> Result<bool>)
+        -> Result<bool>
+        where   AP: Datable,
+                T: Datable + ConstantSize
+    {
+        params.check()?;
+        tag.check()?;
+
+        self.verify_tag_cb(params, tag, cb)
+    }
+
+    /// Checks the cryptographic authentication of the `Block` against a tag.
+    pub fn check_tag<AP, T>(&self,
+                            params: &AP,
+                            tag: &T,
+                            cb: &Fn(&Self, &AP, &T) -> Result<()>)
+        -> Result<()>
+        where   AP: Datable,
+                T: Datable + ConstantSize
+    {
+        params.check()?;
+        tag.check()?;
+
+        self.check_tag_cb(params, tag, cb)
+    }
+
     /// Finalizes the `Block`, building its id and returning it's complete form.
     pub fn finalize<HP: Datable>(mut self, params: &HP, cb: &Fn(&Self, &HP) -> Result<D>)
         -> Result<Block<D, A, IP, Pk, Sig, OP, TP, P, Pr>>
@@ -328,6 +369,20 @@ impl<PrP, D, A, IP, Pk, Sig, OP, TP, P, Pr> Provable<PrP, Pr> for Block<D, A, IP
 impl<CP, C, D, A, IP, Pk, Sig, OP, TP, P, Pr> Committable<CP, C> for Block<D, A, IP, Pk, Sig, OP, TP, P, Pr>
     where   CP: Datable,
             C: Datable + ConstantSize,
+            D: Datable + ConstantSize,
+            A: Numerical,
+            IP: Datable,
+            Pk: Datable + ConstantSize,
+            Sig: Datable + ConstantSize,
+            OP: Datable,
+            TP: Datable,
+            P: Datable,
+            Pr: Datable
+{}
+
+impl<AP, T, D, A, IP, Pk, Sig, OP, TP, P, Pr> Authenticated<AP, T> for Block<D, A, IP, Pk, Sig, OP, TP, P, Pr>
+    where   AP: Datable,
+            T: Datable + ConstantSize,
             D: Datable + ConstantSize,
             A: Numerical,
             IP: Datable,

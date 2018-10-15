@@ -1,6 +1,6 @@
 //! # Input
 //!
-//! `input` is the module providing the type used to bind as inputs one or more `Coin`s
+//! `input` is the module providing the type used to bind as inputs one or more `Input`s
 //! in a `Transaction`.
 
 use base::Result;
@@ -10,11 +10,11 @@ use base::Serializable;
 use base::{Sizable, ConstantSize};
 use base::Numerical;
 use base::Evaluable;
-use crypto::{Hashable, Signable, Committable};
+use crypto::{Hashable, Signable, Committable, Authenticated};
 use models::Meta;
 use models::Coin;
 
-/// Type used to bind one or more `Coin`s to a `Transaction` as one of its inputs.
+/// Type used to bind one or more `Input`s to a `Transaction` as one of its inputs.
 #[derive(Clone, PartialEq, Eq, PartialOrd, Ord, Debug, Default, Hash, Serialize, Deserialize)]
 pub struct Input<D, A, P, Pk, Sig>
     where   D: Datable + ConstantSize,
@@ -265,6 +265,47 @@ impl<D, A, P, Pk, Sig> Input<D, A, P, Pk, Sig>
         self.check_commitment_cb(params, commitment, cb)
     }
 
+    /// Authenticates cryptographically the `Input`.
+    pub fn authenticate<AP, T>(&self, params: &AP, cb: &Fn(&Self, &AP) -> Result<T>)
+        -> Result<T>
+        where   AP: Datable,
+                T: Datable + ConstantSize
+    {
+        params.check()?;
+
+        self.authenticate_cb(params, cb)
+    }
+
+    /// Verifies the cryptographic authentication of the `Input` against a tag.
+    pub fn verify_tag<AP, T>(&self,
+                             params: &AP,
+                             tag: &T,
+                             cb: &Fn(&Self, &AP, &T) -> Result<bool>)
+        -> Result<bool>
+        where   AP: Datable,
+                T: Datable + ConstantSize
+    {
+        params.check()?;
+        tag.check()?;
+
+        self.verify_tag_cb(params, tag, cb)
+    }
+
+    /// Checks the cryptographic authentication of the `Input` against a tag.
+    pub fn check_tag<AP, T>(&self,
+                            params: &AP,
+                            tag: &T,
+                            cb: &Fn(&Self, &AP, &T) -> Result<()>)
+        -> Result<()>
+        where   AP: Datable,
+                T: Datable + ConstantSize
+    {
+        params.check()?;
+        tag.check()?;
+
+        self.check_tag_cb(params, tag, cb)
+    }
+
     /// Evals the `Input`.
     pub fn eval<EP, R>(&self, params: &EP, cb: &Fn(&Self, &EP) -> Result<R>)
         -> Result<R>
@@ -300,6 +341,16 @@ impl<SP, Sk, D, A, P, Pk, Sig> Signable<SP, Sk, Pk, Sig> for Input<D, A, P, Pk, 
 impl<CP, C, D, A, P, Pk, Sig> Committable<CP, C> for Input<D, A, P, Pk, Sig>
     where   CP: Datable,
             C: Datable + ConstantSize,
+            D: Datable + ConstantSize,
+            A: Numerical,
+            P: Datable,
+            Pk: Datable + ConstantSize,
+            Sig: Datable + ConstantSize
+{}
+
+impl<AP, T, D, A, P, Pk, Sig> Authenticated<AP, T> for Input<D, A, P, Pk, Sig>
+    where   AP: Datable,
+            T: Datable + ConstantSize,
             D: Datable + ConstantSize,
             A: Numerical,
             P: Datable,

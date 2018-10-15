@@ -9,7 +9,7 @@ use base::Serializable;
 use base::{Sizable, ConstantSize};
 use base::Numerical;
 use base::Evaluable;
-use crypto::{Hashable, Committable};
+use crypto::{Hashable, Committable, Authenticated};
 use models::Meta;
 
 /// Type representing the output of a `Transaction`.
@@ -209,6 +209,47 @@ impl<D, Pk, A, P> Output<D, Pk, A, P>
         self.check_commitment_cb(params, commitment, cb)
     }
 
+    /// Authenticates cryptographically the `Output`.
+    pub fn authenticate<AP, T>(&self, params: &AP, cb: &Fn(&Self, &AP) -> Result<T>)
+        -> Result<T>
+        where   AP: Datable,
+                T: Datable + ConstantSize
+    {
+        params.check()?;
+
+        self.authenticate_cb(params, cb)
+    }
+
+    /// Verifies the cryptographic authentication of the `Output` against a tag.
+    pub fn verify_tag<AP, T>(&self,
+                             params: &AP,
+                             tag: &T,
+                             cb: &Fn(&Self, &AP, &T) -> Result<bool>)
+        -> Result<bool>
+        where   AP: Datable,
+                T: Datable + ConstantSize
+    {
+        params.check()?;
+        tag.check()?;
+
+        self.verify_tag_cb(params, tag, cb)
+    }
+
+    /// Checks the cryptographic authentication of the `Output` against a tag.
+    pub fn check_tag<AP, T>(&self,
+                            params: &AP,
+                            tag: &T,
+                            cb: &Fn(&Self, &AP, &T) -> Result<()>)
+        -> Result<()>
+        where   AP: Datable,
+                T: Datable + ConstantSize
+    {
+        params.check()?;
+        tag.check()?;
+
+        self.check_tag_cb(params, tag, cb)
+    }
+
     /// Evals the `Output`.
     pub fn eval<EP, R>(&self, params: &EP, cb: &Fn(&Self, &EP) -> Result<R>)
         -> Result<R>
@@ -232,6 +273,15 @@ impl<HP, D, Pk, A, P> Hashable<HP, D> for Output<D, Pk, A, P>
 impl<CP, C, D, Pk, A, P> Committable<CP, C> for Output<D, Pk, A, P>
     where   CP: Datable,
             C: Datable + ConstantSize,
+            D: Datable + ConstantSize,
+            Pk: Datable + ConstantSize,
+            A: Numerical,
+            P: Datable
+{}
+
+impl<AP, T, D, Pk, A, P> Authenticated<AP, T> for Output<D, Pk, A, P>
+    where   AP: Datable,
+            T: Datable + ConstantSize,
             D: Datable + ConstantSize,
             Pk: Datable + ConstantSize,
             A: Numerical,

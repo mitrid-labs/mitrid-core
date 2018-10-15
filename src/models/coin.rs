@@ -9,7 +9,7 @@ use base::Datable;
 use base::Serializable;
 use base::{Sizable, ConstantSize};
 use base::Numerical;
-use crypto::{Hashable, Committable};
+use crypto::{Hashable, Committable, Authenticated};
 use models::Meta;
 
 /// Type used to represent a past `Output`.
@@ -178,6 +178,47 @@ impl<D, A> Coin<D, A>
 
         self.check_commitment_cb(params, commitment, cb)
     }
+
+    /// Authenticates cryptographically the `Coin`.
+    pub fn authenticate<AP, T>(&self, params: &AP, cb: &Fn(&Self, &AP) -> Result<T>)
+        -> Result<T>
+        where   AP: Datable,
+                T: Datable + ConstantSize
+    {
+        params.check()?;
+
+        self.authenticate_cb(params, cb)
+    }
+
+    /// Verifies the cryptographic authentication of the `Coin` against a tag.
+    pub fn verify_tag<AP, T>(&self,
+                             params: &AP,
+                             tag: &T,
+                             cb: &Fn(&Self, &AP, &T) -> Result<bool>)
+        -> Result<bool>
+        where   AP: Datable,
+                T: Datable + ConstantSize
+    {
+        params.check()?;
+        tag.check()?;
+
+        self.verify_tag_cb(params, tag, cb)
+    }
+
+    /// Checks the cryptographic authentication of the `Coin` against a tag.
+    pub fn check_tag<AP, T>(&self,
+                            params: &AP,
+                            tag: &T,
+                            cb: &Fn(&Self, &AP, &T) -> Result<()>)
+        -> Result<()>
+        where   AP: Datable,
+                T: Datable + ConstantSize
+    {
+        params.check()?;
+        tag.check()?;
+
+        self.check_tag_cb(params, tag, cb)
+    }
 }
 
 impl<P, D, A> Hashable<P, D> for Coin<D, A>
@@ -189,6 +230,13 @@ impl<P, D, A> Hashable<P, D> for Coin<D, A>
 impl<CP, C, D, A> Committable<CP, C> for Coin<D, A>
     where   CP: Datable,
             C: Datable + ConstantSize,
+            D: Datable + ConstantSize,
+            A: Numerical
+{}
+
+impl<AP, T, D, A> Authenticated<AP, T> for Coin<D, A>
+    where   AP: Datable,
+            T: Datable + ConstantSize,
             D: Datable + ConstantSize,
             A: Numerical
 {}

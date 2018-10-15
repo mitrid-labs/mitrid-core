@@ -8,7 +8,7 @@ use base::Checkable;
 use base::Datable;
 use base::Serializable;
 use base::{Sizable, ConstantSize};
-use crypto::{Hashable, Committable};
+use crypto::{Hashable, Committable, Authenticated};
 use models::Meta;
 
 /// Type used to represent a node in the `BlockNode` and that references a `Block`.
@@ -171,6 +171,47 @@ impl<D> BlockNode<D>
 
         self.check_commitment_cb(params, commitment, cb)
     }
+
+    /// Authenticates cryptographically the `BlockNode`.
+    pub fn authenticate<AP, T>(&self, params: &AP, cb: &Fn(&Self, &AP) -> Result<T>)
+        -> Result<T>
+        where   AP: Datable,
+                T: Datable + ConstantSize
+    {
+        params.check()?;
+
+        self.authenticate_cb(params, cb)
+    }
+
+    /// Verifies the cryptographic authentication of the `BlockNode` against a tag.
+    pub fn verify_tag<AP, T>(&self,
+                             params: &AP,
+                             tag: &T,
+                             cb: &Fn(&Self, &AP, &T) -> Result<bool>)
+        -> Result<bool>
+        where   AP: Datable,
+                T: Datable + ConstantSize
+    {
+        params.check()?;
+        tag.check()?;
+
+        self.verify_tag_cb(params, tag, cb)
+    }
+
+    /// Checks the cryptographic authentication of the `BlockNode` against a tag.
+    pub fn check_tag<AP, T>(&self,
+                            params: &AP,
+                            tag: &T,
+                            cb: &Fn(&Self, &AP, &T) -> Result<()>)
+        -> Result<()>
+        where   AP: Datable,
+                T: Datable + ConstantSize
+    {
+        params.check()?;
+        tag.check()?;
+
+        self.check_tag_cb(params, tag, cb)
+    }
 }
 
 impl<P, D> Hashable<P, D> for BlockNode<D>
@@ -181,6 +222,12 @@ impl<P, D> Hashable<P, D> for BlockNode<D>
 impl<CP, C, D> Committable<CP, C> for BlockNode<D>
     where   CP: Datable,
             C: Datable + ConstantSize,
+            D: Datable + ConstantSize
+{}
+
+impl<AP, T, D> Authenticated<AP, T> for BlockNode<D>
+    where   AP: Datable,
+            T: Datable + ConstantSize,
             D: Datable + ConstantSize
 {}
 

@@ -13,22 +13,22 @@ pub trait Authenticated<P, T>
             Self: Datable
 {
     /// Authenticates cryptographhically the implementor using `Datable` params and a callback.
-    /// Returns an authentication token.
+    /// Returns an authentication tag.
     fn authenticate_cb(&self, params: &P, cb: &Fn(&Self, &P) -> Result<T>) -> Result<T> {
         cb(self, params)
     }
 
-    /// Verifies an authentication token against the implementor token.
-    fn verify_token_cb(&self, params: &P, token: &T, cb: &Fn(&Self, &P, &T) -> Result<bool>)
+    /// Verifies an authentication tag against the implementor tag.
+    fn verify_tag_cb(&self, params: &P, tag: &T, cb: &Fn(&Self, &P, &T) -> Result<bool>)
         -> Result<bool>
     {
-        cb(self, params, token)
+        cb(self, params, tag)
     }
 
-    /// Checks an authentication token against the implementor token.
-    fn check_token_cb(&self, params: &P, token: &T, cb: &Fn(&Self, &P, &T) -> Result<()>)
+    /// Checks an authentication tag against the implementor tag.
+    fn check_tag_cb(&self, params: &P, tag: &T, cb: &Fn(&Self, &P, &T) -> Result<()>)
         -> Result<()>
     {
-        cb(self, params, token)
+        cb(self, params, tag)
     }
 }
