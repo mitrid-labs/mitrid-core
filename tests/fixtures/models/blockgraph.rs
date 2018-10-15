@@ -8,6 +8,7 @@ use mitrid_core::models::BlockGraph as BaseBlockGraph;
 use fixtures::base::eval::*;
 use fixtures::crypto::{Digest, SHA512};
 use fixtures::crypto::{Commitment, SHA512Commit};
+use fixtures::crypto::{AuthKey, Tag, SHA512HMAC};
 use fixtures::models::Payload;
 
 pub type BlockGraph = BaseBlockGraph<Digest, Payload>;
@@ -44,6 +45,22 @@ pub fn blockgraph_verify_commitment_cb(bg: &BlockGraph, _: &(), commitment: &Com
 pub fn blockgraph_check_commitment_cb(bg: &BlockGraph, _: &(), commitment: &Commitment) -> Result<()> {
     let msg = bg.to_bytes()?;
     SHA512Commit::check(&msg, commitment)
+}
+
+pub fn blockgraph_authenticate_cb(bg: &BlockGraph, key: &AuthKey) -> Result<Commitment> {
+    let msg = bg.to_bytes()?;
+
+    SHA512HMAC::authenticate(&msg, &key)
+}
+
+pub fn blockgraph_verify_tag_cb(bg: &BlockGraph, key: &AuthKey, tag: &Tag) -> Result<bool> {
+    let msg = bg.to_bytes()?;
+    SHA512HMAC::verify(&msg, key, tag)
+}
+
+pub fn blockgraph_check_tag_cb(bg: &BlockGraph, key: &AuthKey, tag: &Tag) -> Result<()> {
+    let msg = bg.to_bytes()?;
+    SHA512HMAC::check(&msg, key, tag)
 }
 
 pub fn blockgraph_eval_cb(bg: &BlockGraph, params: &EvalParams) -> Result<EvalReturn> {

@@ -6,6 +6,7 @@ use mitrid_core::models::Meta;
 
 use fixtures::base::eval::*;
 use fixtures::crypto::Ed25519;
+use fixtures::crypto::SHA512HMAC;
 use fixtures::models::Payload;
 use fixtures::models::wallet::*;
 
@@ -135,6 +136,50 @@ fn test_wallet_check_commitment() {
     let commitment = wallet.commit(&(), &wallet_commit_cb).unwrap();
     
     let res = wallet.check_commitment(&(), &commitment, &wallet_check_commitment_cb);
+    assert!(res.is_ok())
+}
+
+#[test]
+fn test_wallet_authenticate() {
+    let wallet = Wallet::new();
+
+    let res = SHA512HMAC::genkey();
+    assert!(res.is_ok());
+
+    let key = res.unwrap();
+
+    let res = wallet.authenticate(&key, &wallet_authenticate_cb);
+    assert!(res.is_ok());
+}
+
+#[test]
+fn test_wallet_verify_tag() {
+    let wallet = Wallet::new();
+
+    let res = SHA512HMAC::genkey();
+    assert!(res.is_ok());
+
+    let key = res.unwrap();
+
+    let tag = wallet.authenticate(&key, &wallet_authenticate_cb).unwrap();
+    
+    let res = wallet.verify_tag(&key, &tag, &wallet_verify_tag_cb);
+    assert!(res.is_ok());
+    assert!(res.unwrap())
+}
+
+#[test]
+fn test_wallet_check_tag() {
+    let wallet = Wallet::new();
+
+    let res = SHA512HMAC::genkey();
+    assert!(res.is_ok());
+
+    let key = res.unwrap();
+
+    let tag = wallet.authenticate(&key, &wallet_authenticate_cb).unwrap();
+    
+    let res = wallet.check_tag(&key, &tag, &wallet_check_tag_cb);
     assert!(res.is_ok())
 }
 

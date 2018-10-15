@@ -6,6 +6,7 @@ use mitrid_core::models::Meta;
 
 use fixtures::base::eval::*;
 use fixtures::crypto::{PublicKey, Ed25519};
+use fixtures::crypto::SHA512HMAC;
 use fixtures::models::Amount;
 use fixtures::models::Payload;
 use fixtures::models::coin::*;
@@ -151,6 +152,50 @@ fn test_transaction_check_commitment() {
     let commitment = transaction.commit(&(), &transaction_commit_cb).unwrap();
     
     let res = transaction.check_commitment(&(), &commitment, &transaction_check_commitment_cb);
+    assert!(res.is_ok())
+}
+
+#[test]
+fn test_transaction_authenticate() {
+    let tx = Transaction::new();
+
+    let res = SHA512HMAC::genkey();
+    assert!(res.is_ok());
+
+    let key = res.unwrap();
+
+    let res = tx.authenticate(&key, &transaction_authenticate_cb);
+    assert!(res.is_ok());
+}
+
+#[test]
+fn test_transaction_verify_tag() {
+    let tx = Transaction::new();
+
+    let res = SHA512HMAC::genkey();
+    assert!(res.is_ok());
+
+    let key = res.unwrap();
+
+    let tag = tx.authenticate(&key, &transaction_authenticate_cb).unwrap();
+    
+    let res = tx.verify_tag(&key, &tag, &transaction_verify_tag_cb);
+    assert!(res.is_ok());
+    assert!(res.unwrap())
+}
+
+#[test]
+fn test_transaction_check_tag() {
+    let tx = Transaction::new();
+
+    let res = SHA512HMAC::genkey();
+    assert!(res.is_ok());
+
+    let key = res.unwrap();
+
+    let tag = tx.authenticate(&key, &transaction_authenticate_cb).unwrap();
+    
+    let res = tx.check_tag(&key, &tag, &transaction_check_tag_cb);
     assert!(res.is_ok())
 }
 

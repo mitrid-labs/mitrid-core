@@ -9,6 +9,7 @@ use fixtures::base::eval::*;
 use fixtures::crypto::{Digest, SHA512};
 use fixtures::crypto::{SecretKey, PublicKey, Signature, Ed25519};
 use fixtures::crypto::{Commitment, SHA512Commit};
+use fixtures::crypto::{AuthKey, Tag, SHA512HMAC};
 use fixtures::models::Payload;
 
 pub type Wallet = BaseWallet<Digest, SecretKey, PublicKey, Signature, Payload>;
@@ -63,6 +64,22 @@ pub fn wallet_verify_commitment_cb(wallet: &Wallet, _: &(), commitment: &Commitm
 pub fn wallet_check_commitment_cb(wallet: &Wallet, _: &(), commitment: &Commitment) -> Result<()> {
     let msg = wallet.to_bytes()?;
     SHA512Commit::check(&msg, commitment)
+}
+
+pub fn wallet_authenticate_cb(wallet: &Wallet, key: &AuthKey) -> Result<Commitment> {
+    let msg = wallet.to_bytes()?;
+
+    SHA512HMAC::authenticate(&msg, &key)
+}
+
+pub fn wallet_verify_tag_cb(wallet: &Wallet, key: &AuthKey, tag: &Tag) -> Result<bool> {
+    let msg = wallet.to_bytes()?;
+    SHA512HMAC::verify(&msg, key, tag)
+}
+
+pub fn wallet_check_tag_cb(wallet: &Wallet, key: &AuthKey, tag: &Tag) -> Result<()> {
+    let msg = wallet.to_bytes()?;
+    SHA512HMAC::check(&msg, key, tag)
 }
 
 pub fn wallet_eval_cb(wallet: &Wallet, params: &EvalParams) -> Result<EvalReturn> {

@@ -57,6 +57,29 @@ impl Default for KeySeed {
     }
 }
 
+impl Sizable for KeySeed {
+    fn size(&self) -> u64 {
+        self.0.size()
+    }
+}
+
+impl ConstantSize for KeySeed {
+    fn constant_size() -> u64 {
+        KEYSEED_SIZE
+    }
+}
+
+impl Checkable for KeySeed {
+    fn check(&self) -> Result<()> {
+        self.0.check()?;
+        self.check_size()
+    }
+}
+
+impl Serializable for KeySeed {}
+
+impl Datable for KeySeed {}
+
 pub const SECRETKEY_SIZE: u64 = SECRETKEYBYTES as u64;
 
 #[derive(Clone, Eq, PartialEq, Ord, PartialOrd, Debug, Hash, Serialize, Deserialize)]

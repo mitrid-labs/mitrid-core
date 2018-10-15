@@ -7,6 +7,7 @@ use mitrid_core::models::Meta;
 use fixtures::base::eval::*;
 use fixtures::crypto::Digest;
 use fixtures::crypto::{SecretKey, Ed25519};
+use fixtures::crypto::SHA512HMAC;
 use fixtures::models::Amount;
 use fixtures::models::Payload;
 use fixtures::models::coin::*;
@@ -169,6 +170,50 @@ fn test_input_check_commitment() {
     let commitment = input.commit(&(), &input_commit_cb).unwrap();
     
     let res = input.check_commitment(&(), &commitment, &input_check_commitment_cb);
+    assert!(res.is_ok())
+}
+
+#[test]
+fn test_input_authenticate() {
+    let input = Input::new();
+
+    let res = SHA512HMAC::genkey();
+    assert!(res.is_ok());
+
+    let key = res.unwrap();
+
+    let res = input.authenticate(&key, &input_authenticate_cb);
+    assert!(res.is_ok());
+}
+
+#[test]
+fn test_input_verify_tag() {
+    let input = Input::new();
+
+    let res = SHA512HMAC::genkey();
+    assert!(res.is_ok());
+
+    let key = res.unwrap();
+
+    let tag = input.authenticate(&key, &input_authenticate_cb).unwrap();
+    
+    let res = input.verify_tag(&key, &tag, &input_verify_tag_cb);
+    assert!(res.is_ok());
+    assert!(res.unwrap())
+}
+
+#[test]
+fn test_input_check_tag() {
+    let input = Input::new();
+
+    let res = SHA512HMAC::genkey();
+    assert!(res.is_ok());
+
+    let key = res.unwrap();
+
+    let tag = input.authenticate(&key, &input_authenticate_cb).unwrap();
+    
+    let res = input.check_tag(&key, &tag, &input_check_tag_cb);
     assert!(res.is_ok())
 }
 

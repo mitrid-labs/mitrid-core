@@ -6,6 +6,7 @@ use mitrid_core::models::Coin as BaseCoin;
 
 use fixtures::crypto::{Digest, SHA512};
 use fixtures::crypto::{Commitment, SHA512Commit};
+use fixtures::crypto::{AuthKey, Tag, SHA512HMAC};
 use fixtures::models::Amount;
 
 pub type Coin = BaseCoin<Digest, Amount>;
@@ -42,4 +43,20 @@ pub fn coin_verify_commitment_cb(coin: &Coin, _: &(), commitment: &Commitment) -
 pub fn coin_check_commitment_cb(coin: &Coin, _: &(), commitment: &Commitment) -> Result<()> {
     let msg = coin.to_bytes()?;
     SHA512Commit::check(&msg, commitment)
+}
+
+pub fn coin_authenticate_cb(coin: &Coin, key: &AuthKey) -> Result<Commitment> {
+    let msg = coin.to_bytes()?;
+    
+    SHA512HMAC::authenticate(&msg, &key)
+}
+
+pub fn coin_verify_tag_cb(coin: &Coin, key: &AuthKey, tag: &Tag) -> Result<bool> {
+    let msg = coin.to_bytes()?;
+    SHA512HMAC::verify(&msg, key, tag)
+}
+
+pub fn coin_check_tag_cb(coin: &Coin, key: &AuthKey, tag: &Tag) -> Result<()> {
+    let msg = coin.to_bytes()?;
+    SHA512HMAC::check(&msg, key, tag)
 }

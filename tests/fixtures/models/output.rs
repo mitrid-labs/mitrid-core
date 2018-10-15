@@ -9,6 +9,7 @@ use fixtures::base::eval::*;
 use fixtures::crypto::{Digest, SHA512};
 use fixtures::crypto::PublicKey;
 use fixtures::crypto::{Commitment, SHA512Commit};
+use fixtures::crypto::{AuthKey, Tag, SHA512HMAC};
 use fixtures::models::Amount;
 use fixtures::models::Payload;
 
@@ -46,6 +47,22 @@ pub fn output_verify_commitment_cb(output: &Output, _: &(), commitment: &Commitm
 pub fn output_check_commitment_cb(output: &Output, _: &(), commitment: &Commitment) -> Result<()> {
     let msg = output.to_bytes()?;
     SHA512Commit::check(&msg, commitment)
+}
+
+pub fn output_authenticate_cb(output: &Output, key: &AuthKey) -> Result<Commitment> {
+    let msg = output.to_bytes()?;
+
+    SHA512HMAC::authenticate(&msg, &key)
+}
+
+pub fn output_verify_tag_cb(output: &Output, key: &AuthKey, tag: &Tag) -> Result<bool> {
+    let msg = output.to_bytes()?;
+    SHA512HMAC::verify(&msg, key, tag)
+}
+
+pub fn output_check_tag_cb(output: &Output, key: &AuthKey, tag: &Tag) -> Result<()> {
+    let msg = output.to_bytes()?;
+    SHA512HMAC::check(&msg, key, tag)
 }
 
 pub fn output_eval_cb(output: &Output, params: &EvalParams) -> Result<EvalReturn> {

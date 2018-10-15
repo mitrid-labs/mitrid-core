@@ -6,6 +6,7 @@ use mitrid_core::models::Meta;
 
 use fixtures::base::eval::*;
 use fixtures::crypto::Digest;
+use fixtures::crypto::SHA512HMAC;
 use fixtures::models::Payload;
 use fixtures::models::blocknode::*;
 use fixtures::models::blockgraph::*;
@@ -117,6 +118,50 @@ fn test_blockgraph_check_commitment() {
     let commitment = bg.commit(&(), &blockgraph_commit_cb).unwrap();
     
     let res = bg.check_commitment(&(), &commitment, &blockgraph_check_commitment_cb);
+    assert!(res.is_ok())
+}
+
+#[test]
+fn test_blockgraph_authenticate() {
+    let bg = BlockGraph::new();
+
+    let res = SHA512HMAC::genkey();
+    assert!(res.is_ok());
+
+    let key = res.unwrap();
+
+    let res = bg.authenticate(&key, &blockgraph_authenticate_cb);
+    assert!(res.is_ok());
+}
+
+#[test]
+fn test_blockgraph_verify_tag() {
+    let bg = BlockGraph::new();
+
+    let res = SHA512HMAC::genkey();
+    assert!(res.is_ok());
+
+    let key = res.unwrap();
+
+    let tag = bg.authenticate(&key, &blockgraph_authenticate_cb).unwrap();
+    
+    let res = bg.verify_tag(&key, &tag, &blockgraph_verify_tag_cb);
+    assert!(res.is_ok());
+    assert!(res.unwrap())
+}
+
+#[test]
+fn test_blockgraph_check_tag() {
+    let bg = BlockGraph::new();
+
+    let res = SHA512HMAC::genkey();
+    assert!(res.is_ok());
+
+    let key = res.unwrap();
+
+    let tag = bg.authenticate(&key, &blockgraph_authenticate_cb).unwrap();
+    
+    let res = bg.check_tag(&key, &tag, &blockgraph_check_tag_cb);
     assert!(res.is_ok())
 }
 

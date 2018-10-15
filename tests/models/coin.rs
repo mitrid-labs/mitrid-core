@@ -5,6 +5,7 @@ use mitrid_core::base::Sizable;
 use mitrid_core::base::Serializable;
 
 use fixtures::crypto::Digest;
+use fixtures::crypto::SHA512HMAC;
 use fixtures::models::Amount;
 use fixtures::models::coin::*;
 
@@ -90,6 +91,56 @@ fn test_coin_check_commitment() {
     let commitment = coin.commit(&(), &coin_commit_cb).unwrap();
     
     let res = coin.check_commitment(&(), &commitment, &coin_check_commitment_cb);
+    assert!(res.is_ok())
+}
+
+#[test]
+fn test_coin_authenticate() {
+    let coin = Coin::new();
+
+    let res = SHA512HMAC::genkey();
+    assert!(res.is_ok());
+
+    let key = res.unwrap();
+
+    let res = coin.authenticate(&key, &coin_authenticate_cb);
+    assert!(res.is_ok());
+}
+
+#[test]
+fn test_coin_verify_tag() {
+    let coin = Coin::new();
+
+    let res = SHA512HMAC::genkey();
+    assert!(res.is_ok());
+
+    let key = res.unwrap();
+
+    let res = coin.authenticate(&key, &coin_authenticate_cb);
+    assert!(res.is_ok());
+
+    let tag = res.unwrap();
+    
+    let res = coin.verify_tag(&key, &tag, &coin_verify_tag_cb);
+    assert!(res.is_ok());
+    assert!(res.unwrap())
+}
+
+#[test]
+fn test_coin_check_tag() {
+    let coin = Coin::new();
+
+    let res = SHA512HMAC::genkey();
+    assert!(res.is_ok());
+
+    let key = res.unwrap();
+
+    let res = coin.authenticate(&key, &coin_authenticate_cb);
+    assert!(res.is_ok());
+
+    let tag = res.unwrap();
+    
+    let res = coin.check_tag(&key, &tag, &coin_check_tag_cb);
     assert!(res.is_ok())
 }
 
