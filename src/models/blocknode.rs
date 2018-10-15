@@ -1,6 +1,6 @@
 //! # BlockNode
 //!
-//! `blocknode` is the module providing the type used to represent a node in the `BlockGraph`.
+//! `blocknode` is the module providing the type used to represent a node in the `BlockNode`.
 //! A `BlockNode` references a `Block`.
 
 use base::Result;
@@ -11,7 +11,7 @@ use base::{Sizable, ConstantSize};
 use crypto::{Hashable, Committable};
 use models::Meta;
 
-/// Type used to represent a node in the `BlockGraph` and that references a `Block`.
+/// Type used to represent a node in the `BlockNode` and that references a `Block`.
 #[derive(Clone, PartialEq, Eq, PartialOrd, Ord, Debug, Default, Hash, Serialize, Deserialize)]
 pub struct BlockNode<D>
     where   D: Datable + ConstantSize
@@ -129,6 +129,47 @@ impl<D> BlockNode<D>
         bn.update_size();
 
         bn.check_digest_cb(params, &digest, cb)
+    }
+
+    /// Commits cryptographically the `BlockNode`.
+    pub fn commit<CP, C>(&self, params: &CP, cb: &Fn(&Self, &CP) -> Result<C>)
+        -> Result<C>
+        where   CP: Datable,
+                C: Datable + ConstantSize
+    {
+        params.check()?;
+
+        self.commit_cb(params, cb)
+    }
+
+    /// Verifies the cryptographic commitment against the `BlockNode`'s commitment.
+    pub fn verify_commitment<CP, C>(&self,
+                                    params: &CP,
+                                    commitment: &C,
+                                    cb: &Fn(&Self, &CP, &C) -> Result<bool>)
+        -> Result<bool>
+        where   CP: Datable,
+                C: Datable + ConstantSize
+    {
+        params.check()?;
+        commitment.check()?;
+
+        self.verify_commitment_cb(params, commitment, cb)
+    }
+
+    /// Checks the cryptographic commitment against the `BlockNode`'s commitment.
+    pub fn check_commitment<CP, C>(&self,
+                                   params: &CP,
+                                   commitment: &C,
+                                   cb: &Fn(&Self, &CP, &C) -> Result<()>)
+        -> Result<()>
+        where   CP: Datable,
+                C: Datable + ConstantSize
+    {
+        params.check()?;
+        commitment.check()?;
+
+        self.check_commitment_cb(params, commitment, cb)
     }
 }
 

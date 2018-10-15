@@ -81,6 +81,35 @@ fn test_output_check_digest() {
 }
 
 #[test]
+fn test_output_commit() {
+    let output = Output::new();
+
+    let res = output.commit(&(), &output_commit_cb);
+    assert!(res.is_ok());
+}
+
+#[test]
+fn test_output_verify_commitment() {
+    let output = Output::new();
+
+    let commitment = output.commit(&(), &output_commit_cb).unwrap();
+    
+    let res = output.verify_commitment(&(), &commitment, &output_verify_commitment_cb);
+    assert!(res.is_ok());
+    assert!(res.unwrap())
+}
+
+#[test]
+fn test_output_check_commitment() {
+    let output = Output::new();
+
+    let commitment = output.commit(&(), &output_commit_cb).unwrap();
+    
+    let res = output.check_commitment(&(), &commitment, &output_check_commitment_cb);
+    assert!(res.is_ok())
+}
+
+#[test]
 fn test_output_finalize() {
     let meta = Meta::default();
     let sender = PublicKey::default();

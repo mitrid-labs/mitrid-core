@@ -110,6 +110,35 @@ fn test_wallet_check_digest() {
 }
 
 #[test]
+fn test_wallet_commit() {
+    let wallet = Wallet::new();
+
+    let res = wallet.commit(&(), &wallet_commit_cb);
+    assert!(res.is_ok());
+}
+
+#[test]
+fn test_wallet_verify_commitment() {
+    let wallet = Wallet::new();
+
+    let commitment = wallet.commit(&(), &wallet_commit_cb).unwrap();
+    
+    let res = wallet.verify_commitment(&(), &commitment, &wallet_verify_commitment_cb);
+    assert!(res.is_ok());
+    assert!(res.unwrap())
+}
+
+#[test]
+fn test_wallet_check_commitment() {
+    let wallet = Wallet::new();
+
+    let commitment = wallet.commit(&(), &wallet_commit_cb).unwrap();
+    
+    let res = wallet.check_commitment(&(), &commitment, &wallet_check_commitment_cb);
+    assert!(res.is_ok())
+}
+
+#[test]
 fn test_wallet_finalize() {
     let (pk, sk) = Ed25519::keypair(None).unwrap();
 

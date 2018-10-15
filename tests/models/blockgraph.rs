@@ -92,6 +92,35 @@ fn test_blockgraph_check_digest() {
 }
 
 #[test]
+fn test_blockgraph_commit() {
+    let bg = BlockGraph::new();
+
+    let res = bg.commit(&(), &blockgraph_commit_cb);
+    assert!(res.is_ok());
+}
+
+#[test]
+fn test_blockgraph_verify_commitment() {
+    let bg = BlockGraph::new();
+
+    let commitment = bg.commit(&(), &blockgraph_commit_cb).unwrap();
+    
+    let res = bg.verify_commitment(&(), &commitment, &blockgraph_verify_commitment_cb);
+    assert!(res.is_ok());
+    assert!(res.unwrap())
+}
+
+#[test]
+fn test_blockgraph_check_commitment() {
+    let bg = BlockGraph::new();
+
+    let commitment = bg.commit(&(), &blockgraph_commit_cb).unwrap();
+    
+    let res = bg.check_commitment(&(), &commitment, &blockgraph_check_commitment_cb);
+    assert!(res.is_ok())
+}
+
+#[test]
 fn test_blockgraph_finalize() {
     let block_height = 0;
 

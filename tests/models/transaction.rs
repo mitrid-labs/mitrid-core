@@ -126,6 +126,35 @@ fn test_transaction_check_digest() {
 }
 
 #[test]
+fn test_transaction_commit() {
+    let tx = Transaction::new();
+
+    let res = tx.commit(&(), &transaction_commit_cb);
+    assert!(res.is_ok());
+}
+
+#[test]
+fn test_transaction_verify_commitment() {
+    let tx = Transaction::new();
+
+    let commitment = tx.commit(&(), &transaction_commit_cb).unwrap();
+    
+    let res = tx.verify_commitment(&(), &commitment, &transaction_verify_commitment_cb);
+    assert!(res.is_ok());
+    assert!(res.unwrap())
+}
+
+#[test]
+fn test_transaction_check_commitment() {
+    let transaction = Transaction::new();
+
+    let commitment = transaction.commit(&(), &transaction_commit_cb).unwrap();
+    
+    let res = transaction.check_commitment(&(), &commitment, &transaction_check_commitment_cb);
+    assert!(res.is_ok())
+}
+
+#[test]
 fn test_transaction_finalize() {
     let coin = Coin::new()
                     .finalize(&(), &coin_digest_cb)

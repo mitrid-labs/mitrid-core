@@ -63,6 +63,35 @@ fn test_blocknode_check_digest() {
 }
 
 #[test]
+fn test_blocknode_commit() {
+    let bn = BlockNode::new();
+
+    let res = bn.commit(&(), &blocknode_commit_cb);
+    assert!(res.is_ok());
+}
+
+#[test]
+fn test_blocknode_verify_commitment() {
+    let bn = BlockNode::new();
+
+    let commitment = bn.commit(&(), &blocknode_commit_cb).unwrap();
+    
+    let res = bn.verify_commitment(&(), &commitment, &blocknode_verify_commitment_cb);
+    assert!(res.is_ok());
+    assert!(res.unwrap())
+}
+
+#[test]
+fn test_blocknode_check_commitment() {
+    let bn = BlockNode::new();
+
+    let commitment = bn.commit(&(), &blocknode_commit_cb).unwrap();
+    
+    let res = bn.check_commitment(&(), &commitment, &blocknode_check_commitment_cb);
+    assert!(res.is_ok())
+}
+
+#[test]
 fn test_blocknode_finalize() {
     let block_id = Digest::default();
     let block_height = 0;

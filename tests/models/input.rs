@@ -144,6 +144,35 @@ fn test_input_check_digest() {
 }
 
 #[test]
+fn test_input_commit() {
+    let input = Input::new();
+
+    let res = input.commit(&(), &input_commit_cb);
+    assert!(res.is_ok());
+}
+
+#[test]
+fn test_input_verify_commitment() {
+    let input = Input::new();
+
+    let commitment = input.commit(&(), &input_commit_cb).unwrap();
+    
+    let res = input.verify_commitment(&(), &commitment, &input_verify_commitment_cb);
+    assert!(res.is_ok());
+    assert!(res.unwrap())
+}
+
+#[test]
+fn test_input_check_commitment() {
+    let input = Input::new();
+
+    let commitment = input.commit(&(), &input_commit_cb).unwrap();
+    
+    let res = input.check_commitment(&(), &commitment, &input_check_commitment_cb);
+    assert!(res.is_ok())
+}
+
+#[test]
 fn test_input_finalize() {
     let meta = Meta::default();
     let tx_id = Digest::default();

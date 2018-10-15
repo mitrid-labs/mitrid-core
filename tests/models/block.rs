@@ -208,6 +208,35 @@ fn test_block_check_digest() {
 }
 
 #[test]
+fn test_block_commit() {
+    let block = Block::new();
+
+    let res = block.commit(&(), &block_commit_cb);
+    assert!(res.is_ok());
+}
+
+#[test]
+fn test_block_verify_commitment() {
+    let block = Block::new();
+
+    let commitment = block.commit(&(), &block_commit_cb).unwrap();
+    
+    let res = block.verify_commitment(&(), &commitment, &block_verify_commitment_cb);
+    assert!(res.is_ok());
+    assert!(res.unwrap())
+}
+
+#[test]
+fn test_block_check_commitment() {
+    let block = Block::new();
+
+    let commitment = block.commit(&(), &block_commit_cb).unwrap();
+    
+    let res = block.check_commitment(&(), &commitment, &block_check_commitment_cb);
+    assert!(res.is_ok())
+}
+
+#[test]
 fn test_block_finalize() {
     let block_height = 0;
 

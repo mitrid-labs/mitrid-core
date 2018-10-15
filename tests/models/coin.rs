@@ -65,6 +65,35 @@ fn test_check_digest() {
 }
 
 #[test]
+fn test_coin_commit() {
+    let coin = Coin::new();
+
+    let res = coin.commit(&(), &coin_commit_cb);
+    assert!(res.is_ok());
+}
+
+#[test]
+fn test_coin_verify_commitment() {
+    let coin = Coin::new();
+
+    let commitment = coin.commit(&(), &coin_commit_cb).unwrap();
+    
+    let res = coin.verify_commitment(&(), &commitment, &coin_verify_commitment_cb);
+    assert!(res.is_ok());
+    assert!(res.unwrap())
+}
+
+#[test]
+fn test_coin_check_commitment() {
+    let coin = Coin::new();
+
+    let commitment = coin.commit(&(), &coin_commit_cb).unwrap();
+    
+    let res = coin.check_commitment(&(), &commitment, &coin_check_commitment_cb);
+    assert!(res.is_ok())
+}
+
+#[test]
 fn test_coin_finalize() {
     let valid_meta = Meta::default();
     let tx_id = Digest::default();
