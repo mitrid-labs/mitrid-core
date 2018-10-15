@@ -1,5 +1,3 @@
-#![allow(dead_code)]
-
 use sodiumoxide::init;
 
 use mitrid_core::base::Result;

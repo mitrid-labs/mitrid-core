@@ -1,5 +1,3 @@
-#![allow(dead_code)]
-
 use mitrid_core::base::Result;
 use mitrid_core::base::Serializable;
 use mitrid_core::models::BlockNode as BaseBlockNode;
