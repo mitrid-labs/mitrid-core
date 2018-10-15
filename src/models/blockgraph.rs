@@ -12,7 +12,7 @@ use base::Datable;
 use base::Serializable;
 use base::{Sizable, ConstantSize};
 use base::Evaluable;
-use crypto::Hashable;
+use crypto::{Hashable, Committable};
 use models::Meta;
 use models::BlockNode;
 
@@ -185,6 +185,13 @@ impl<D, P> BlockGraph<D, P>
 
 impl<HP, D, P> Hashable<HP, D> for BlockGraph<D, P>
     where   HP: Datable,
+            D: Datable + ConstantSize,
+            P: Datable
+{}
+
+impl<CP, C, D, P> Committable<CP, C> for BlockGraph<D, P>
+    where   CP: Datable,
+            C: Datable + ConstantSize,
             D: Datable + ConstantSize,
             P: Datable
 {}

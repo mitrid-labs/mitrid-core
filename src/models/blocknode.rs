@@ -8,7 +8,7 @@ use base::Checkable;
 use base::Datable;
 use base::Serializable;
 use base::{Sizable, ConstantSize};
-use crypto::Hashable;
+use crypto::{Hashable, Committable};
 use models::Meta;
 
 /// Type used to represent a node in the `BlockGraph` and that references a `Block`.
@@ -134,6 +134,12 @@ impl<D> BlockNode<D>
 
 impl<P, D> Hashable<P, D> for BlockNode<D>
     where   P: Datable,
+            D: Datable + ConstantSize
+{}
+
+impl<CP, C, D> Committable<CP, C> for BlockNode<D>
+    where   CP: Datable,
+            C: Datable + ConstantSize,
             D: Datable + ConstantSize
 {}
 

@@ -9,7 +9,7 @@ use base::Datable;
 use base::Serializable;
 use base::{Sizable, ConstantSize};
 use base::Numerical;
-use crypto::Hashable;
+use crypto::{Hashable, Committable};
 use models::Meta;
 
 /// Type used to represent a past `Output`.
@@ -141,6 +141,13 @@ impl<D, A> Coin<D, A>
 
 impl<P, D, A> Hashable<P, D> for Coin<D, A>
     where   P: Datable,
+            D: Datable + ConstantSize,
+            A: Numerical
+{}
+
+impl<CP, C, D, A> Committable<CP, C> for Coin<D, A>
+    where   CP: Datable,
+            C: Datable + ConstantSize,
             D: Datable + ConstantSize,
             A: Numerical
 {}

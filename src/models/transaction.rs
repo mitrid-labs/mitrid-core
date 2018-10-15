@@ -9,7 +9,7 @@ use base::Serializable;
 use base::{Sizable, ConstantSize};
 use base::Numerical;
 use base::Evaluable;
-use crypto::Hashable;
+use crypto::{Hashable, Committable};
 use models::Meta;
 use models::Input;
 use models::Output;
@@ -190,6 +190,18 @@ impl<D, A, IP, Pk, Sig, OP, P> Transaction<D, A, IP, Pk, Sig, OP, P>
 
 impl<HP, D, A, IP, Pk, Sig, OP, P> Hashable<HP, D> for Transaction<D, A, IP, Pk, Sig, OP, P>
     where   HP: Datable,
+            D: Datable + ConstantSize,
+            A: Numerical,
+            IP: Datable,
+            Pk: Datable + ConstantSize,
+            Sig: Datable + ConstantSize,
+            OP: Datable,
+            P: Datable
+{}
+
+impl<CP, C, D, A, IP, Pk, Sig, OP, P> Committable<CP, C> for Transaction<D, A, IP, Pk, Sig, OP, P>
+    where   CP: Datable,
+            C: Datable + ConstantSize,
             D: Datable + ConstantSize,
             A: Numerical,
             IP: Datable,

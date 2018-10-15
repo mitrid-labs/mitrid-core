@@ -11,7 +11,7 @@ use base::Serializable;
 use base::{Sizable, ConstantSize};
 use base::Numerical;
 use base::Evaluable;
-use crypto::{Hashable, Provable};
+use crypto::{Hashable, Provable, Committable};
 use models::Meta;
 use models::Transaction;
 use models::BlockNode;
@@ -273,6 +273,20 @@ impl<HP, D, A, IP, Pk, Sig, OP, TP, P, Pr> Hashable<HP, D> for Block<D, A, IP, P
 
 impl<PrP, D, A, IP, Pk, Sig, OP, TP, P, Pr> Provable<PrP, Pr> for Block<D, A, IP, Pk, Sig, OP, TP, P, Pr>
     where   PrP: Datable,
+            D: Datable + ConstantSize,
+            A: Numerical,
+            IP: Datable,
+            Pk: Datable + ConstantSize,
+            Sig: Datable + ConstantSize,
+            OP: Datable,
+            TP: Datable,
+            P: Datable,
+            Pr: Datable
+{}
+
+impl<CP, C, D, A, IP, Pk, Sig, OP, TP, P, Pr> Committable<CP, C> for Block<D, A, IP, Pk, Sig, OP, TP, P, Pr>
+    where   CP: Datable,
+            C: Datable + ConstantSize,
             D: Datable + ConstantSize,
             A: Numerical,
             IP: Datable,

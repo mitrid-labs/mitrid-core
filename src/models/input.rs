@@ -10,7 +10,7 @@ use base::Serializable;
 use base::{Sizable, ConstantSize};
 use base::Numerical;
 use base::Evaluable;
-use crypto::{Hashable, Signable};
+use crypto::{Hashable, Signable, Committable};
 use models::Meta;
 use models::Coin;
 
@@ -249,6 +249,16 @@ impl<SP, Sk, D, A, P, Pk, Sig> Signable<SP, Sk, Pk, Sig> for Input<D, A, P, Pk, 
     where   SP: Datable,
             Sk: Datable + ConstantSize,
             Sig: Datable + ConstantSize,
+            D: Datable + ConstantSize,
+            A: Numerical,
+            P: Datable,
+            Pk: Datable + ConstantSize,
+            Sig: Datable + ConstantSize
+{}
+
+impl<CP, C, D, A, P, Pk, Sig> Committable<CP, C> for Input<D, A, P, Pk, Sig>
+    where   CP: Datable,
+            C: Datable + ConstantSize,
             D: Datable + ConstantSize,
             A: Numerical,
             P: Datable,
