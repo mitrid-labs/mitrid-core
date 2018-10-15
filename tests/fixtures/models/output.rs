@@ -1,3 +1,5 @@
+#![allow(dead_code)]
+
 use mitrid_core::base::Result;
 use mitrid_core::base::Checkable;
 use mitrid_core::base::Serializable;
@@ -6,6 +8,7 @@ use mitrid_core::models::Output as BaseOutput;
 use fixtures::base::eval::*;
 use fixtures::crypto::{Digest, SHA512};
 use fixtures::crypto::PublicKey;
+use fixtures::crypto::{Commitment, SHA512Commit};
 use fixtures::models::Amount;
 use fixtures::models::Payload;
 
@@ -28,6 +31,21 @@ pub fn output_check_digest_cb(output: &Output, _: &(), digest: &Digest) -> Resul
     }
 
     Ok(())
+}
+
+pub fn output_commit_cb(output: &Output, _: &()) -> Result<Commitment> {
+    let msg = output.to_bytes()?;
+    SHA512Commit::commit(&msg)
+}
+
+pub fn output_verify_commitment_cb(output: &Output, _: &(), commitment: &Commitment) -> Result<bool> {
+    let msg = output.to_bytes()?;
+    SHA512Commit::verify(&msg, commitment)
+}
+
+pub fn output_check_commitment_cb(output: &Output, _: &(), commitment: &Commitment) -> Result<()> {
+    let msg = output.to_bytes()?;
+    SHA512Commit::check(&msg, commitment)
 }
 
 pub fn output_eval_cb(output: &Output, params: &EvalParams) -> Result<EvalReturn> {

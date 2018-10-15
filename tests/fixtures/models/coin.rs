@@ -1,8 +1,11 @@
+#![allow(dead_code)]
+
 use mitrid_core::base::Result;
 use mitrid_core::base::Serializable;
 use mitrid_core::models::Coin as BaseCoin;
 
 use fixtures::crypto::{Digest, SHA512};
+use fixtures::crypto::{Commitment, SHA512Commit};
 use fixtures::models::Amount;
 
 pub type Coin = BaseCoin<Digest, Amount>;
@@ -24,4 +27,19 @@ pub fn coin_check_digest_cb(coin: &Coin, _: &(), digest: &Digest) -> Result<()> 
     }
 
     Ok(())
+}
+
+pub fn coin_commit_cb(coin: &Coin, _: &()) -> Result<Commitment> {
+    let msg = coin.to_bytes()?;
+    SHA512Commit::commit(&msg)
+}
+
+pub fn coin_verify_commitment_cb(coin: &Coin, _: &(), commitment: &Commitment) -> Result<bool> {
+    let msg = coin.to_bytes()?;
+    SHA512Commit::verify(&msg, commitment)
+}
+
+pub fn coin_check_commitment_cb(coin: &Coin, _: &(), commitment: &Commitment) -> Result<()> {
+    let msg = coin.to_bytes()?;
+    SHA512Commit::check(&msg, commitment)
 }
