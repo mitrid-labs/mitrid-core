@@ -1,3 +1,8 @@
+0.5.0 / 2018-10-14
+==================
+
+ * Main models can be committed and authenticated
+
 0.4.0 / 2018-10-14
 ==================
 
