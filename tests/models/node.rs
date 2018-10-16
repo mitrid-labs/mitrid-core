@@ -1,4 +1,3 @@
-use mitrid_core::models::Node;
 use mitrid_core::models::Meta;
 use mitrid_core::base::Checkable;
 use mitrid_core::base::Sizable;
@@ -6,6 +5,7 @@ use mitrid_core::base::Serializable;
 
 use fixtures::models::Payload;
 use fixtures::models::Address;
+use fixtures::models::Node;
 
 #[test]
 fn test_node_new() {
@@ -37,7 +37,7 @@ fn test_node_check() {
 
 #[test]
 fn test_node_size() {
-    let node: Node<Address, String> = Node::default();
+    let node = Node::default();
     let node_size = node.meta.size() +
                     node.address.size() +
                     node.payload.size();

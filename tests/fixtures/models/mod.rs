@@ -9,6 +9,7 @@ pub mod blocknode;
 pub mod block;
 pub mod blockgraph;
 pub mod wallet;
+pub mod node;
 
 pub use self::payload::*;
 pub use self::address::*;
@@ -21,3 +22,4 @@ pub use self::blocknode::*;
 pub use self::block::*;
 pub use self::blockgraph::*;
 pub use self::wallet::*;
+pub use self::node::*;
