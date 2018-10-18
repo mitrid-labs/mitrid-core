@@ -4,13 +4,13 @@ use mitrid_core::base::Serializable;
 use mitrid_core::models::Block as BaseBlock;
 
 use fixtures::base::eval::*;
+use fixtures::base::Payload;
 use fixtures::crypto::{Digest, SHA512};
 use fixtures::crypto::{PublicKey, Signature};
 use fixtures::crypto::{Proof, HashCash};
 use fixtures::crypto::{Commitment, SHA512Commit};
 use fixtures::crypto::{AuthKey, Tag, SHA512HMAC};
 use fixtures::models::Amount;
-use fixtures::models::Payload;
 
 pub type Block = BaseBlock<Digest, Amount, Payload, PublicKey, Signature, Payload, Payload, Payload, Proof>;
 

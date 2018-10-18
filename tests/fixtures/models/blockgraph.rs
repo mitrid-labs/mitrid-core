@@ -4,10 +4,10 @@ use mitrid_core::base::Serializable;
 use mitrid_core::models::BlockGraph as BaseBlockGraph;
 
 use fixtures::base::eval::*;
+use fixtures::base::Payload;
 use fixtures::crypto::{Digest, SHA512};
 use fixtures::crypto::{Commitment, SHA512Commit};
 use fixtures::crypto::{AuthKey, Tag, SHA512HMAC};
-use fixtures::models::Payload;
 
 pub type BlockGraph = BaseBlockGraph<Digest, Payload>;
 

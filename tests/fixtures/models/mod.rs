@@ -1,4 +1,3 @@
-pub mod payload;
 pub mod address;
 pub mod amount;
 pub mod coin;
@@ -11,7 +10,6 @@ pub mod blockgraph;
 pub mod wallet;
 pub mod node;
 
-pub use self::payload::*;
 pub use self::address::*;
 pub use self::amount::*;
 pub use self::coin::*;

@@ -3,7 +3,7 @@ use mitrid_core::base::Checkable;
 use mitrid_core::base::Sizable;
 use mitrid_core::base::Serializable;
 
-use fixtures::models::Payload;
+use fixtures::base::Payload;
 use fixtures::models::Address;
 use fixtures::models::Node;
 

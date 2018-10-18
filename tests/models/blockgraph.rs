@@ -5,9 +5,9 @@ use mitrid_core::utils::Version;
 use mitrid_core::models::Meta;
 
 use fixtures::base::eval::*;
+use fixtures::base::Payload;
 use fixtures::crypto::Digest;
 use fixtures::crypto::SHA512HMAC;
-use fixtures::models::Payload;
 use fixtures::models::blocknode::*;
 use fixtures::models::blockgraph::*;
 

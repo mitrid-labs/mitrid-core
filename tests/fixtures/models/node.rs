@@ -1,6 +1,6 @@
 use mitrid_core::models::Node as BasicNode;
 
+use fixtures::base::Payload;
 use fixtures::models::Address;
-use fixtures::models::Payload;
 
 pub type Node = BasicNode<Address, Payload>;
