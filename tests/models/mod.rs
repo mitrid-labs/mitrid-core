@@ -8,4 +8,3 @@ mod blocknode;
 mod blockgraph;
 mod block;
 mod wallet;
-mod node;

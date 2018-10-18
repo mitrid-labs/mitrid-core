@@ -34,9 +34,6 @@ pub mod blockgraph;
 /// Type used to represent a wallet (account) in the protocol.
 pub mod wallet;
 
-/// Type used to represent a node in the distributed ledger network.
-pub mod node;
-
 pub use self::stage::Stage;
 pub use self::meta::Meta;
 pub use self::coin::Coin;
@@ -47,4 +44,3 @@ pub use self::blocknode::BlockNode;
 pub use self::block::Block;
 pub use self::blockgraph::BlockGraph;
 pub use self::wallet::Wallet;
-pub use self::node::Node;

@@ -1,4 +1,3 @@
-pub mod address;
 pub mod amount;
 pub mod coin;
 pub mod input;
@@ -8,9 +7,7 @@ pub mod blocknode;
 pub mod block;
 pub mod blockgraph;
 pub mod wallet;
-pub mod node;
 
-pub use self::address::*;
 pub use self::amount::*;
 pub use self::coin::*;
 pub use self::input::*;
@@ -20,4 +17,3 @@ pub use self::blocknode::*;
 pub use self::block::*;
 pub use self::blockgraph::*;
 pub use self::wallet::*;
-pub use self::node::*;
