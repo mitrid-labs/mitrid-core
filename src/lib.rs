@@ -12,6 +12,8 @@ extern crate serde_json as json;
 extern crate serde_cbor as cbor;
 extern crate hex;
 extern crate regex;
+#[macro_use]
+extern crate bitflags;
 
 /// Traits and types used across the library.
 pub mod base;
@@ -24,3 +26,6 @@ pub mod crypto;
 
 /// Types used to implement block-based authenticated data structures.
 pub mod models;
+
+/// Traits and types used to implement I/O operations.
+pub mod io;

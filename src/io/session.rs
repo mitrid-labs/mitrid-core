@@ -3,8 +3,8 @@ use base::Checkable;
 use base::Serializable;
 use base::Sizable;
 use base::Datable;
-use base::Permission;
 use utils::Timestamp;
+use io::Permission;
 
 #[derive(Clone, Eq, PartialEq, Ord, PartialOrd, Debug, Default, Hash, Serialize, Deserialize)]
 pub struct Session<P>

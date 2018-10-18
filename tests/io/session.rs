@@ -4,17 +4,14 @@ use mitrid_core::base::Serializable;
 use mitrid_core::utils::Timestamp;
 use mitrid_core::io::Permission;
 
-use fixtures::core::models::Payload;
-use fixtures::io::base::Session;
+use fixtures::io::Session;
 
 #[test]
 fn test_session_new() {
     let id = 0;
     let permission = Permission::default();
     let timestamp = Timestamp::now().unwrap();
-    let payload = Payload::default();
-
-    let res = Session::new(id, &permission, &timestamp, &payload);
+    let res = Session::new(id, &permission, &timestamp, &());
     assert!(res.is_ok());
 }
 
@@ -23,9 +20,8 @@ fn test_session_is_expired() {
     let id = 0;
     let permission = Permission::default();
     let timestamp = Timestamp::now().unwrap();
-    let payload = Payload::default();
 
-    let mut session = Session::new(id, &permission, &timestamp, &payload).unwrap();
+    let mut session = Session::new(id, &permission, &timestamp, &()).unwrap();
 
     let res = session.is_expired();
     assert!(res.is_ok());
@@ -43,9 +39,8 @@ fn test_session_check() {
     let id = 0;
     let permission = Permission::default();
     let timestamp = Timestamp::now().unwrap();
-    let payload = Payload::default();
 
-    let session = Session::new(id, &permission, &timestamp, &payload).unwrap();
+    let session = Session::new(id, &permission, &timestamp, &()).unwrap();
 
     let res = session.check();
     assert!(res.is_ok());
@@ -56,9 +51,8 @@ fn test_session_size() {
     let id = 0;
     let permission = Permission::default();
     let timestamp = Timestamp::now().unwrap();
-    let payload = Payload::default();
 
-    let session = Session::new(id, &permission, &timestamp, &payload).unwrap();
+    let session = Session::new(id, &permission, &timestamp, &()).unwrap();
 
     let session_size = session.id.size() +
                         session.permission.size() +

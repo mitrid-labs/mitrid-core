@@ -8,4 +8,5 @@ extern crate sodiumoxide;
 mod base;
 mod utils;
 mod fixtures;
+mod io;
 mod models;
