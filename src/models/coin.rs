@@ -7,9 +7,11 @@ use base::Result;
 use base::Checkable;
 use base::Datable;
 use base::Serializable;
-use base::{Sizable, ConstantSize};
+use base::{Sizable, ConstantSize, VariableSize};
 use base::Numerical;
 use crypto::{Hashable, Committable, Authenticatable};
+use io::Storable;
+use io::Networkable;
 use models::Meta;
 
 /// Type used to represent a past `Output`.
@@ -282,5 +284,19 @@ impl<D, A> Serializable for Coin<D, A>
 
 impl<D, A> Datable for Coin<D, A>
     where   D: Datable + ConstantSize,
+            A: Numerical
+{}
+
+impl<S, D, A> Storable<S, D, Coin<D, A>> for Coin<D, A>
+    where   S: Datable,
+            D: Datable + ConstantSize,
+            A: Numerical
+{}
+
+impl<S, NA, NP, D, A> Networkable<S, NA, NP, D, Coin<D, A>> for Coin<D, A>
+    where   S: Datable,
+            NA: Datable + VariableSize,
+            NP: Datable,
+            D: Datable + ConstantSize,
             A: Numerical
 {}

@@ -7,8 +7,10 @@ use base::Result;
 use base::Checkable;
 use base::Datable;
 use base::Serializable;
-use base::{Sizable, ConstantSize};
+use base::{Sizable, ConstantSize, VariableSize};
 use crypto::{Hashable, Committable, Authenticatable};
+use io::Storable;
+use io::Networkable;
 use models::Meta;
 
 /// Type used to represent a node in the `BlockNode` and that references a `Block`.
@@ -267,4 +269,16 @@ impl<D> Serializable for BlockNode<D>
 
 impl<D> Datable for BlockNode<D>
     where   D: Datable + ConstantSize
+{}
+
+impl<S, D> Storable<S, D, BlockNode<D>> for BlockNode<D>
+    where   S: Datable,
+            D: Datable + ConstantSize
+{}
+
+impl<S, NA, NP, D> Networkable<S, NA, NP, D, BlockNode<D>> for BlockNode<D>
+    where   S: Datable,
+            NA: Datable + VariableSize,
+            NP: Datable,
+            D: Datable + ConstantSize
 {}

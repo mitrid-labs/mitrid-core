@@ -6,10 +6,12 @@ use base::Result;
 use base::Checkable;
 use base::Datable;
 use base::Serializable;
-use base::{Sizable, ConstantSize};
+use base::{Sizable, ConstantSize, VariableSize};
 use base::Numerical;
 use base::Evaluable;
 use crypto::{Hashable, Committable, Authenticatable};
+use io::Storable;
+use io::Networkable;
 use models::Meta;
 
 /// Type representing the output of a `Transaction`.
@@ -346,6 +348,24 @@ impl<D, Pk, A, P> Datable for Output<D, Pk, A, P>
 
 impl<D, Pk, A, P> Evaluable for Output<D, Pk, A, P>
     where   D: Datable + ConstantSize,
+            Pk: Datable + ConstantSize,
+            A: Numerical,
+            P: Datable
+{}
+
+impl<S, D, Pk, A, P> Storable<S, D, Output<D, Pk, A, P>> for Output<D, Pk, A, P>
+    where   S: Datable,
+            D: Datable + ConstantSize,
+            Pk: Datable + ConstantSize,
+            A: Numerical,
+            P: Datable
+{}
+
+impl<S, NA, NP, D, Pk, A, P> Networkable<S, NA, NP, D, Output<D, Pk, A, P>> for Output<D, Pk, A, P>
+    where   S: Datable,
+            NA: Datable + VariableSize,
+            NP: Datable,
+            D: Datable + ConstantSize,
             Pk: Datable + ConstantSize,
             A: Numerical,
             P: Datable

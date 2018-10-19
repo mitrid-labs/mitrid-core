@@ -6,10 +6,12 @@ use base::Result;
 use base::Checkable;
 use base::Datable;
 use base::Serializable;
-use base::{Sizable, ConstantSize};
+use base::{Sizable, ConstantSize, VariableSize};
 use base::Numerical;
 use base::Evaluable;
 use crypto::{Hashable, Committable, Authenticatable};
+use io::Storable;
+use io::Networkable;
 use models::Meta;
 use models::Input;
 use models::Output;
@@ -385,6 +387,32 @@ impl<D, A, IP, Pk, Sig, OP, P> Datable for Transaction<D, A, IP, Pk, Sig, OP, P>
 
 impl<D, A, IP, Pk, Sig, OP, P> Evaluable for Transaction<D, A, IP, Pk, Sig, OP, P>
     where   D: Datable + ConstantSize,
+            A: Numerical,
+            IP: Datable,
+            Pk: Datable + ConstantSize,
+            Sig: Datable + ConstantSize,
+            OP: Datable,
+            P: Datable
+{}
+
+impl<S, D, A, IP, Pk, Sig, OP, P> Storable<S, D, Transaction<D, A, IP, Pk, Sig, OP, P>>
+    for Transaction<D, A, IP, Pk, Sig, OP, P>
+    where   S: Datable,
+            D: Datable + ConstantSize,
+            A: Numerical,
+            IP: Datable,
+            Pk: Datable + ConstantSize,
+            Sig: Datable + ConstantSize,
+            OP: Datable,
+            P: Datable
+{}
+
+impl<S, NA, NP, D, A, IP, Pk, Sig, OP, P> Networkable<S, NA, NP, D, Transaction<D, A, IP, Pk, Sig, OP, P>>
+    for Transaction<D, A, IP, Pk, Sig, OP, P>
+    where   S: Datable,
+            NA: Datable + VariableSize,
+            NP: Datable,
+            D: Datable + ConstantSize,
             A: Numerical,
             IP: Datable,
             Pk: Datable + ConstantSize,

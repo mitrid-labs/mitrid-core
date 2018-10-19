@@ -7,10 +7,12 @@ use base::Result;
 use base::Checkable;
 use base::Datable;
 use base::Serializable;
-use base::{Sizable, ConstantSize};
+use base::{Sizable, ConstantSize, VariableSize};
 use base::Numerical;
 use base::Evaluable;
 use crypto::{Hashable, Signable, Committable, Authenticatable};
+use io::Storable;
+use io::Networkable;
 use models::Meta;
 use models::Coin;
 
@@ -422,6 +424,26 @@ impl<D, A, P, Pk, Sig> Datable for Input<D, A, P, Pk, Sig>
 
 impl<D, A, P, Pk, Sig> Evaluable for Input<D, A, P, Pk, Sig>
     where   D: Datable + ConstantSize,
+            A: Numerical,
+            P: Datable,
+            Pk: Datable + ConstantSize,
+            Sig: Datable + ConstantSize
+{}
+
+impl<S, D, A, P, Pk, Sig> Storable<S, D, Input<D, A, P, Pk, Sig>> for Input<D, A, P, Pk, Sig>
+    where   S: Datable,
+            D: Datable + ConstantSize,
+            A: Numerical,
+            P: Datable,
+            Pk: Datable + ConstantSize,
+            Sig: Datable + ConstantSize
+{}
+
+impl<S, NA, NP, D, A, P, Pk, Sig> Networkable<S, NA, NP, D, Input<D, A, P, Pk, Sig>> for Input<D, A, P, Pk, Sig>
+    where   S: Datable,
+            NA: Datable + VariableSize,
+            NP: Datable,
+            D: Datable + ConstantSize,
             A: Numerical,
             P: Datable,
             Pk: Datable + ConstantSize,

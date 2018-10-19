@@ -8,10 +8,12 @@ use base::Result;
 use base::Checkable;
 use base::Datable;
 use base::Serializable;
-use base::{Sizable, ConstantSize};
+use base::{Sizable, ConstantSize, VariableSize};
 use base::Numerical;
 use base::Evaluable;
 use crypto::{Hashable, Provable, Committable, Authenticatable};
+use io::Storable;
+use io::Networkable;
 use models::Meta;
 use models::Transaction;
 use models::BlockNode;
@@ -486,6 +488,36 @@ impl<D, A, IP, Pk, Sig, OP, TP, P, Pr> Datable for Block<D, A, IP, Pk, Sig, OP, 
 
 impl<D, A, IP, Pk, Sig, OP, TP, P, Pr> Evaluable for Block<D, A, IP, Pk, Sig, OP, TP, P, Pr>
     where   D: Datable + ConstantSize,
+            A: Numerical,
+            IP: Datable,
+            Pk: Datable + ConstantSize,
+            Sig: Datable + ConstantSize,
+            OP: Datable,
+            TP: Datable,
+            P: Datable,
+            Pr: Datable
+{}
+
+impl<S, D, A, IP, Pk, Sig, OP, TP, P, Pr> Storable<S, D, Block<D, A, IP, Pk, Sig, OP, TP, P, Pr>>
+    for Block<D, A, IP, Pk, Sig, OP, TP, P, Pr>
+    where   S: Datable,
+            D: Datable + ConstantSize,
+            A: Numerical,
+            IP: Datable,
+            Pk: Datable + ConstantSize,
+            Sig: Datable + ConstantSize,
+            OP: Datable,
+            TP: Datable,
+            P: Datable,
+            Pr: Datable
+{}
+
+impl<S, NA, NP, D, A, IP, Pk, Sig, OP, TP, P, Pr> Networkable<S, NA, NP, D, Block<D, A, IP, Pk, Sig, OP, TP, P, Pr>>
+    for Block<D, A, IP, Pk, Sig, OP, TP, P, Pr>
+    where   S: Datable,
+            NA: Datable + VariableSize,
+            NP: Datable,
+            D: Datable + ConstantSize,
             A: Numerical,
             IP: Datable,
             Pk: Datable + ConstantSize,
