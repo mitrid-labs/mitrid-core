@@ -12,29 +12,31 @@ pub trait Storable<S, K, V>
     fn session_cb<P: Datable>(params: &P,
                               permission: &Permission,
                               cb: &Fn(&P, &Permission) -> Future<Session<S>>)
-        -> Future<Session<S>> {
-            match params.check() {
-                Ok(_) => {},
-                Err(e) => { return Future::from_result(Err(e)) },
-            }
-
-            match permission.check() {
-                Ok(_) => {},
-                Err(e) => { return Future::from_result(Err(e)) },
-            }
-
-            cb(params, permission)
+        -> Future<Session<S>>
+    {
+        match params.check() {
+            Ok(_) => {},
+            Err(e) => { return Future::from_result(Err(e)) },
         }
+
+        match permission.check() {
+            Ok(_) => {},
+            Err(e) => { return Future::from_result(Err(e)) },
+        }
+
+        cb(params, permission)
+    }
     
     fn count_cb<P: Datable>(params: &P,
                             from: &Option<K>,
                             to: &Option<K>,
                             cb: &Fn(&P, &Option<K>, &Option<K>) -> Future<u64>)
-        -> Future<u64> {
-            match params.check() {
-                Ok(_) => {},
-                Err(e) => { return Future::from_result(Err(e)) },
-            }
+        -> Future<u64>
+    {
+        match params.check() {
+            Ok(_) => {},
+            Err(e) => { return Future::from_result(Err(e)) },
+        }
 
         match from.check() {
             Ok(_) => {},
@@ -47,7 +49,7 @@ pub trait Storable<S, K, V>
         }
 
         cb(params, from, to)
-        }
+    }
     
     fn list_cb<P: Datable>(params: &P,
                            from: &Option<K>,
@@ -135,6 +137,30 @@ pub trait Storable<S, K, V>
     }
     
     fn update_cb<P: Datable>(params: &P,
+                             key: &K,
+                             value: &V,
+                             cb: &Fn(&P, &K, &V) -> Future<()>)
+        -> Future<()>
+    {
+        match params.check() {
+            Ok(_) => {},
+            Err(e) => { return Future::from_result(Err(e)) },
+        }
+
+        match key.check() {
+            Ok(_) => {},
+            Err(e) => { return Future::from_result(Err(e)) },
+        }
+
+        match value.check() {
+            Ok(_) => {},
+            Err(e) => { return Future::from_result(Err(e)) },
+        }
+
+        cb(params, key, value)
+    }
+    
+    fn upsert_cb<P: Datable>(params: &P,
                              key: &K,
                              value: &V,
                              cb: &Fn(&P, &K, &V) -> Future<()>)
