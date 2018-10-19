@@ -6,11 +6,11 @@ use base::Result;
 use base::Checkable;
 use base::Datable;
 use base::Serializable;
-use base::{Sizable, ConstantSize, VariableSize};
+use base::{Sizable, ConstantSize};
 use base::Evaluable;
 use crypto::{Hashable, Signable, Committable, Authenticatable};
-use io::Storable;
-use io::Networkable;
+use io::Store;
+use io::Network;
 use models::Meta;
 
 /// Type used to represent a wallet (account) in the distributed ledger.
@@ -420,22 +420,6 @@ impl<D, Sk, Pk, Sig, P> Evaluable for Wallet<D, Sk, Pk, Sig, P>
             P: Datable
 {}
 
-impl<S, D, Sk, Pk, Sig, P> Storable<S, D, Wallet<D, Sk, Pk, Sig, P>> for Wallet<D, Sk, Pk, Sig, P>
-    where   S: Datable,
-            D: Datable + ConstantSize,
-            Sk: Datable + ConstantSize,
-            Pk: Datable + ConstantSize,
-            Sig: Datable + ConstantSize,
-            P: Datable
-{}
+pub type WalletStore<S, D, Sk, Pk, Sig, P> = Store<S, D, Wallet<D, Sk, Pk, Sig, P>>;
 
-impl<S, NA, NP, D, Sk, Pk, Sig, P> Networkable<S, NA, NP, D, Wallet<D, Sk, Pk, Sig, P>> for Wallet<D, Sk, Pk, Sig, P>
-    where   S: Datable,
-            NA: Datable + VariableSize,
-            NP: Datable,
-            D: Datable + ConstantSize,
-            Sk: Datable + ConstantSize,
-            Pk: Datable + ConstantSize,
-            Sig: Datable + ConstantSize,
-            P: Datable
-{}
+pub type WalletNetwork<S, NA, NP, D, Sk, Pk, Sig, P> = Network<S, NA, NP, D, Wallet<D, Sk, Pk, Sig, P>>;

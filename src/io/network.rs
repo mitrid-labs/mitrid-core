@@ -6,7 +6,7 @@ use io::Permission;
 use io::Session;
 use io::Node;
 
-pub trait Networkable<S, A, NP, K, V>
+pub trait Network<S, A, NP, K, V>
     where   S: Datable,
             A: Datable + VariableSize,
             NP: Datable,

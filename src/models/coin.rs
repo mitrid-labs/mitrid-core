@@ -7,11 +7,11 @@ use base::Result;
 use base::Checkable;
 use base::Datable;
 use base::Serializable;
-use base::{Sizable, ConstantSize, VariableSize};
+use base::{Sizable, ConstantSize};
 use base::Numerical;
 use crypto::{Hashable, Committable, Authenticatable};
-use io::Storable;
-use io::Networkable;
+use io::Store;
+use io::Network;
 use models::Meta;
 
 /// Type used to represent a past `Output`.
@@ -287,16 +287,6 @@ impl<D, A> Datable for Coin<D, A>
             A: Numerical
 {}
 
-impl<S, D, A> Storable<S, D, Coin<D, A>> for Coin<D, A>
-    where   S: Datable,
-            D: Datable + ConstantSize,
-            A: Numerical
-{}
+pub type CoinStore<S, D, A> = Store<S, D, Coin<D, A>>;
 
-impl<S, NA, NP, D, A> Networkable<S, NA, NP, D, Coin<D, A>> for Coin<D, A>
-    where   S: Datable,
-            NA: Datable + VariableSize,
-            NP: Datable,
-            D: Datable + ConstantSize,
-            A: Numerical
-{}
+pub type CoinNetwork<S, NA, NP, D, A> = Network<S, NA, NP, D, Coin<D, A>>;

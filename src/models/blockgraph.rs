@@ -10,11 +10,11 @@ use base::Result;
 use base::Checkable;
 use base::Datable;
 use base::Serializable;
-use base::{Sizable, ConstantSize, VariableSize};
+use base::{Sizable, ConstantSize};
 use base::Evaluable;
 use crypto::{Hashable, Committable, Authenticatable};
-use io::Storable;
-use io::Networkable;
+use io::Store;
+use io::Network;
 use models::Meta;
 use models::BlockNode;
 
@@ -354,16 +354,6 @@ impl<D, P> Evaluable for BlockGraph<D, P>
             P: Datable
 {}
 
-impl<S, D, P> Storable<S, D, BlockGraph<D, P>> for BlockGraph<D, P>
-    where   S: Datable,
-            D: Datable + ConstantSize,
-            P: Datable
-{}
+pub type BlockGraphStore<S, D, P> = Store<S, D, BlockGraph<D, P>>;
 
-impl<S, NA, NP, D, P> Networkable<S, NA, NP, D, BlockGraph<D, P>> for BlockGraph<D, P>
-    where   S: Datable,
-            NA: Datable + VariableSize,
-            NP: Datable,
-            D: Datable + ConstantSize,
-            P: Datable
-{}
+pub type BlockGraphNetwork<S, NA, NP, D, P> = Network<S, NA, NP, D, BlockGraph<D, P>>;

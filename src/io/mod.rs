@@ -9,6 +9,6 @@ pub mod network;
 
 pub use self::permission::Permission;
 pub use self::session::Session;
-pub use self::store::Storable;
+pub use self::store::Store;
 pub use self::node::Node;
-pub use self::network::Networkable;
+pub use self::network::Network;

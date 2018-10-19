@@ -4,7 +4,7 @@ use base::Datable;
 use io::Permission;
 use io::Session;
 
-pub trait Storable<S, K, V>
+pub trait Store<S, K, V>
     where   S: Datable,
             K: Datable,
             V: Datable
