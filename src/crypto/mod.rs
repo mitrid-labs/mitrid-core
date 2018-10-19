@@ -20,5 +20,5 @@ pub mod prove;
 pub use self::hash::Hashable;
 pub use self::sign::Signable;
 pub use self::commit::Committable;
-pub use self::authenticate::Authenticated;
+pub use self::authenticate::Authenticatable;
 pub use self::prove::Provable;

@@ -9,7 +9,7 @@ use base::Datable;
 use base::Serializable;
 use base::{Sizable, ConstantSize};
 use base::Numerical;
-use crypto::{Hashable, Committable, Authenticated};
+use crypto::{Hashable, Committable, Authenticatable};
 use models::Meta;
 
 /// Type used to represent a past `Output`.
@@ -234,7 +234,7 @@ impl<CP, C, D, A> Committable<CP, C> for Coin<D, A>
             A: Numerical
 {}
 
-impl<AP, T, D, A> Authenticated<AP, T> for Coin<D, A>
+impl<AP, T, D, A> Authenticatable<AP, T> for Coin<D, A>
     where   AP: Datable,
             T: Datable + ConstantSize,
             D: Datable + ConstantSize,

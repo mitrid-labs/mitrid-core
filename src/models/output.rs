@@ -9,7 +9,7 @@ use base::Serializable;
 use base::{Sizable, ConstantSize};
 use base::Numerical;
 use base::Evaluable;
-use crypto::{Hashable, Committable, Authenticated};
+use crypto::{Hashable, Committable, Authenticatable};
 use models::Meta;
 
 /// Type representing the output of a `Transaction`.
@@ -279,7 +279,7 @@ impl<CP, C, D, Pk, A, P> Committable<CP, C> for Output<D, Pk, A, P>
             P: Datable
 {}
 
-impl<AP, T, D, Pk, A, P> Authenticated<AP, T> for Output<D, Pk, A, P>
+impl<AP, T, D, Pk, A, P> Authenticatable<AP, T> for Output<D, Pk, A, P>
     where   AP: Datable,
             T: Datable + ConstantSize,
             D: Datable + ConstantSize,

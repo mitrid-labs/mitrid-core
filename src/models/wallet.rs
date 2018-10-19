@@ -8,7 +8,7 @@ use base::Datable;
 use base::Serializable;
 use base::{Sizable, ConstantSize};
 use base::Evaluable;
-use crypto::{Hashable, Signable, Committable, Authenticated};
+use crypto::{Hashable, Signable, Committable, Authenticatable};
 use models::Meta;
 
 /// Type used to represent a wallet (account) in the distributed ledger.
@@ -336,7 +336,7 @@ impl<CP, C, D, Sk, Pk, Sig, P> Committable<CP, C> for Wallet<D, Sk, Pk, Sig, P>
             P: Datable
 {}
 
-impl<AP, T, D, Sk, Pk, Sig, P> Authenticated<AP, T> for Wallet<D, Sk, Pk, Sig, P>
+impl<AP, T, D, Sk, Pk, Sig, P> Authenticatable<AP, T> for Wallet<D, Sk, Pk, Sig, P>
     where   AP: Datable,
             T: Datable + ConstantSize,
             D: Datable + ConstantSize,

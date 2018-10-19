@@ -11,7 +11,7 @@ use base::Serializable;
 use base::{Sizable, ConstantSize};
 use base::Numerical;
 use base::Evaluable;
-use crypto::{Hashable, Provable, Committable, Authenticated};
+use crypto::{Hashable, Provable, Committable, Authenticatable};
 use models::Meta;
 use models::Transaction;
 use models::BlockNode;
@@ -380,7 +380,7 @@ impl<CP, C, D, A, IP, Pk, Sig, OP, TP, P, Pr> Committable<CP, C> for Block<D, A,
             Pr: Datable
 {}
 
-impl<AP, T, D, A, IP, Pk, Sig, OP, TP, P, Pr> Authenticated<AP, T> for Block<D, A, IP, Pk, Sig, OP, TP, P, Pr>
+impl<AP, T, D, A, IP, Pk, Sig, OP, TP, P, Pr> Authenticatable<AP, T> for Block<D, A, IP, Pk, Sig, OP, TP, P, Pr>
     where   AP: Datable,
             T: Datable + ConstantSize,
             D: Datable + ConstantSize,

@@ -8,7 +8,7 @@ use base::Checkable;
 use base::Datable;
 use base::Serializable;
 use base::{Sizable, ConstantSize};
-use crypto::{Hashable, Committable, Authenticated};
+use crypto::{Hashable, Committable, Authenticatable};
 use models::Meta;
 
 /// Type used to represent a node in the `BlockNode` and that references a `Block`.
@@ -225,7 +225,7 @@ impl<CP, C, D> Committable<CP, C> for BlockNode<D>
             D: Datable + ConstantSize
 {}
 
-impl<AP, T, D> Authenticated<AP, T> for BlockNode<D>
+impl<AP, T, D> Authenticatable<AP, T> for BlockNode<D>
     where   AP: Datable,
             T: Datable + ConstantSize,
             D: Datable + ConstantSize

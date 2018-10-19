@@ -7,7 +7,7 @@ use base::ConstantSize;
 use base::Datable;
 
 /// Trait used by types that can be cryptographically authenticated.
-pub trait Authenticated<P, T>
+pub trait Authenticatable<P, T>
     where   P: Datable,
             T: Datable + ConstantSize,
             Self: Datable
