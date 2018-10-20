@@ -13,7 +13,7 @@ use base::Serializable;
 use base::{Sizable, ConstantSize};
 use base::Evaluable;
 use crypto::{Hashable, Committable, Authenticatable};
-use io::Store;
+use io::Storable;
 use io::Network;
 use models::Meta;
 use models::BlockNode;
@@ -354,6 +354,22 @@ impl<D, P> Evaluable for BlockGraph<D, P>
             P: Datable
 {}
 
-pub type BlockGraphStore<S, D, P> = Store<S, D, BlockGraph<D, P>>;
+impl<S, D, P> Storable<S, D, BlockGraph<D, P>> for BlockGraph<D, P>
+    where   S: Datable + Serializable,
+            D: Datable + ConstantSize + Serializable,
+            P: Datable + Serializable
+{
+    fn store_key(&self) -> Result<D> {
+        self.id.check()?;
+
+        Ok(self.id.clone())
+    }
+
+    fn store_value(&self) -> Result<BlockGraph<D, P>> {
+        self.check()?;
+
+        Ok(self.clone())
+    }
+}
 
 pub type BlockGraphNetwork<S, NA, NP, D, P> = Network<S, NA, NP, D, BlockGraph<D, P>>;

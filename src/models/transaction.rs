@@ -10,7 +10,7 @@ use base::{Sizable, ConstantSize};
 use base::Numerical;
 use base::Evaluable;
 use crypto::{Hashable, Committable, Authenticatable};
-use io::Store;
+use io::Storable;
 use io::Network;
 use models::Meta;
 use models::Input;
@@ -395,8 +395,29 @@ impl<D, A, IP, Pk, Sig, OP, P> Evaluable for Transaction<D, A, IP, Pk, Sig, OP, 
             P: Datable
 {}
 
-pub type TransactionStore<S, D, A, IP, Pk, Sig, OP, P>
-    = Store<S, D, Transaction<D, A, IP, Pk, Sig, OP, P>>;
+impl<S, D, A, IP, Pk, Sig, OP, P> Storable<S, D, Transaction<D, A, IP, Pk, Sig, OP, P>>
+    for Transaction<D, A, IP, Pk, Sig, OP, P>
+    where   S: Datable + Serializable,
+            D: Datable + ConstantSize + Serializable,
+            A: Numerical + Serializable,
+            IP: Datable + Serializable,
+            Pk: Datable + ConstantSize + Serializable,
+            Sig: Datable + ConstantSize + Serializable,
+            OP: Datable + Serializable,
+            P: Datable + Serializable
+{
+    fn store_key(&self) -> Result<D> {
+        self.id.check()?;
+
+        Ok(self.id.clone())
+    }
+
+    fn store_value(&self) -> Result<Transaction<D, A, IP, Pk, Sig, OP, P>> {
+        self.check()?;
+
+        Ok(self.clone())
+    }
+}
 
 pub type TransactionNetwork<S, NA, NP, D, A, IP, Pk, Sig, OP, P>
     = Network<S, NA, NP, D, Transaction<D, A, IP, Pk, Sig, OP, P>>;

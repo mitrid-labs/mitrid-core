@@ -9,7 +9,7 @@ use base::Serializable;
 use base::{Sizable, ConstantSize};
 use base::Evaluable;
 use crypto::{Hashable, Signable, Committable, Authenticatable};
-use io::Store;
+use io::Storable;
 use io::Network;
 use models::Meta;
 
@@ -420,6 +420,25 @@ impl<D, Sk, Pk, Sig, P> Evaluable for Wallet<D, Sk, Pk, Sig, P>
             P: Datable
 {}
 
-pub type WalletStore<S, D, Sk, Pk, Sig, P> = Store<S, D, Wallet<D, Sk, Pk, Sig, P>>;
+impl<S, D, Sk, Pk, Sig, P> Storable<S, D, Wallet<D, Sk, Pk, Sig, P>> for Wallet<D, Sk, Pk, Sig, P>
+    where   S: Datable + Serializable,
+            D: Datable + ConstantSize + Serializable,
+            Sk: Datable + ConstantSize + Serializable,
+            Pk: Datable + ConstantSize + Serializable,
+            Sig: Datable + ConstantSize + Serializable,
+            P: Datable + Serializable
+{
+    fn store_key(&self) -> Result<D> {
+        self.id.check()?;
+
+        Ok(self.id.clone())
+    }
+
+    fn store_value(&self) -> Result<Wallet<D, Sk, Pk, Sig, P>> {
+        self.check()?;
+
+        Ok(self.clone())
+    }
+}
 
 pub type WalletNetwork<S, NA, NP, D, Sk, Pk, Sig, P> = Network<S, NA, NP, D, Wallet<D, Sk, Pk, Sig, P>>;

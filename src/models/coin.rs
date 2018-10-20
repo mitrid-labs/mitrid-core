@@ -10,7 +10,7 @@ use base::Serializable;
 use base::{Sizable, ConstantSize};
 use base::Numerical;
 use crypto::{Hashable, Committable, Authenticatable};
-use io::Store;
+use io::Storable;
 use io::Network;
 use models::Meta;
 
@@ -287,6 +287,22 @@ impl<D, A> Datable for Coin<D, A>
             A: Numerical
 {}
 
-pub type CoinStore<S, D, A> = Store<S, D, Coin<D, A>>;
+impl<S, D, A> Storable<S, D, Coin<D, A>> for Coin<D, A>
+    where   S: Datable + Serializable,
+            D: Datable + ConstantSize + Serializable,
+            A: Numerical + Serializable
+{
+    fn store_key(&self) -> Result<D> {
+        self.id.check()?;
+
+        Ok(self.id.clone())
+    }
+
+    fn store_value(&self) -> Result<Coin<D, A>> {
+        self.check()?;
+
+        Ok(self.clone())
+    }
+}
 
 pub type CoinNetwork<S, NA, NP, D, A> = Network<S, NA, NP, D, Coin<D, A>>;

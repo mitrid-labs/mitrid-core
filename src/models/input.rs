@@ -11,7 +11,7 @@ use base::{Sizable, ConstantSize};
 use base::Numerical;
 use base::Evaluable;
 use crypto::{Hashable, Signable, Committable, Authenticatable};
-use io::Store;
+use io::Storable;
 use io::Network;
 use models::Meta;
 use models::Coin;
@@ -430,6 +430,25 @@ impl<D, A, P, Pk, Sig> Evaluable for Input<D, A, P, Pk, Sig>
             Sig: Datable + ConstantSize
 {}
 
-pub type InputStore<S, D, A, P, Pk, Sig> = Store<S, D, Input<D, A, P, Pk, Sig>>;
+impl<S, D, A, P, Pk, Sig> Storable<S, D, Input<D, A, P, Pk, Sig>> for Input<D, A, P, Pk, Sig>
+    where   S: Datable + Serializable,
+            D: Datable + ConstantSize + Serializable,
+            A: Numerical + Serializable,
+            P: Datable + Serializable,
+            Pk: Datable + ConstantSize + Serializable,
+            Sig: Datable + ConstantSize + Serializable
+{
+    fn store_key(&self) -> Result<D> {
+        self.id.check()?;
+
+        Ok(self.id.clone())
+    }
+
+    fn store_value(&self) -> Result<Input<D, A, P, Pk, Sig>> {
+        self.check()?;
+
+        Ok(self.clone())
+    }
+}
 
 pub type InputNetwork<S, NA, NP, D, A, P, Pk, Sig> = Network<S, NA, NP, D, Input<D, A, P, Pk, Sig>>;

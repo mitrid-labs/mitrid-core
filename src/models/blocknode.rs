@@ -9,7 +9,7 @@ use base::Datable;
 use base::Serializable;
 use base::{Sizable, ConstantSize};
 use crypto::{Hashable, Committable, Authenticatable};
-use io::Store;
+use io::Storable;
 use io::Network;
 use models::Meta;
 
@@ -271,6 +271,21 @@ impl<D> Datable for BlockNode<D>
     where   D: Datable + ConstantSize
 {}
 
-pub type BlockNodeStore<S, D> = Store<S, D, BlockNode<D>>;
+impl<S, D> Storable<S, D, BlockNode<D>> for BlockNode<D>
+    where   S: Datable + Serializable,
+            D: Datable + ConstantSize + Serializable
+{
+    fn store_key(&self) -> Result<D> {
+        self.id.check()?;
+
+        Ok(self.id.clone())
+    }
+
+    fn store_value(&self) -> Result<BlockNode<D>> {
+        self.check()?;
+
+        Ok(self.clone())
+    }
+}
 
 pub type BlockNodeNetwork<S, NA, NP, D> = Network<S, NA, NP, D, BlockNode<D>>;

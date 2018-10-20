@@ -10,7 +10,7 @@ use base::{Sizable, ConstantSize};
 use base::Numerical;
 use base::Evaluable;
 use crypto::{Hashable, Committable, Authenticatable};
-use io::Store;
+use io::Storable;
 use io::Network;
 use models::Meta;
 
@@ -353,6 +353,24 @@ impl<D, Pk, A, P> Evaluable for Output<D, Pk, A, P>
             P: Datable
 {}
 
-pub type OutputStore<S, D, Pk, A, P> = Store<S, D, Output<D, Pk, A, P>>;
+impl<S, D, Pk, A, P> Storable<S, D, Output<D, Pk, A, P>> for Output<D, Pk, A, P>
+    where   S: Datable + Serializable,
+            D: Datable + ConstantSize + Serializable,
+            Pk: Datable + ConstantSize + Serializable,
+            A: Numerical + Serializable,
+            P: Datable + Serializable
+{
+    fn store_key(&self) -> Result<D> {
+        self.id.check()?;
+
+        Ok(self.id.clone())
+    }
+
+    fn store_value(&self) -> Result<Output<D, Pk, A, P>> {
+        self.check()?;
+
+        Ok(self.clone())
+    }
+}
 
 pub type OutputNetwork<S, NA, NP, D, Pk, A, P> = Network<S, NA, NP, D, Output<D, Pk, A, P>>;

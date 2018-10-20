@@ -12,7 +12,7 @@ use base::{Sizable, ConstantSize};
 use base::Numerical;
 use base::Evaluable;
 use crypto::{Hashable, Provable, Committable, Authenticatable};
-use io::Store;
+use io::Storable;
 use io::Network;
 use models::Meta;
 use models::Transaction;
@@ -498,8 +498,31 @@ impl<D, A, IP, Pk, Sig, OP, TP, P, Pr> Evaluable for Block<D, A, IP, Pk, Sig, OP
             Pr: Datable
 {}
 
-pub type BlockStore<S, D, A, IP, Pk, Sig, OP, TP, P, Pr> =
-    Store<S, D, Block<D, A, IP, Pk, Sig, OP, TP, P, Pr>>;
+impl<S, D, A, IP, Pk, Sig, OP, TP, P, Pr> Storable<S, D, Block<D, A, IP, Pk, Sig, OP, TP, P, Pr>>
+    for Block<D, A, IP, Pk, Sig, OP, TP, P, Pr>
+    where   S: Datable + Serializable,
+            D: Datable + ConstantSize + Serializable,
+            A: Numerical + Serializable,
+            IP: Datable + Serializable,
+            Pk: Datable + ConstantSize + Serializable,
+            Sig: Datable + ConstantSize + Serializable,
+            OP: Datable + Serializable,
+            TP: Datable + Serializable,
+            P: Datable + Serializable,
+            Pr: Datable + Serializable
+{
+    fn store_key(&self) -> Result<D> {
+        self.id.check()?;
+
+        Ok(self.id.clone())
+    }
+
+    fn store_value(&self) -> Result<Block<D, A, IP, Pk, Sig, OP, TP, P, Pr>> {
+        self.check()?;
+
+        Ok(self.clone())
+    }
+}
 
 pub type NetworkStore<S, NA, NP, D, A, IP, Pk, Sig, OP, TP, P, Pr> =
     Network<S, NA, NP, D, Block<D, A, IP, Pk, Sig, OP, TP, P, Pr>>;
