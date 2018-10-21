@@ -7,7 +7,7 @@ use io::Permission;
 use io::Session;
 
 pub trait Store<S, K, V>
-    where   S: Datable,
+    where   S: Datable + Serializable,
             K: Datable + Serializable,
             V: Datable + Serializable
 {
@@ -412,7 +412,7 @@ pub trait Store<S, K, V>
 }
 
 pub trait Storable<S, K, V>
-    where   S: Datable,
+    where   S: Datable + Serializable,
             K: Datable + Serializable,
             V: Datable + Serializable,
             Self: Datable

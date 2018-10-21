@@ -11,4 +11,4 @@ pub use self::permission::Permission;
 pub use self::session::Session;
 pub use self::store::{Store, Storable};
 pub use self::node::Node;
-pub use self::network::Network;
+pub use self::network::{Network, Networkable};
