@@ -7,10 +7,10 @@ use base::Result;
 use base::Checkable;
 use base::Datable;
 use base::Serializable;
-use base::{Sizable, ConstantSize};
+use base::{Sizable, ConstantSize, VariableSize};
 use crypto::{Hashable, Committable, Authenticatable};
 use io::Storable;
-use io::Network;
+use io::Networkable;
 use models::Meta;
 
 /// Type used to represent a node in the `BlockNode` and that references a `Block`.
@@ -288,4 +288,21 @@ impl<S, D> Storable<S, D, BlockNode<D>> for BlockNode<D>
     }
 }
 
-pub type BlockNodeNetwork<S, NA, NP, D> = Network<S, NA, NP, D, BlockNode<D>>;
+impl<S, Ad, NP, D> Networkable<S, Ad, NP, D, BlockNode<D>> for BlockNode<D>
+    where   S: Datable + Serializable,
+            Ad: Datable + VariableSize + Serializable,
+            NP: Datable + Serializable,
+            D: Datable + ConstantSize + Serializable
+{
+    fn network_key(&self) -> Result<D> {
+        self.id.check()?;
+
+        Ok(self.id.clone())
+    }
+
+    fn network_value(&self) -> Result<BlockNode<D>> {
+        self.check()?;
+
+        Ok(self.clone())
+    }
+}

@@ -10,11 +10,11 @@ use base::Result;
 use base::Checkable;
 use base::Datable;
 use base::Serializable;
-use base::{Sizable, ConstantSize};
+use base::{Sizable, ConstantSize, VariableSize};
 use base::Evaluable;
 use crypto::{Hashable, Committable, Authenticatable};
 use io::Storable;
-use io::Network;
+use io::Networkable;
 use models::Meta;
 use models::BlockNode;
 
@@ -372,4 +372,22 @@ impl<S, D, P> Storable<S, D, BlockGraph<D, P>> for BlockGraph<D, P>
     }
 }
 
-pub type BlockGraphNetwork<S, NA, NP, D, P> = Network<S, NA, NP, D, BlockGraph<D, P>>;
+impl<S, Ad, NP, D, P> Networkable<S, Ad, NP, D, BlockGraph<D, P>> for BlockGraph<D, P>
+    where   S: Datable + Serializable,
+            Ad: Datable + VariableSize + Serializable,
+            NP: Datable + Serializable,
+            D: Datable + ConstantSize + Serializable,
+            P: Datable + Serializable
+{
+    fn network_key(&self) -> Result<D> {
+        self.id.check()?;
+
+        Ok(self.id.clone())
+    }
+
+    fn network_value(&self) -> Result<BlockGraph<D, P>> {
+        self.check()?;
+
+        Ok(self.clone())
+    }
+}

@@ -6,12 +6,12 @@ use base::Result;
 use base::Checkable;
 use base::Datable;
 use base::Serializable;
-use base::{Sizable, ConstantSize};
+use base::{Sizable, ConstantSize, VariableSize};
 use base::Numerical;
 use base::Evaluable;
 use crypto::{Hashable, Committable, Authenticatable};
 use io::Storable;
-use io::Network;
+use io::Networkable;
 use models::Meta;
 
 /// Type representing the output of a `Transaction`.
@@ -373,4 +373,24 @@ impl<S, D, Pk, A, P> Storable<S, D, Output<D, Pk, A, P>> for Output<D, Pk, A, P>
     }
 }
 
-pub type OutputNetwork<S, NA, NP, D, Pk, A, P> = Network<S, NA, NP, D, Output<D, Pk, A, P>>;
+impl<S, Ad, NP, D, Pk, A, P> Networkable<S, Ad, NP, D, Output<D, Pk, A, P>> for Output<D, Pk, A, P>
+    where   S: Datable + Serializable,
+            Ad: Datable + VariableSize + Serializable,
+            NP: Datable + Serializable,
+            D: Datable + ConstantSize + Serializable,
+            Pk: Datable + ConstantSize + Serializable,
+            A: Numerical + Serializable,
+            P: Datable + Serializable
+{
+    fn network_key(&self) -> Result<D> {
+        self.id.check()?;
+
+        Ok(self.id.clone())
+    }
+
+    fn network_value(&self) -> Result<Output<D, Pk, A, P>> {
+        self.check()?;
+
+        Ok(self.clone())
+    }
+}

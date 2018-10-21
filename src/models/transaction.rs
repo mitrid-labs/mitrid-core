@@ -6,12 +6,12 @@ use base::Result;
 use base::Checkable;
 use base::Datable;
 use base::Serializable;
-use base::{Sizable, ConstantSize};
+use base::{Sizable, ConstantSize, VariableSize};
 use base::Numerical;
 use base::Evaluable;
 use crypto::{Hashable, Committable, Authenticatable};
 use io::Storable;
-use io::Network;
+use io::Networkable;
 use models::Meta;
 use models::Input;
 use models::Output;
@@ -419,5 +419,28 @@ impl<S, D, A, IP, Pk, Sig, OP, P> Storable<S, D, Transaction<D, A, IP, Pk, Sig, 
     }
 }
 
-pub type TransactionNetwork<S, NA, NP, D, A, IP, Pk, Sig, OP, P>
-    = Network<S, NA, NP, D, Transaction<D, A, IP, Pk, Sig, OP, P>>;
+impl<S, Ad, NP, D, A, IP, Pk, Sig, OP, P> Networkable<S, Ad, NP, D, Transaction<D, A, IP, Pk, Sig, OP, P>>
+    for Transaction<D, A, IP, Pk, Sig, OP, P>
+    where   S: Datable + Serializable,
+            Ad: Datable + VariableSize + Serializable,
+            NP: Datable + Serializable,
+            D: Datable + ConstantSize + Serializable,
+            A: Numerical + Serializable,
+            IP: Datable + Serializable,
+            Pk: Datable + ConstantSize + Serializable,
+            Sig: Datable + ConstantSize + Serializable,
+            OP: Datable + Serializable,
+            P: Datable + Serializable
+{
+    fn network_key(&self) -> Result<D> {
+        self.id.check()?;
+
+        Ok(self.id.clone())
+    }
+
+    fn network_value(&self) -> Result<Transaction<D, A, IP, Pk, Sig, OP, P>> {
+        self.check()?;
+
+        Ok(self.clone())
+    }
+}
