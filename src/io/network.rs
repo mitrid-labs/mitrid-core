@@ -15,524 +15,89 @@ pub trait Network<S, A, NP, K, V>
             K: Datable + Serializable,
             V: Datable + Serializable
 {
-    fn session_cb<P: Datable>(&mut self,
-                              params: &P,
-                              address: &A,
-                              nodes: &Vec<Node<A, NP>>,
-                              permission: &Permission,
-                              cb: &Fn(&mut Self, &P, &A, &Vec<Node<A, NP>>, &Permission) -> Future<Session<S>>)
-        -> Future<Session<S>> {
-            match params.check() {
-                Ok(_) => {},
-                Err(e) => { return Future::from_result(Err(e)) },
-            }
-
-            match address.check() {
-                Ok(_) => {},
-                Err(e) => { return Future::from_result(Err(e)) },
-            }
-
-            match nodes.check() {
-                Ok(_) => {},
-                Err(e) => { return Future::from_result(Err(e)) },
-            }
-
-            match permission.check() {
-                Ok(_) => {},
-                Err(e) => { return Future::from_result(Err(e)) },
-            }
-
-            cb(self, params, address, nodes, permission)
-    }
+    fn session<P: Datable>(&mut self,
+                           params: &P,
+                           address: &A,
+                           nodes: &Vec<Node<A, NP>>,
+                           permission: &Permission)
+        -> Future<Session<S>>;
     
-    fn count_cb<P: Datable>(&mut self,
-                            params: &P,
-                            session: &Session<S>,
-                            address: &A,
-                            nodes: &Vec<Node<A, NP>>,
-                            from: &Option<K>,
-                            to: &Option<K>,
-                            cb: &Fn(&mut Self, &P, &Session<S>, &A, &Vec<Node<A, NP>>, &Option<K>, &Option<K>) -> Future<u64>)
-        -> Future<u64>
-    {
-        match params.check() {
-            Ok(_) => {},
-            Err(e) => { return Future::from_result(Err(e)) },
-        }
-
-        match session.check() {
-            Ok(_) => {},
-            Err(e) => { return Future::from_result(Err(e)) },
-        }
-
-        match session.is_expired() {
-            Ok(expired) => {
-                if expired {
-                    return Future::from_result(Err(String::from("expired session")));
-                }
-            },
-            Err(e) => {
-                return Future::from_result(Err(e));
-            }
-        }
-
-        if session.permission > Permission::Read {
-            return Future::from_result(Err(String::from("invalid permission")));
-        }
-
-        match address.check() {
-            Ok(_) => {},
-            Err(e) => { return Future::from_result(Err(e)) },
-        }
-
-        match nodes.check() {
-            Ok(_) => {},
-            Err(e) => { return Future::from_result(Err(e)) },
-        }
-
-        match from.check() {
-            Ok(_) => {},
-            Err(e) => { return Future::from_result(Err(e)) },
-        }
-
-        match to.check() {
-            Ok(_) => {},
-            Err(e) => { return Future::from_result(Err(e)) },
-        }
-
-        cb(self, params, session, address, nodes, from, to)
-    }
+    fn count<P: Datable>(&mut self,
+                         params: &P,
+                         session: &Session<S>,
+                         address: &A,
+                         nodes: &Vec<Node<A, NP>>,
+                         from: &Option<K>,
+                         to: &Option<K>)
+        -> Future<u64>;
     
-    fn list_cb<P: Datable>(&mut self,
+    fn list<P: Datable>(&mut self,
                            params: &P,
                            session: &Session<S>,
                            address: &A,
                            nodes: &Vec<Node<A, NP>>,
                            from: &Option<K>,
                            to: &Option<K>,
-                           count: &Option<u64>,
-                           cb: &Fn(&mut Self, &P, &Session<S>, &A, &Vec<Node<A, NP>>, &Option<K>, &Option<K>, &Option<u64>) -> Future<Vec<V>>)
-        -> Future<Vec<V>>
-    {
-        match params.check() {
-            Ok(_) => {},
-            Err(e) => { return Future::from_result(Err(e)) },
-        }
-
-        match address.check() {
-            Ok(_) => {},
-            Err(e) => { return Future::from_result(Err(e)) },
-        }
-
-        match session.check() {
-            Ok(_) => {},
-            Err(e) => { return Future::from_result(Err(e)) },
-        }
-
-        match session.is_expired() {
-            Ok(expired) => {
-                if expired {
-                    return Future::from_result(Err(String::from("expired session")));
-                }
-            },
-            Err(e) => {
-                return Future::from_result(Err(e));
-            }
-        }
-
-        if session.permission > Permission::Read {
-            return Future::from_result(Err(String::from("invalid permission")));
-        }
-
-        match nodes.check() {
-            Ok(_) => {},
-            Err(e) => { return Future::from_result(Err(e)) },
-        }
-
-        match from.check() {
-            Ok(_) => {},
-            Err(e) => { return Future::from_result(Err(e)) },
-        }
-
-        match to.check() {
-            Ok(_) => {},
-            Err(e) => { return Future::from_result(Err(e)) },
-        }
-
-        cb(self, params, session, address, nodes, from, to, count)
-    }
+                           count: &Option<u64>)
+        -> Future<Vec<V>>;
     
-    fn lookup_cb<P: Datable>(&mut self,
-                             params: &P,
-                             session: &Session<S>,
-                             address: &A,
-                             nodes: &Vec<Node<A, NP>>,
-                             key: &K,
-                             cb: &Fn(&mut Self, &P, &Session<S>, &A, &Vec<Node<A, NP>>, &K) -> Future<bool>)
-        -> Future<bool>
-    {
-        match params.check() {
-            Ok(_) => {},
-            Err(e) => { return Future::from_result(Err(e)) },
-        }
-
-        match session.check() {
-            Ok(_) => {},
-            Err(e) => { return Future::from_result(Err(e)) },
-        }
-
-        match session.is_expired() {
-            Ok(expired) => {
-                if expired {
-                    return Future::from_result(Err(String::from("expired session")));
-                }
-            },
-            Err(e) => {
-                return Future::from_result(Err(e));
-            }
-        }
-
-        if session.permission > Permission::Read {
-            return Future::from_result(Err(String::from("invalid permission")));
-        }
-
-        match address.check() {
-            Ok(_) => {},
-            Err(e) => { return Future::from_result(Err(e)) },
-        }
-
-        match nodes.check() {
-            Ok(_) => {},
-            Err(e) => { return Future::from_result(Err(e)) },
-        }
-
-        match key.check() {
-            Ok(_) => {},
-            Err(e) => { return Future::from_result(Err(e)) },
-        }
-
-        cb(self, params, session, address, nodes, key)
-    }
-    
-    fn get_cb<P: Datable>(&mut self,
+    fn lookup<P: Datable>(&mut self,
                           params: &P,
                           session: &Session<S>,
                           address: &A,
                           nodes: &Vec<Node<A, NP>>,
-                          key: &K,
-                          cb: &Fn(&mut Self, &P, &Session<S>, &A, &Vec<Node<A, NP>>, &K) -> Future<V>)
-        -> Future<V>
-    {
-        match params.check() {
-            Ok(_) => {},
-            Err(e) => { return Future::from_result(Err(e)) },
-        }
-
-        match session.check() {
-            Ok(_) => {},
-            Err(e) => { return Future::from_result(Err(e)) },
-        }
-
-        match session.is_expired() {
-            Ok(expired) => {
-                if expired {
-                    return Future::from_result(Err(String::from("expired session")));
-                }
-            },
-            Err(e) => {
-                return Future::from_result(Err(e));
-            }
-        }
-
-        if session.permission > Permission::Read {
-            return Future::from_result(Err(String::from("invalid permission")));
-        }
-
-        match address.check() {
-            Ok(_) => {},
-            Err(e) => { return Future::from_result(Err(e)) },
-        }
-
-        match nodes.check() {
-            Ok(_) => {},
-            Err(e) => { return Future::from_result(Err(e)) },
-        }
-
-        match key.check() {
-            Ok(_) => {},
-            Err(e) => { return Future::from_result(Err(e)) },
-        }
-
-        cb(self, params, session, address, nodes, key)
-    }
+                          key: &K)
+        -> Future<bool>;
     
-    fn create_cb<P: Datable>(&mut self,
+    fn get<P: Datable>(&mut self,
+                       params: &P,
+                       session: &Session<S>,
+                       address: &A,
+                       nodes: &Vec<Node<A, NP>>,
+                       key: &K)
+        -> Future<V>;
+    
+    fn create<P: Datable>(&mut self,
                              params: &P,
                              session: &Session<S>,
                              address: &A,
                              nodes: &Vec<Node<A, NP>>,
                              key: &K,
-                             value: &V,
-                             cb: &Fn(&mut Self, &P, &Session<S>, &A, &Vec<Node<A, NP>>, &K, &V) -> Future<()>)
-        -> Future<()>
-    {
-        match params.check() {
-            Ok(_) => {},
-            Err(e) => { return Future::from_result(Err(e)) },
-        }
-
-        match session.check() {
-            Ok(_) => {},
-            Err(e) => { return Future::from_result(Err(e)) },
-        }
-
-        match session.is_expired() {
-            Ok(expired) => {
-                if expired {
-                    return Future::from_result(Err(String::from("expired session")));
-                }
-            },
-            Err(e) => {
-                return Future::from_result(Err(e));
-            }
-        }
-
-        if session.permission < Permission::Write {
-            return Future::from_result(Err(String::from("invalid permission")));
-        }
-
-        match address.check() {
-            Ok(_) => {},
-            Err(e) => { return Future::from_result(Err(e)) },
-        }
-
-        match nodes.check() {
-            Ok(_) => {},
-            Err(e) => { return Future::from_result(Err(e)) },
-        }
-
-        match key.check() {
-            Ok(_) => {},
-            Err(e) => { return Future::from_result(Err(e)) },
-        }
-
-        match value.check() {
-            Ok(_) => {},
-            Err(e) => { return Future::from_result(Err(e)) },
-        }
-
-        cb(self, params, session, address, nodes, key, value)
-    }
+                             value: &V)
+        -> Future<()>;
     
-    fn update_cb<P: Datable>(&mut self,
+    fn update<P: Datable>(&mut self,
                              params: &P,
                              session: &Session<S>,
                              address: &A,
                              nodes: &Vec<Node<A, NP>>,
                              key: &K,
-                             value: &V,
-                             cb: &Fn(&mut Self, &P, &Session<S>, &A, &Vec<Node<A, NP>>, &K, &V) -> Future<()>)
-        -> Future<()>
-    {
-        match params.check() {
-            Ok(_) => {},
-            Err(e) => { return Future::from_result(Err(e)) },
-        }
-
-        match session.check() {
-            Ok(_) => {},
-            Err(e) => { return Future::from_result(Err(e)) },
-        }
-
-        match session.is_expired() {
-            Ok(expired) => {
-                if expired {
-                    return Future::from_result(Err(String::from("expired session")));
-                }
-            },
-            Err(e) => {
-                return Future::from_result(Err(e));
-            }
-        }
-
-        if session.permission < Permission::Write {
-            return Future::from_result(Err(String::from("invalid permission")));
-        }
-
-        match address.check() {
-            Ok(_) => {},
-            Err(e) => { return Future::from_result(Err(e)) },
-        }
-
-        match nodes.check() {
-            Ok(_) => {},
-            Err(e) => { return Future::from_result(Err(e)) },
-        }
-
-        match key.check() {
-            Ok(_) => {},
-            Err(e) => { return Future::from_result(Err(e)) },
-        }
-
-        match value.check() {
-            Ok(_) => {},
-            Err(e) => { return Future::from_result(Err(e)) },
-        }
-
-        cb(self, params, session, address, nodes, key, value)
-    }
+                             value: &V)
+        -> Future<()>;
     
-    fn upsert_cb<P: Datable>(&mut self,
+    fn upsert<P: Datable>(&mut self,
                              params: &P,
                              session: &Session<S>,
                              address: &A,
                              nodes: &Vec<Node<A, NP>>,
                              key: &K,
-                             value: &V,
-                             cb: &Fn(&mut Self, &P, &Session<S>, &A, &Vec<Node<A, NP>>, &K, &V) -> Future<()>)
-        -> Future<()>
-    {
-        match params.check() {
-            Ok(_) => {},
-            Err(e) => { return Future::from_result(Err(e)) },
-        }
-
-        match session.check() {
-            Ok(_) => {},
-            Err(e) => { return Future::from_result(Err(e)) },
-        }
-
-        match session.is_expired() {
-            Ok(expired) => {
-                if expired {
-                    return Future::from_result(Err(String::from("expired session")));
-                }
-            },
-            Err(e) => {
-                return Future::from_result(Err(e));
-            }
-        }
-
-        if session.permission < Permission::Write {
-            return Future::from_result(Err(String::from("invalid permission")));
-        }
-
-        match address.check() {
-            Ok(_) => {},
-            Err(e) => { return Future::from_result(Err(e)) },
-        }
-
-        match nodes.check() {
-            Ok(_) => {},
-            Err(e) => { return Future::from_result(Err(e)) },
-        }
-
-        match key.check() {
-            Ok(_) => {},
-            Err(e) => { return Future::from_result(Err(e)) },
-        }
-
-        match value.check() {
-            Ok(_) => {},
-            Err(e) => { return Future::from_result(Err(e)) },
-        }
-
-        cb(self, params, session, address, nodes, key, value)
-    }
+                             value: &V)
+        -> Future<()>;
     
-    fn delete_cb<P: Datable>(&mut self,
+    fn delete<P: Datable>(&mut self,
                              params: &P,
                              session: &Session<S>,
                              address: &A,
                              nodes: &Vec<Node<A, NP>>,
-                             key: &K,
-                             cb: &Fn(&mut Self, &P, &Session<S>, &A, &Vec<Node<A, NP>>, &K) -> Future<()>)
-        -> Future<()>
-    {
-        match params.check() {
-            Ok(_) => {},
-            Err(e) => { return Future::from_result(Err(e)) },
-        }
-
-        match session.check() {
-            Ok(_) => {},
-            Err(e) => { return Future::from_result(Err(e)) },
-        }
-
-        match session.is_expired() {
-            Ok(expired) => {
-                if expired {
-                    return Future::from_result(Err(String::from("expired session")));
-                }
-            },
-            Err(e) => {
-                return Future::from_result(Err(e));
-            }
-        }
-
-        if session.permission < Permission::Write {
-            return Future::from_result(Err(String::from("invalid permission")));
-        }
-
-        match address.check() {
-            Ok(_) => {},
-            Err(e) => { return Future::from_result(Err(e)) },
-        }
-
-        match nodes.check() {
-            Ok(_) => {},
-            Err(e) => { return Future::from_result(Err(e)) },
-        }
-
-        match key.check() {
-            Ok(_) => {},
-            Err(e) => { return Future::from_result(Err(e)) },
-        }
-
-        cb(self, params, session, address, nodes, key)
-    }
+                             key: &K)
+        -> Future<()>;
     
-    fn custom_cb<P: Datable, R: Datable>(&mut self,
+    fn custom<P: Datable, R: Datable>(&mut self,
                                          params: &P,
                                          session: &Session<S>,
                                          address: &A,
-                                         nodes: &Vec<Node<A, NP>>,
-                                         cb: &Fn(&mut Self, &P, &Session<S>, &A, &Vec<Node<A, NP>>) -> Future<R>)
-        -> Future<R>
-    {
-        match params.check() {
-            Ok(_) => {},
-            Err(e) => { return Future::from_result(Err(e)) },
-        }
-
-        match session.check() {
-            Ok(_) => {},
-            Err(e) => { return Future::from_result(Err(e)) },
-        }
-
-        match session.is_expired() {
-            Ok(expired) => {
-                if expired {
-                    return Future::from_result(Err(String::from("expired session")));
-                }
-            },
-            Err(e) => {
-                return Future::from_result(Err(e));
-            }
-        }
-
-        match address.check() {
-            Ok(_) => {},
-            Err(e) => { return Future::from_result(Err(e)) },
-        }
-
-        match nodes.check() {
-            Ok(_) => {},
-            Err(e) => { return Future::from_result(Err(e)) },
-        }
-
-        cb(self, params, session, address, nodes)
-    }
+                                         nodes: &Vec<Node<A, NP>>)
+        -> Future<R>;
 }
 
 pub trait Networkable<S, A, NP, K, V>
@@ -551,13 +116,32 @@ pub trait Networkable<S, A, NP, K, V>
                                  params: &Par,
                                  address: &A,
                                  nodes: &Vec<Node<A, NP>>,
-                                 permission: &Permission,
-                                 cb: &Fn(&mut Net, &Par, &A, &Vec<Node<A, NP>>, &Permission) -> Future<Session<S>>)
+                                 permission: &Permission)
         -> Future<Session<S>>
         where   Par: Datable,
                 Net: Network<S, A, NP, K, V>
     {
-        network.session_cb(params, address, nodes, permission, cb)
+        match params.check() {
+            Ok(_) => {},
+            Err(e) => { return Future::from_result(Err(e)) },
+        }
+
+        match address.check() {
+            Ok(_) => {},
+            Err(e) => { return Future::from_result(Err(e)) },
+        }
+
+        match nodes.check() {
+            Ok(_) => {},
+            Err(e) => { return Future::from_result(Err(e)) },
+        }
+
+        match permission.check() {
+            Ok(_) => {},
+            Err(e) => { return Future::from_result(Err(e)) },
+        }
+
+        network.session(params, address, nodes, permission)
     }
     
     fn network_count<Par, Net>(network: &mut Net,
@@ -566,13 +150,57 @@ pub trait Networkable<S, A, NP, K, V>
                                address: &A,
                                nodes: &Vec<Node<A, NP>>,
                                from: &Option<K>,
-                               to: &Option<K>,
-                               cb: &Fn(&mut Net, &Par, &Session<S>, &A, &Vec<Node<A, NP>>, &Option<K>, &Option<K>) -> Future<u64>)
+                               to: &Option<K>)
         -> Future<u64>
         where   Par: Datable,
                 Net: Network<S, A, NP, K, V>
     {
-        network.count_cb(params, session, address, nodes, from, to, cb)
+        match params.check() {
+            Ok(_) => {},
+            Err(e) => { return Future::from_result(Err(e)) },
+        }
+
+        match address.check() {
+            Ok(_) => {},
+            Err(e) => { return Future::from_result(Err(e)) },
+        }
+
+        match session.check() {
+            Ok(_) => {},
+            Err(e) => { return Future::from_result(Err(e)) },
+        }
+
+        match session.is_expired() {
+            Ok(expired) => {
+                if expired {
+                    return Future::from_result(Err(String::from("expired session")));
+                }
+            },
+            Err(e) => {
+                return Future::from_result(Err(e));
+            }
+        }
+
+        if session.permission > Permission::Read {
+            return Future::from_result(Err(String::from("invalid permission")));
+        }
+
+        match nodes.check() {
+            Ok(_) => {},
+            Err(e) => { return Future::from_result(Err(e)) },
+        }
+
+        match from.check() {
+            Ok(_) => {},
+            Err(e) => { return Future::from_result(Err(e)) },
+        }
+
+        match to.check() {
+            Ok(_) => {},
+            Err(e) => { return Future::from_result(Err(e)) },
+        }
+
+        network.count(params, session, address, nodes, from, to)
     }
     
     fn network_list<Par, Net>(network: &mut Net,
@@ -582,13 +210,57 @@ pub trait Networkable<S, A, NP, K, V>
                               nodes: &Vec<Node<A, NP>>,
                               from: &Option<K>,
                               to: &Option<K>,
-                              count: &Option<u64>,
-                              cb: &Fn(&mut Net, &Par, &Session<S>, &A, &Vec<Node<A, NP>>, &Option<K>, &Option<K>, &Option<u64>) -> Future<Vec<V>>)
+                              count: &Option<u64>)
         -> Future<Vec<V>>
         where   Par: Datable,
                 Net: Network<S, A, NP, K, V>
     {
-        network.list_cb(params, session, address, nodes, from, to, count, cb)
+        match params.check() {
+            Ok(_) => {},
+            Err(e) => { return Future::from_result(Err(e)) },
+        }
+
+        match session.check() {
+            Ok(_) => {},
+            Err(e) => { return Future::from_result(Err(e)) },
+        }
+
+        match session.is_expired() {
+            Ok(expired) => {
+                if expired {
+                    return Future::from_result(Err(String::from("expired session")));
+                }
+            },
+            Err(e) => {
+                return Future::from_result(Err(e));
+            }
+        }
+
+        if session.permission > Permission::Read {
+            return Future::from_result(Err(String::from("invalid permission")));
+        }
+
+        match address.check() {
+            Ok(_) => {},
+            Err(e) => { return Future::from_result(Err(e)) },
+        }
+
+        match nodes.check() {
+            Ok(_) => {},
+            Err(e) => { return Future::from_result(Err(e)) },
+        }
+
+        match from.check() {
+            Ok(_) => {},
+            Err(e) => { return Future::from_result(Err(e)) },
+        }
+
+        match to.check() {
+            Ok(_) => {},
+            Err(e) => { return Future::from_result(Err(e)) },
+        }
+
+        network.list(params, session, address, nodes, from, to, count)
     }
     
     fn network_lookup<Par, Net>(network: &mut Net,
@@ -596,13 +268,52 @@ pub trait Networkable<S, A, NP, K, V>
                                 session: &Session<S>,
                                 address: &A,
                                 nodes: &Vec<Node<A, NP>>,
-                                key: &K,
-                                cb: &Fn(&mut Net, &Par, &Session<S>, &A, &Vec<Node<A, NP>>, &K) -> Future<bool>)
+                                key: &K)
         -> Future<bool>
         where   Par: Datable,
                 Net: Network<S, A, NP, K, V>
     {
-        network.lookup_cb(params, session, address, nodes, key, cb)
+        match params.check() {
+            Ok(_) => {},
+            Err(e) => { return Future::from_result(Err(e)) },
+        }
+
+        match session.check() {
+            Ok(_) => {},
+            Err(e) => { return Future::from_result(Err(e)) },
+        }
+
+        match session.is_expired() {
+            Ok(expired) => {
+                if expired {
+                    return Future::from_result(Err(String::from("expired session")));
+                }
+            },
+            Err(e) => {
+                return Future::from_result(Err(e));
+            }
+        }
+
+        if session.permission > Permission::Read {
+            return Future::from_result(Err(String::from("invalid permission")));
+        }
+
+        match address.check() {
+            Ok(_) => {},
+            Err(e) => { return Future::from_result(Err(e)) },
+        }
+
+        match nodes.check() {
+            Ok(_) => {},
+            Err(e) => { return Future::from_result(Err(e)) },
+        }
+
+        match key.check() {
+            Ok(_) => {},
+            Err(e) => { return Future::from_result(Err(e)) },
+        }
+   
+        network.lookup(params, session, address, nodes, key)
     }
     
     fn network_get<Par, Net>(network: &mut Net,
@@ -610,14 +321,53 @@ pub trait Networkable<S, A, NP, K, V>
                              session: &Session<S>,
                              address: &A,
                              nodes: &Vec<Node<A, NP>>,
-                             key: &K,
-                             cb: &Fn(&mut Net, &Par, &Session<S>, &A, &Vec<Node<A, NP>>, &K) -> Future<V>)
+                             key: &K)
         -> Future<V>
         where   Par: Datable,
                 S: Datable,
                 Net: Network<S, A, NP, K, V>
     {
-        network.get_cb(params, session, address, nodes, key, cb)
+        match params.check() {
+            Ok(_) => {},
+            Err(e) => { return Future::from_result(Err(e)) },
+        }
+
+        match session.check() {
+            Ok(_) => {},
+            Err(e) => { return Future::from_result(Err(e)) },
+        }
+
+        match session.is_expired() {
+            Ok(expired) => {
+                if expired {
+                    return Future::from_result(Err(String::from("expired session")));
+                }
+            },
+            Err(e) => {
+                return Future::from_result(Err(e));
+            }
+        }
+
+        if session.permission > Permission::Read {
+            return Future::from_result(Err(String::from("invalid permission")));
+        }
+
+        match address.check() {
+            Ok(_) => {},
+            Err(e) => { return Future::from_result(Err(e)) },
+        }
+
+        match nodes.check() {
+            Ok(_) => {},
+            Err(e) => { return Future::from_result(Err(e)) },
+        }
+
+        match key.check() {
+            Ok(_) => {},
+            Err(e) => { return Future::from_result(Err(e)) },
+        }
+
+        network.get(params, session, address, nodes, key)
     }
     
     fn network_create<Par, Net>(&self,
@@ -625,12 +375,46 @@ pub trait Networkable<S, A, NP, K, V>
                                 params: &Par,
                                 session: &Session<S>,
                                 address: &A,
-                                nodes: &Vec<Node<A, NP>>,
-                                cb: &Fn(&mut Net, &Par, &Session<S>, &A, &Vec<Node<A, NP>>, &K, &V) -> Future<()>)
+                                nodes: &Vec<Node<A, NP>>)
         -> Future<()>
         where   Par: Datable,
                 Net: Network<S, A, NP, K, V>
     {
+        match params.check() {
+            Ok(_) => {},
+            Err(e) => { return Future::from_result(Err(e)) },
+        }
+
+        match session.check() {
+            Ok(_) => {},
+            Err(e) => { return Future::from_result(Err(e)) },
+        }
+
+        match session.is_expired() {
+            Ok(expired) => {
+                if expired {
+                    return Future::from_result(Err(String::from("expired session")));
+                }
+            },
+            Err(e) => {
+                return Future::from_result(Err(e));
+            }
+        }
+
+        if session.permission < Permission::Write {
+            return Future::from_result(Err(String::from("invalid permission")));
+        }
+
+        match address.check() {
+            Ok(_) => {},
+            Err(e) => { return Future::from_result(Err(e)) },
+        }
+
+        match nodes.check() {
+            Ok(_) => {},
+            Err(e) => { return Future::from_result(Err(e)) },
+        }
+        
         let key_res = self.network_key();
 
         match key_res {
@@ -649,7 +433,7 @@ pub trait Networkable<S, A, NP, K, V>
 
         let value = value_res.unwrap();
 
-        network.create_cb(params, session, address, nodes, &key, &value, cb)
+        network.create(params, session, address, nodes, &key, &value)
     }
     
     fn network_update<Par, Net>(&self,
@@ -657,12 +441,46 @@ pub trait Networkable<S, A, NP, K, V>
                                 params: &Par,
                                 session: &Session<S>,
                                 address: &A,
-                                nodes: &Vec<Node<A, NP>>,
-                                cb: &Fn(&mut Net, &Par, &Session<S>, &A, &Vec<Node<A, NP>>, &K, &V) -> Future<()>)
+                                nodes: &Vec<Node<A, NP>>)
         -> Future<()>
         where   Par: Datable,
                 Net: Network<S, A, NP, K, V>
     {
+        match params.check() {
+            Ok(_) => {},
+            Err(e) => { return Future::from_result(Err(e)) },
+        }
+
+        match session.check() {
+            Ok(_) => {},
+            Err(e) => { return Future::from_result(Err(e)) },
+        }
+
+        match session.is_expired() {
+            Ok(expired) => {
+                if expired {
+                    return Future::from_result(Err(String::from("expired session")));
+                }
+            },
+            Err(e) => {
+                return Future::from_result(Err(e));
+            }
+        }
+
+        if session.permission < Permission::Write {
+            return Future::from_result(Err(String::from("invalid permission")));
+        }
+
+        match address.check() {
+            Ok(_) => {},
+            Err(e) => { return Future::from_result(Err(e)) },
+        }
+
+        match nodes.check() {
+            Ok(_) => {},
+            Err(e) => { return Future::from_result(Err(e)) },
+        }
+
         let key_res = self.network_key();
 
         match key_res {
@@ -681,7 +499,7 @@ pub trait Networkable<S, A, NP, K, V>
 
         let value = value_res.unwrap();
 
-        network.update_cb(params, session, address, nodes, &key, &value, cb)
+        network.update(params, session, address, nodes, &key, &value)
     }
     
     fn network_upsert<Par, Net>(&self,
@@ -689,12 +507,46 @@ pub trait Networkable<S, A, NP, K, V>
                                 params: &Par,
                                 session: &Session<S>,
                                 address: &A,
-                                nodes: &Vec<Node<A, NP>>,
-                                cb: &Fn(&mut Net, &Par, &Session<S>, &A, &Vec<Node<A, NP>>, &K, &V) -> Future<()>)
+                                nodes: &Vec<Node<A, NP>>)
         -> Future<()>
         where   Par: Datable,
                 Net: Network<S, A, NP, K, V>
     {
+        match params.check() {
+            Ok(_) => {},
+            Err(e) => { return Future::from_result(Err(e)) },
+        }
+
+        match session.check() {
+            Ok(_) => {},
+            Err(e) => { return Future::from_result(Err(e)) },
+        }
+
+        match session.is_expired() {
+            Ok(expired) => {
+                if expired {
+                    return Future::from_result(Err(String::from("expired session")));
+                }
+            },
+            Err(e) => {
+                return Future::from_result(Err(e));
+            }
+        }
+
+        if session.permission < Permission::Write {
+            return Future::from_result(Err(String::from("invalid permission")));
+        }
+
+        match address.check() {
+            Ok(_) => {},
+            Err(e) => { return Future::from_result(Err(e)) },
+        }
+
+        match nodes.check() {
+            Ok(_) => {},
+            Err(e) => { return Future::from_result(Err(e)) },
+        }
+
         let key_res = self.network_key();
 
         match key_res {
@@ -713,7 +565,7 @@ pub trait Networkable<S, A, NP, K, V>
 
         let value = value_res.unwrap();
         
-        network.upsert_cb(params, session, address, nodes, &key, &value, cb)
+        network.upsert(params, session, address, nodes, &key, &value)
     }
     
     fn network_delete<Par, Net>(&self,
@@ -721,12 +573,46 @@ pub trait Networkable<S, A, NP, K, V>
                                 params: &Par,
                                 session: &Session<S>,
                                 address: &A,
-                                nodes: &Vec<Node<A, NP>>,
-                                cb: &Fn(&mut Net, &Par, &Session<S>, &A, &Vec<Node<A, NP>>, &K) -> Future<()>)
+                                nodes: &Vec<Node<A, NP>>)
         -> Future<()>
         where   Par: Datable,
                 Net: Network<S, A, NP, K, V>
     {
+        match params.check() {
+            Ok(_) => {},
+            Err(e) => { return Future::from_result(Err(e)) },
+        }
+
+        match session.check() {
+            Ok(_) => {},
+            Err(e) => { return Future::from_result(Err(e)) },
+        }
+
+        match session.is_expired() {
+            Ok(expired) => {
+                if expired {
+                    return Future::from_result(Err(String::from("expired session")));
+                }
+            },
+            Err(e) => {
+                return Future::from_result(Err(e));
+            }
+        }
+
+        if session.permission < Permission::Write {
+            return Future::from_result(Err(String::from("invalid permission")));
+        }
+
+        match address.check() {
+            Ok(_) => {},
+            Err(e) => { return Future::from_result(Err(e)) },
+        }
+
+        match nodes.check() {
+            Ok(_) => {},
+            Err(e) => { return Future::from_result(Err(e)) },
+        }
+        
         let key_res = self.network_key();
 
         match key_res {
@@ -736,20 +622,50 @@ pub trait Networkable<S, A, NP, K, V>
 
         let key = key_res.unwrap();
         
-        network.delete_cb(params, session, address, nodes, &key, cb)
+        network.delete(params, session, address, nodes, &key)
     }
 
     fn network_custom<Par, R, Net>(network: &mut Net,
                                    params: &Par,
                                    session: &Session<S>,
                                    address: &A,
-                                   nodes: &Vec<Node<A, NP>>,
-                                   cb: &Fn(&mut Net, &Par, &Session<S>, &A, &Vec<Node<A, NP>>) -> Future<R>)
+                                   nodes: &Vec<Node<A, NP>>)
         -> Future<R>
         where   Par: Datable,
                 R: Datable,
                 Net: Network<S, A, NP, K, V>
     {
-        network.custom_cb(params, session, address, nodes, cb)
+        match params.check() {
+            Ok(_) => {},
+            Err(e) => { return Future::from_result(Err(e)) },
+        }
+
+        match session.check() {
+            Ok(_) => {},
+            Err(e) => { return Future::from_result(Err(e)) },
+        }
+
+        match session.is_expired() {
+            Ok(expired) => {
+                if expired {
+                    return Future::from_result(Err(String::from("expired session")));
+                }
+            },
+            Err(e) => {
+                return Future::from_result(Err(e));
+            }
+        }
+
+        match address.check() {
+            Ok(_) => {},
+            Err(e) => { return Future::from_result(Err(e)) },
+        }
+
+        match nodes.check() {
+            Ok(_) => {},
+            Err(e) => { return Future::from_result(Err(e)) },
+        }
+        
+        network.custom(params, session, address, nodes)
     }
 }
