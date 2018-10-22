@@ -21,7 +21,7 @@ pub enum Stage {
 }
 
 impl Stage {
-    /// Parses a `Stage` from a string.
+    /// Parses a `Stage` from a `&str`.
     pub fn parse(s: &str) -> Result<Stage> {
         match s {
             "development" => Ok(Stage::Development),

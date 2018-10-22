@@ -24,20 +24,6 @@ use io::Permission;
 use io::Session;
 use io::Node;
 
-pub enum Method {
-    Ping,
-    Session,
-    Count,
-    List,
-    Lookup,
-    Get,
-    Create,
-    Update,
-    Upgrade,
-    Delete,
-    Custom,
-}
-
 pub enum Resource {
     None,
     Node,
