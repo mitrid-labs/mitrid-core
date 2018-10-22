@@ -16,6 +16,8 @@ use base::Serializable;
 pub enum Resource {
     /// No resource.
     None,
+    /// Session resource.
+    Session,
     /// Node resource.
     Node,
     /// Coin resource.
@@ -41,6 +43,7 @@ impl Resource {
     pub fn parse(s: &str) -> Result<Resource> {
         match s {
             "none" => Ok(Resource::None),
+            "session" => Ok(Resource::Session),
             "node" => Ok(Resource::Node),
             "coin" => Ok(Resource::Coin),
             "input" => Ok(Resource::Input),
@@ -59,6 +62,7 @@ impl fmt::Display for Resource {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
             Resource::None => write!(f, "none"),
+            Resource::Session => write!(f, "session"),
             Resource::Node => write!(f, "node"),
             Resource::Coin => write!(f, "coin"),
             Resource::Input => write!(f, "input"),

@@ -22,7 +22,7 @@ serde_cbor = "^0.9"
 hex = "^0.3"
 regex = "^1"
 bitflags = "^1"
+rand = "0.3.22"
 
 [dev-dependencies]
-rand = "0.3.22"
 sodiumoxide = "^0.1"

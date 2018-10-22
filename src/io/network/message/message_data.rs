@@ -16,13 +16,15 @@ use models::transaction::Transaction;
 use models::blocknode::BlockNode;
 use models::block::Block;
 use models::blockgraph::BlockGraph;
+use io::Session;
 use io::Node;
 
 /// Type representing the data of a network message.
 #[derive(Clone, Eq, PartialEq, Ord, PartialOrd, Debug, Hash, Serialize, Deserialize)]
 #[allow(unused_attributes)]
-pub enum MessageData<Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C>
-    where   Ad: Datable + VariableSize,
+pub enum MessageData<S, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C>
+    where   S: Datable,
+            Ad: Datable + VariableSize,
             NP: Datable,
             D: Datable + ConstantSize,
             Pk: Datable + ConstantSize,
@@ -39,6 +41,8 @@ pub enum MessageData<Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C>
     /// No data.
     #[repr(u8)]
     None,
+    /// Session.
+    Session(Session<S>),
     /// Node data.
     Node(Node<Ad, NP>),
     /// Nodes data
@@ -77,8 +81,9 @@ pub enum MessageData<Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C>
     Error(String),
 }
 
-impl<Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C> MessageData<Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C>
-    where   Ad: Datable + VariableSize,
+impl<S, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C>
+    MessageData<S, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C>
+    where   S: Datable, Ad: Datable + VariableSize,
             NP: Datable,
             D: Datable + ConstantSize,
             Pk: Datable + ConstantSize,
@@ -222,9 +227,10 @@ impl<Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C> MessageData<Ad, NP, D, 
     }
 }
 
-impl<Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C> Default
-    for MessageData<Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C>
-    where   Ad: Datable + VariableSize,
+impl<S, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C> Default
+    for MessageData<S, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C>
+    where   S: Datable,
+            Ad: Datable + VariableSize,
             NP: Datable,
             D: Datable + ConstantSize,
             Pk: Datable + ConstantSize,
@@ -243,9 +249,10 @@ impl<Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C> Default
     }
 }
 
-impl<Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C> Sizable
-    for MessageData<Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C>
-    where   Ad: Datable + VariableSize,
+impl<S, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C> Sizable
+    for MessageData<S, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C>
+    where   S: Datable,
+            Ad: Datable + VariableSize,
             NP: Datable,
             D: Datable + ConstantSize,
             Pk: Datable + ConstantSize,
@@ -263,6 +270,7 @@ impl<Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C> Sizable
         match self {
             &MessageData::None => 1,
             &MessageData::Node(ref node) => node.size(),
+            &MessageData::Session(ref session) => session.size(),
             &MessageData::Nodes(ref nodes) => nodes.size(),
             &MessageData::Coin(ref coin) => coin.size(),
             &MessageData::Coins(ref coins) => coins.size(),
@@ -284,9 +292,10 @@ impl<Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C> Sizable
     }
 }
 
-impl<Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C> Checkable
-    for MessageData<Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C>
-    where   Ad: Datable + VariableSize,
+impl<S, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C> Checkable
+    for MessageData<S, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C>
+    where   S: Datable,
+            Ad: Datable + VariableSize,
             NP: Datable,
             D: Datable + ConstantSize,
             Pk: Datable + ConstantSize,
@@ -303,6 +312,7 @@ impl<Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C> Checkable
     fn check(&self) -> Result<()> {
         match self {
             &MessageData::None => Ok(()),
+            &MessageData::Session(ref session) => session.check(),
             &MessageData::Node(ref node) => node.check(),
             &MessageData::Nodes(ref nodes) => nodes.check(),
             &MessageData::Coin(ref coin) => coin.check(),
@@ -325,9 +335,10 @@ impl<Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C> Checkable
     }
 }
 
-impl<Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C> Serializable
-    for MessageData<Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C>
-    where   Ad: Datable + VariableSize + Serializable,
+impl<S, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C> Serializable
+    for MessageData<S, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C>
+    where   S: Datable + Serializable,
+            Ad: Datable + VariableSize + Serializable,
             NP: Datable + Serializable,
             D: Datable + ConstantSize + Serializable,
             Pk: Datable + ConstantSize + Serializable,
@@ -342,9 +353,10 @@ impl<Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C> Serializable
             C: Datable + Serializable
 {}
 
-impl<Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C> Datable
-    for MessageData<Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C>
-    where   Ad: Datable + VariableSize,
+impl<S, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C> Datable
+    for MessageData<S, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C>
+    where   S: Datable,
+            Ad: Datable + VariableSize,
             NP: Datable,
             D: Datable + ConstantSize,
             Pk: Datable + ConstantSize,

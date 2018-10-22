@@ -14,6 +14,7 @@ extern crate hex;
 extern crate regex;
 #[macro_use]
 extern crate bitflags;
+extern crate rand;
 
 /// Traits and types used across the library.
 pub mod base;

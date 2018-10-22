@@ -13,3 +13,8 @@ pub mod message_data;
 
 /// Type used to represent a network message.
 pub mod message;
+
+pub use self::method::Method;
+pub use self::resource::Resource;
+pub use self::message_data::MessageData;
+pub use self::message::Message;

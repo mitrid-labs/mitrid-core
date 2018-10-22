@@ -24,25 +24,6 @@ use io::Permission;
 use io::Session;
 use io::Node;
 
-pub struct Message<M, R, D, S, A, NP, P>
-    where   M: Datable,
-            R: Datable,
-            D: Datable + ConstantSize,
-            S: Datable,
-            A: Datable + VariableSize,
-            NP: Datable,
-            P: Datable
-{
-    method: PhantomData<T>,
-    resource: PhantomData<R>,
-    pub id: D,
-    pub meta: Meta,
-    pub nonce: u64,
-    pub session: Session<S>,
-    pub node: Node<A, NP>,
-    pub data: MessageData,
-}
-
 pub trait Client<S, A, NP, K, V>
     where   S: Datable + Serializable,
             A: Datable + VariableSize + Serializable,
