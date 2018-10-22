@@ -24,34 +24,6 @@ use io::Permission;
 use io::Session;
 use io::Node;
 
-pub enum MessageData<Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C>
-    where   Ad: Datable + VariableSize,
-            NP: Datable,
-            D: Datable + ConstantSize,
-            Pk: Datable + ConstantSize,
-            Sig: Datable + ConstantSize,
-            Pr: Datable,
-            Am: Numerical,
-            IP: Datable,
-            OP: Datable,
-            TP: Datable,
-            BP: Datable,
-            BGP: Datable,
-            C: Datable
-{
-    None,
-    Node(Node<Ad, NP>),
-    Coin(Coin<D, Am>),
-    Input(Input<D, Am, IP, Pk, Sig>),
-    Output(Output<D, Pk, Am, OP>),
-    Transaction(Transaction<D, Am, IP, Pk, Sig, OP, TP>),
-    BlockNode(BlockNode<D>),
-    Block(Block<D, Am, IP, Pk, Sig, OP, TP, BP, Pr>),
-    BlockGraph(BlockGraph<D, BGP>),
-    Custom(C),
-    Error(String),
-}
-
 pub struct Message<M, R, D, S, A, NP, P>
     where   M: Datable,
             R: Datable,
