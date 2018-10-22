@@ -42,7 +42,7 @@ impl<D, Pk, A, P> Output<D, Pk, A, P>
             P: Datable
 {
     /// Creates a new `Output`.
-    pub fn new() -> Output<D, Pk, A, P> {
+    pub fn new() -> Self {
         let mut output = Output::default();
         output.update_size();
         output
@@ -56,7 +56,7 @@ impl<D, Pk, A, P> Output<D, Pk, A, P>
     }
 
     /// Sets the `Output`'s metadata.
-    pub fn meta(mut self, meta: &Meta) -> Result<Output<D, Pk, A, P>> {
+    pub fn meta(mut self, meta: &Meta) -> Result<Self> {
         meta.check()?;
         self.meta = meta.clone();
 
@@ -66,7 +66,7 @@ impl<D, Pk, A, P> Output<D, Pk, A, P>
     }
 
     /// Sets the `Output`'s sender.
-    pub fn sender(mut self, sender: &Pk) -> Result<Output<D, Pk, A, P>> {
+    pub fn sender(mut self, sender: &Pk) -> Result<Self> {
         sender.check()?;
         self.sender = sender.clone();
 
@@ -76,7 +76,7 @@ impl<D, Pk, A, P> Output<D, Pk, A, P>
     }
 
     /// Sets the `Output`'s receiver.
-    pub fn receiver(mut self, receiver: &Pk) -> Result<Output<D, Pk, A, P>> {
+    pub fn receiver(mut self, receiver: &Pk) -> Result<Self> {
         receiver.check()?;
         self.receiver = receiver.clone();
 
@@ -86,7 +86,7 @@ impl<D, Pk, A, P> Output<D, Pk, A, P>
     }
 
     /// Sets the `Output`'s amount.
-    pub fn amount(mut self, amount: &A) -> Result<Output<D, Pk, A, P>> {
+    pub fn amount(mut self, amount: &A) -> Result<Self> {
         amount.check()?;
         self.amount = amount.clone();
 
@@ -96,7 +96,7 @@ impl<D, Pk, A, P> Output<D, Pk, A, P>
     }
 
     /// Sets the `Output`'s custom payload.
-    pub fn payload(mut self, payload: &P) -> Result<Output<D, Pk, A, P>> {
+    pub fn payload(mut self, payload: &P) -> Result<Self> {
         payload.check()?;
 
         self.payload = payload.clone();
@@ -107,8 +107,7 @@ impl<D, Pk, A, P> Output<D, Pk, A, P>
     }
 
     /// Finalizes the `Output`, building its id and returning it's complete form.
-    pub fn finalize<HP: Datable>(mut self, params: &HP, cb: &Fn(&Self, &HP) -> Result<D>)
-        -> Result<Output<D, Pk, A, P>>
+    pub fn finalize<HP: Datable>(mut self, params: &HP, cb: &Fn(&Self, &HP) -> Result<D>) -> Result<Self>
     {
         params.check()?;
 
@@ -122,8 +121,7 @@ impl<D, Pk, A, P> Output<D, Pk, A, P>
     }
 
     /// Hashes cryptographically the `Output`.
-    pub fn digest<HP: Datable>(&self, params: &HP, cb: &Fn(&Self, &HP) -> Result<D>)
-        -> Result<D>
+    pub fn digest<HP: Datable>(&self, params: &HP, cb: &Fn(&Self, &HP) -> Result<D>) -> Result<D>
     {
         params.check()?;
 

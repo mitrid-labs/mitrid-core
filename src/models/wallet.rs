@@ -43,7 +43,7 @@ impl<D, Sk, Pk, Sig, P> Wallet<D, Sk, Pk, Sig, P>
             P: Datable
 {
     /// Creates a new `Wallet`.
-    pub fn new() -> Wallet<D, Sk, Pk, Sig, P> {
+    pub fn new() -> Self {
         let mut wallet = Wallet::default();
         wallet.update_size();
         wallet
@@ -57,7 +57,7 @@ impl<D, Sk, Pk, Sig, P> Wallet<D, Sk, Pk, Sig, P>
     }
 
     /// Sets the `Wallet`'s metadata.
-    pub fn meta(mut self, meta: &Meta) -> Result<Wallet<D, Sk, Pk, Sig, P>> {
+    pub fn meta(mut self, meta: &Meta) -> Result<Self> {
         meta.check()?;
         self.meta = meta.clone();
 
@@ -67,7 +67,7 @@ impl<D, Sk, Pk, Sig, P> Wallet<D, Sk, Pk, Sig, P>
     }
 
     /// Sets the `Wallet`'s custom payload.
-    pub fn payload(mut self, payload: &P) -> Result<Wallet<D, Sk, Pk, Sig, P>> {
+    pub fn payload(mut self, payload: &P) -> Result<Self> {
         payload.check()?;
 
         self.payload = payload.clone();
@@ -83,7 +83,7 @@ impl<D, Sk, Pk, Sig, P> Wallet<D, Sk, Pk, Sig, P>
                     sk: &Sk,
                     pk: &Pk,
                     cb: &Fn(&Self, &SP, &Sk) -> Result<Sig>)
-        -> Result<Wallet<D, Sk, Pk, Sig, P>>
+        -> Result<Self>
         where   SP: Datable
     {
         params.check()?;
@@ -153,8 +153,7 @@ impl<D, Sk, Pk, Sig, P> Wallet<D, Sk, Pk, Sig, P>
     }
 
     /// Finalizes the `Wallet`, building its id and returning it's complete form.
-    pub fn finalize<HP: Datable>(mut self, params: &HP, cb: &Fn(&Self, &HP) -> Result<D>)
-        -> Result<Wallet<D, Sk, Pk, Sig, P>>
+    pub fn finalize<HP: Datable>(mut self, params: &HP, cb: &Fn(&Self, &HP) -> Result<D>) -> Result<Self>
     {
         params.check()?;
 
@@ -168,8 +167,7 @@ impl<D, Sk, Pk, Sig, P> Wallet<D, Sk, Pk, Sig, P>
     }
 
     /// Hashes cryptographically the `Wallet`.
-    pub fn digest<HP: Datable>(&self, params: &HP, cb: &Fn(&Self, &HP) -> Result<D>)
-        -> Result<D>
+    pub fn digest<HP: Datable>(&self, params: &HP, cb: &Fn(&Self, &HP) -> Result<D>) -> Result<D>
     {
         params.check()?;
 

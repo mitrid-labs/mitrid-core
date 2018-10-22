@@ -45,7 +45,7 @@ impl<D, P> BlockGraph<D, P>
             P: Datable
 {
     /// Creates a new `BlockGraph`.
-    pub fn new() -> BlockGraph<D, P> {
+    pub fn new() -> Self {
         let mut bg = BlockGraph::default();
         bg.update_size();
         bg
@@ -59,7 +59,7 @@ impl<D, P> BlockGraph<D, P>
     }
 
     /// Sets the `BlockGraph`'s metadata.
-    pub fn meta(mut self, meta: &Meta) -> Result<BlockGraph<D, P>> {
+    pub fn meta(mut self, meta: &Meta) -> Result<Self> {
         meta.check()?;
         self.meta = meta.clone();
 
@@ -69,8 +69,7 @@ impl<D, P> BlockGraph<D, P>
     }
 
     /// Sets the `BlockGraph`s frontier and its height and lenght.
-    pub fn frontier(mut self, tip_idx: Option<u64>, frontier: &Vec<BlockNode<D>>)
-        -> Result<BlockGraph<D, P>>
+    pub fn frontier(mut self, tip_idx: Option<u64>, frontier: &Vec<BlockNode<D>>) -> Result<Self>
     {
         frontier.check()?;
 
@@ -99,7 +98,7 @@ impl<D, P> BlockGraph<D, P>
     }
 
     /// Sets the `BlockGraph`'s custom payload.
-    pub fn payload(mut self, payload: &P) -> Result<BlockGraph<D, P>> {
+    pub fn payload(mut self, payload: &P) -> Result<Self> {
         payload.check()?;
 
         self.payload = payload.clone();
@@ -110,8 +109,7 @@ impl<D, P> BlockGraph<D, P>
     }
 
     /// Finalizes the `BlockGraph`, building its id and returning it's complete form.
-    pub fn finalize<HP: Datable>(mut self, params: &HP, cb: &Fn(&Self, &HP) -> Result<D>)
-        -> Result<BlockGraph<D, P>>
+    pub fn finalize<HP: Datable>(mut self, params: &HP, cb: &Fn(&Self, &HP) -> Result<D>) -> Result<Self>
     {
         params.check()?;
 
@@ -125,8 +123,7 @@ impl<D, P> BlockGraph<D, P>
     }
 
     /// Hashes cryptographically the `BlockGraph`.
-    pub fn digest<HP: Datable>(&self, params: &HP, cb: &Fn(&Self, &HP) -> Result<D>)
-        -> Result<D>
+    pub fn digest<HP: Datable>(&self, params: &HP, cb: &Fn(&Self, &HP) -> Result<D>) -> Result<D>
     {
         params.check()?;
 

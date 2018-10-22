@@ -62,7 +62,7 @@ impl<D, A, IP, Pk, Sig, OP, TP, P, Pr> Block<D, A, IP, Pk, Sig, OP, TP, P, Pr>
             Pr: Datable
 {
     /// Creates a new `Block`.
-    pub fn new() -> Block<D, A, IP, Pk, Sig, OP, TP, P, Pr> {
+    pub fn new() -> Self {
         let mut block = Block::default();
         block.update_size();
         block
@@ -76,7 +76,7 @@ impl<D, A, IP, Pk, Sig, OP, TP, P, Pr> Block<D, A, IP, Pk, Sig, OP, TP, P, Pr>
     }
 
     /// Sets the `Block`'s metadata.
-    pub fn meta(mut self, meta: &Meta) -> Result<Block<D, A, IP, Pk, Sig, OP, TP, P, Pr>> {
+    pub fn meta(mut self, meta: &Meta) -> Result<Self> {
         meta.check()?;
         self.meta = meta.clone();
 
@@ -86,8 +86,7 @@ impl<D, A, IP, Pk, Sig, OP, TP, P, Pr> Block<D, A, IP, Pk, Sig, OP, TP, P, Pr>
     }
 
     /// Sets the `Block`s set of previous blocks and its lenght.
-    pub fn prev_blocks(mut self, prev_blocks: &Vec<BlockNode<D>>)
-        -> Result<Block<D, A, IP, Pk, Sig, OP, TP, P, Pr>>
+    pub fn prev_blocks(mut self, prev_blocks: &Vec<BlockNode<D>>) -> Result<Self>
     {
         prev_blocks.check()?;
 
@@ -109,8 +108,7 @@ impl<D, A, IP, Pk, Sig, OP, TP, P, Pr> Block<D, A, IP, Pk, Sig, OP, TP, P, Pr>
     }
 
     /// Sets the `Block`s set of transactions and its lenght.
-    pub fn transactions(mut self, transactions: &Vec<Transaction<D, A, IP, Pk, Sig, OP, TP>>)
-        -> Result<Block<D, A, IP, Pk, Sig, OP, TP, P, Pr>>
+    pub fn transactions(mut self, transactions: &Vec<Transaction<D, A, IP, Pk, Sig, OP, TP>>) -> Result<Self>
     {
         transactions.check()?;
 
@@ -123,7 +121,7 @@ impl<D, A, IP, Pk, Sig, OP, TP, P, Pr> Block<D, A, IP, Pk, Sig, OP, TP, P, Pr>
     }
 
     /// Sets the `Block`'s custom payload.
-    pub fn payload(mut self, payload: &P) -> Result<Block<D, A, IP, Pk, Sig, OP, TP, P, Pr>> {
+    pub fn payload(mut self, payload: &P) -> Result<Self> {
         payload.check()?;
 
         self.payload = payload.clone();
@@ -134,8 +132,7 @@ impl<D, A, IP, Pk, Sig, OP, TP, P, Pr> Block<D, A, IP, Pk, Sig, OP, TP, P, Pr>
     }
 
     /// Proves cryptographically the `Block`.
-    pub fn prove<PrP: Datable>(mut self, params: &PrP, cb: &Fn(&Self, &PrP) -> Result<Pr>)
-        -> Result<Block<D, A, IP, Pk, Sig, OP, TP, P, Pr>>
+    pub fn prove<PrP: Datable>(mut self, params: &PrP, cb: &Fn(&Self, &PrP) -> Result<Pr>) -> Result<Self>
     {
         params.check()?;
 

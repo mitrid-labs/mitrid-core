@@ -36,7 +36,7 @@ impl<D, A> Coin<D, A>
             A: Numerical
 {
     /// Creates a new `Coin`.
-    pub fn new() -> Coin<D, A> {
+    pub fn new() -> Self {
         let mut coin = Coin::default();
         coin.update_size();
         coin
@@ -50,7 +50,7 @@ impl<D, A> Coin<D, A>
     }
 
     /// Sets the `Coin`'s metadata.
-    pub fn meta(mut self, meta: &Meta) -> Result<Coin<D, A>> {
+    pub fn meta(mut self, meta: &Meta) -> Result<Self> {
         meta.check()?;
         self.meta = meta.clone();
 
@@ -60,8 +60,7 @@ impl<D, A> Coin<D, A>
     }
 
     /// Sets the `Coin`'s output data (tx_id, out_idx, out_amount).
-    pub fn output_data(mut self, tx_id: &D, out_idx: u64, out_amount: &A)
-        -> Result<Coin<D, A>>
+    pub fn output_data(mut self, tx_id: &D, out_idx: u64, out_amount: &A) -> Result<Self>
     {
         tx_id.check()?;
         tx_id.check_size()?;
@@ -77,8 +76,7 @@ impl<D, A> Coin<D, A>
     }
 
     /// Finalizes the `Coin`, building its id and returning it's complete form.
-    pub fn finalize<HP: Datable>(mut self, params: &HP, cb: &Fn(&Self, &HP) -> Result<D>)
-        -> Result<Coin<D, A>>
+    pub fn finalize<HP: Datable>(mut self, params: &HP, cb: &Fn(&Self, &HP) -> Result<D>) -> Result<Self>
     {
         params.check()?;
 
@@ -92,8 +90,7 @@ impl<D, A> Coin<D, A>
     }
 
     /// Hashes cryptographically the `Coin`.
-    pub fn digest<HP: Datable>(&self, params: &HP, cb: &Fn(&Self, &HP) -> Result<D>)
-        -> Result<D>
+    pub fn digest<HP: Datable>(&self, params: &HP, cb: &Fn(&Self, &HP) -> Result<D>) -> Result<D>
     {
         params.check()?;
 

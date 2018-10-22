@@ -46,7 +46,7 @@ impl<D, A, P, Pk, Sig> Input<D, A, P, Pk, Sig>
             Sig: Datable + ConstantSize
 {
     /// Creates a new `Input`.
-    pub fn new() -> Input<D, A, P, Pk, Sig> {
+    pub fn new() -> Self {
         let mut input = Input::default();
         input.update_size();
         input
@@ -60,7 +60,7 @@ impl<D, A, P, Pk, Sig> Input<D, A, P, Pk, Sig>
     }
 
     /// Sets the `Input`'s metadata.
-    pub fn meta(mut self, meta: &Meta) -> Result<Input<D, A, P, Pk, Sig>> {
+    pub fn meta(mut self, meta: &Meta) -> Result<Self> {
         meta.check()?;
         self.meta = meta.clone();
 
@@ -70,7 +70,7 @@ impl<D, A, P, Pk, Sig> Input<D, A, P, Pk, Sig>
     }
 
     /// Sets the `Input`s coin.
-    pub fn coin(mut self, coin: &Coin<D, A>,) -> Result<Input<D, A, P, Pk, Sig>> {
+    pub fn coin(mut self, coin: &Coin<D, A>,) -> Result<Self> {
         coin.check()?;
 
         self.coin = coin.clone();
@@ -81,7 +81,7 @@ impl<D, A, P, Pk, Sig> Input<D, A, P, Pk, Sig>
     }
 
     /// Sets the `Input`'s custom payload.
-    pub fn payload(mut self, payload: &P) -> Result<Input<D, A, P, Pk, Sig>> {
+    pub fn payload(mut self, payload: &P) -> Result<Self> {
         payload.check()?;
 
         self.payload = payload.clone();
@@ -97,7 +97,7 @@ impl<D, A, P, Pk, Sig> Input<D, A, P, Pk, Sig>
                         sk: &Sk,
                         pk: &Pk,
                         cb: &Fn(&Self, &SP, &Sk) -> Result<Sig>)
-        -> Result<Input<D, A, P, Pk, Sig>>
+        -> Result<Self>
         where   SP: Datable,
                 Sk: Datable + ConstantSize
     {
@@ -164,7 +164,7 @@ impl<D, A, P, Pk, Sig> Input<D, A, P, Pk, Sig>
 
     /// Finalizes the `Input`, building its id and returning it's complete form.
     pub fn finalize<HP: Datable>(mut self, params: &HP, cb: &Fn(&Self, &HP) -> Result<D>)
-        -> Result<Input<D, A, P, Pk, Sig>>
+        -> Result<Self>
     {
         params.check()?;
 
@@ -178,8 +178,7 @@ impl<D, A, P, Pk, Sig> Input<D, A, P, Pk, Sig>
     }
 
     /// Hashes cryptographically the `Input`.
-    pub fn digest<HP: Datable>(&self, params: &HP, cb: &Fn(&Self, &HP) -> Result<D>)
-        -> Result<D>
+    pub fn digest<HP: Datable>(&self, params: &HP, cb: &Fn(&Self, &HP) -> Result<D>) -> Result<D>
     {
         params.check()?;
 

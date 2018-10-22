@@ -52,7 +52,7 @@ impl<D, A, IP, Pk, Sig, OP, P> Transaction<D, A, IP, Pk, Sig, OP, P>
             P: Datable
 {
     /// Creates a new `Transaction`.
-    pub fn new() -> Transaction<D, A, IP, Pk, Sig, OP, P> {
+    pub fn new() -> Self {
         let mut tx = Transaction::default();
         tx.update_size();
         tx
@@ -66,7 +66,7 @@ impl<D, A, IP, Pk, Sig, OP, P> Transaction<D, A, IP, Pk, Sig, OP, P>
     }
 
     /// Sets the `Transaction`'s metadata.
-    pub fn meta(mut self, meta: &Meta) -> Result<Transaction<D, A, IP, Pk, Sig, OP, P>> {
+    pub fn meta(mut self, meta: &Meta) -> Result<Self> {
         meta.check()?;
         self.meta = meta.clone();
 
@@ -76,8 +76,7 @@ impl<D, A, IP, Pk, Sig, OP, P> Transaction<D, A, IP, Pk, Sig, OP, P>
     }
 
     /// Sets the `Transaction`s set of inputs and its lenght.
-    pub fn inputs(mut self, inputs: &Vec<Input<D, A, IP, Pk, Sig>>,)
-        -> Result<Transaction<D, A, IP, Pk, Sig, OP, P>>
+    pub fn inputs(mut self, inputs: &Vec<Input<D, A, IP, Pk, Sig>>,) -> Result<Self>
     {
         inputs.check()?;
 
@@ -90,8 +89,7 @@ impl<D, A, IP, Pk, Sig, OP, P> Transaction<D, A, IP, Pk, Sig, OP, P>
     }
 
     /// Sets the `Transaction`s set of outputs and its lenght.
-    pub fn outputs(mut self, outputs: &Vec<Output<D, Pk, A, OP>>,)
-        -> Result<Transaction<D, A, IP, Pk, Sig, OP, P>>
+    pub fn outputs(mut self, outputs: &Vec<Output<D, Pk, A, OP>>,) -> Result<Self>
     {
         outputs.check()?;
 
@@ -104,7 +102,7 @@ impl<D, A, IP, Pk, Sig, OP, P> Transaction<D, A, IP, Pk, Sig, OP, P>
     }
 
     /// Sets the `Transaction`'s custom payload.
-    pub fn payload(mut self, payload: &P) -> Result<Transaction<D, A, IP, Pk, Sig, OP, P>> {
+    pub fn payload(mut self, payload: &P) -> Result<Self> {
         payload.check()?;
 
         self.payload = payload.clone();
@@ -115,8 +113,7 @@ impl<D, A, IP, Pk, Sig, OP, P> Transaction<D, A, IP, Pk, Sig, OP, P>
     }
 
     /// Finalizes the `Transaction`, building its id and returning it's complete form.
-    pub fn finalize<HP: Datable>(mut self, params: &HP, cb: &Fn(&Self, &HP) -> Result<D>)
-        -> Result<Transaction<D, A, IP, Pk, Sig, OP, P>>
+    pub fn finalize<HP: Datable>(mut self, params: &HP, cb: &Fn(&Self, &HP) -> Result<D>) -> Result<Self>
     {
         params.check()?;
 
@@ -130,8 +127,7 @@ impl<D, A, IP, Pk, Sig, OP, P> Transaction<D, A, IP, Pk, Sig, OP, P>
     }
 
     /// Hashes cryptographically the `Transaction`.
-    pub fn digest<HP: Datable>(&self, params: &HP, cb: &Fn(&Self, &HP) -> Result<D>)
-        -> Result<D>
+    pub fn digest<HP: Datable>(&self, params: &HP, cb: &Fn(&Self, &HP) -> Result<D>) -> Result<D>
     {
         params.check()?;
 

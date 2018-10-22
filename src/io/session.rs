@@ -29,7 +29,7 @@ impl<P> Session<P>
     where   P: Datable
 {
     /// Creates a new `Session` from its components.
-    pub fn new(id: u64, permission: &Permission, expire_at: &Timestamp, payload: &P) -> Result<Session<P>> {
+    pub fn new(id: u64, permission: &Permission, expire_at: &Timestamp, payload: &P) -> Result<Self> {
         permission.check()?;
         payload.check()?;
         

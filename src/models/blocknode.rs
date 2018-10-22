@@ -31,7 +31,7 @@ impl<D> BlockNode<D>
     where   D: Datable + ConstantSize
 {
     /// Creates a new `BlockNode`.
-    pub fn new() -> BlockNode<D> {
+    pub fn new() -> Self {
         let mut bn = BlockNode::default();
         bn.update_size();
         bn
@@ -45,7 +45,7 @@ impl<D> BlockNode<D>
     }
 
     /// Sets the `BlockNode`'s metadata.
-    pub fn meta(mut self, meta: &Meta) -> Result<BlockNode<D>> {
+    pub fn meta(mut self, meta: &Meta) -> Result<Self> {
         meta.check()?;
         self.meta = meta.clone();
 
@@ -55,8 +55,7 @@ impl<D> BlockNode<D>
     }
 
     /// Sets the `BlockNode`'s block data (block_id, block_height).
-    pub fn block_data(mut self, block_id: &D, block_height: u64)
-        -> Result<BlockNode<D>>
+    pub fn block_data(mut self, block_id: &D, block_height: u64) -> Result<Self>
     {
         block_id.check()?;
         block_id.check_size()?;
@@ -70,8 +69,7 @@ impl<D> BlockNode<D>
     }
 
     /// Finalizes the `BlockNode`, building its id and returning it's complete form.
-    pub fn finalize<HP: Datable>(mut self, params: &HP, cb: &Fn(&Self, &HP) -> Result<D>)
-        -> Result<BlockNode<D>>
+    pub fn finalize<HP: Datable>(mut self, params: &HP, cb: &Fn(&Self, &HP) -> Result<D>) -> Result<Self>
     {
         params.check()?;
 
