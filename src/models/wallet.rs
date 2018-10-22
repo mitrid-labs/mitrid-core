@@ -6,11 +6,10 @@ use base::Result;
 use base::Checkable;
 use base::Datable;
 use base::Serializable;
-use base::{Sizable, ConstantSize, VariableSize};
+use base::{Sizable, ConstantSize};
 use base::Evaluable;
 use crypto::{Hashable, Signable, Committable, Authenticatable};
 use io::Storable;
-use io::Networkable;
 use models::Meta;
 
 /// Type used to represent a wallet (account) in the distributed ledger.
@@ -435,29 +434,6 @@ impl<S, D, Sk, Pk, Sig, P> Storable<S, D, Wallet<D, Sk, Pk, Sig, P>> for Wallet<
     }
 
     fn store_value(&self) -> Result<Wallet<D, Sk, Pk, Sig, P>> {
-        self.check()?;
-
-        Ok(self.clone())
-    }
-}
-
-impl<S, Ad, NP, D, Sk, Pk, Sig, P> Networkable<S, Ad, NP, D, Wallet<D, Sk, Pk, Sig, P>> for Wallet<D, Sk, Pk, Sig, P>
-    where   S: Datable + Serializable,
-            Ad: Datable + VariableSize + Serializable,
-            NP: Datable + Serializable,
-            D: Datable + ConstantSize + Serializable,
-            Sk: Datable + ConstantSize + Serializable,
-            Pk: Datable + ConstantSize + Serializable,
-            Sig: Datable + ConstantSize + Serializable,
-            P: Datable + Serializable
-{
-    fn network_key(&self) -> Result<D> {
-        self.id.check()?;
-
-        Ok(self.id.clone())
-    }
-
-    fn network_value(&self) -> Result<Wallet<D, Sk, Pk, Sig, P>> {
         self.check()?;
 
         Ok(self.clone())

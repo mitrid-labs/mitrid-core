@@ -1,4 +1,4 @@
-use mitrid_core::io::Node as BasicNode;
+use mitrid_core::io::network::Node as BasicNode;
 
 use fixtures::base::Payload;
 use fixtures::io::Address;

@@ -8,12 +8,11 @@ use base::Result;
 use base::Checkable;
 use base::Datable;
 use base::Serializable;
-use base::{Sizable, ConstantSize, VariableSize};
+use base::{Sizable, ConstantSize};
 use base::Numerical;
 use base::Evaluable;
 use crypto::{Hashable, Provable, Committable, Authenticatable};
 use io::Storable;
-use io::Networkable;
 use models::Meta;
 use models::Transaction;
 use models::BlockNode;
@@ -518,34 +517,6 @@ impl<S, D, A, IP, Pk, Sig, OP, TP, P, Pr> Storable<S, D, Block<D, A, IP, Pk, Sig
     }
 
     fn store_value(&self) -> Result<Block<D, A, IP, Pk, Sig, OP, TP, P, Pr>> {
-        self.check()?;
-
-        Ok(self.clone())
-    }
-}
-
-impl<S, Ad, NP, D, A, IP, Pk, Sig, OP, TP, P, Pr> Networkable<S, Ad, NP, D, Block<D, A, IP, Pk, Sig, OP, TP, P, Pr>>
-    for Block<D, A, IP, Pk, Sig, OP, TP, P, Pr>
-    where   S: Datable + Serializable,
-            Ad: Datable + VariableSize + Serializable,
-            NP: Datable + Serializable,
-            D: Datable + ConstantSize + Serializable,
-            A: Numerical + Serializable,
-            IP: Datable + Serializable,
-            Pk: Datable + ConstantSize + Serializable,
-            Sig: Datable + ConstantSize + Serializable,
-            OP: Datable + Serializable,
-            TP: Datable + Serializable,
-            P: Datable + Serializable,
-            Pr: Datable + Serializable
-{
-    fn network_key(&self) -> Result<D> {
-        self.id.check()?;
-
-        Ok(self.id.clone())
-    }
-
-    fn network_value(&self) -> Result<Block<D, A, IP, Pk, Sig, OP, TP, P, Pr>> {
         self.check()?;
 
         Ok(self.clone())

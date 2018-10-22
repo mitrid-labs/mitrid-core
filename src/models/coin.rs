@@ -7,11 +7,10 @@ use base::Result;
 use base::Checkable;
 use base::Datable;
 use base::Serializable;
-use base::{Sizable, ConstantSize, VariableSize};
+use base::{Sizable, ConstantSize};
 use base::Numerical;
 use crypto::{Hashable, Committable, Authenticatable};
 use io::Storable;
-use io::Networkable;
 use models::Meta;
 
 /// Type used to represent a past `Output`.
@@ -299,26 +298,6 @@ impl<S, D, A> Storable<S, D, Coin<D, A>> for Coin<D, A>
     }
 
     fn store_value(&self) -> Result<Coin<D, A>> {
-        self.check()?;
-
-        Ok(self.clone())
-    }
-}
-
-impl<S, Ad, NP, D, A> Networkable<S, Ad, NP, D, Coin<D, A>> for Coin<D, A>
-    where   S: Datable + Serializable,
-            Ad: Datable + VariableSize + Serializable,
-            NP: Datable + Serializable,
-            D: Datable + ConstantSize + Serializable,
-            A: Numerical + Serializable
-{
-    fn network_key(&self) -> Result<D> {
-        self.id.check()?;
-
-        Ok(self.id.clone())
-    }
-
-    fn network_value(&self) -> Result<Coin<D, A>> {
         self.check()?;
 
         Ok(self.clone())

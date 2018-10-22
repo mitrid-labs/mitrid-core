@@ -3,17 +3,123 @@
 //! `network` is the module providing the traits implemented by networking facilities and
 //! types that can be sent and retrieved through a network.
 
+use std::marker::PhantomData;
+
 use base::Result;
 use base::Future;
-use base::VariableSize;
+use base::Numerical;
+use base::{ConstantSize, VariableSize};
 use base::Checkable;
 use base::Datable;
 use base::Serializable;
+use models::meta::Meta;
+use models::coin::Coin;
+use models::input::Input;
+use models::output::Output;
+use models::transaction::Transaction;
+use models::blocknode::BlockNode;
+use models::block::Block;
+use models::blockgraph::BlockGraph;
 use io::Permission;
 use io::Session;
 use io::Node;
 
-pub trait Network<S, A, NP, K, V>
+/// Trait implemented by network transports.
+pub trait Transport<A, D>
+    where   A: Datable + VariableSize,
+            D: Datable + Serializable
+{
+    /// Opens a connection to a network address.
+    fn connect<P: Datable>(&mut self, params: &P, address: &A) -> Future<()>;
+
+    /// Closes a connection to a network address.
+    fn disconnect<P: Datable>(&mut self, params: &P, address: &A) -> Future<()>;
+
+    /// Listen to connections incoming from a network address.
+    fn listen<P: Datable>(&mut self, params: &P, address: &A) -> Future<()>;
+
+    /// Sends data through a network connection.
+    fn send<P: Datable>(&mut self, params: &P, data: &D) -> Future<()>;
+
+    /// Receives data from a network connection.
+    fn recv<P: Datable>(&mut self, params: &P) -> Future<D>;
+}
+
+pub enum Method {
+    Ping,
+    Session,
+    Count,
+    List,
+    Lookup,
+    Get,
+    Create,
+    Update,
+    Upgrade,
+    Delete,
+    Custom,
+}
+
+pub enum Resource {
+    None,
+    Node,
+    Coin,
+    Input,
+    Output,
+    Transaction,
+    BlockNode,
+    Block,
+    BlockGraph,
+    Custom,
+}
+
+pub enum MessageData<Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C>
+    where   Ad: Datable + VariableSize,
+            NP: Datable,
+            D: Datable + ConstantSize,
+            Pk: Datable + ConstantSize,
+            Sig: Datable + ConstantSize,
+            Pr: Datable,
+            Am: Numerical,
+            IP: Datable,
+            OP: Datable,
+            TP: Datable,
+            BP: Datable,
+            BGP: Datable,
+            C: Datable
+{
+    None,
+    Node(Node<Ad, NP>),
+    Coin(Coin<D, Am>),
+    Input(Input<D, Am, IP, Pk, Sig>),
+    Output(Output<D, Pk, Am, OP>),
+    Transaction(Transaction<D, Am, IP, Pk, Sig, OP, TP>),
+    BlockNode(BlockNode<D>),
+    Block(Block<D, Am, IP, Pk, Sig, OP, TP, BP, Pr>),
+    BlockGraph(BlockGraph<D, BGP>),
+    Custom(C),
+    Error(String),
+}
+
+pub struct Message<M, R, D, S, A, NP, P>
+    where   M: Datable,
+            R: Datable,
+            D: Datable + ConstantSize,
+            S: Datable,
+            A: Datable + VariableSize,
+            NP: Datable,
+            P: Datable
+{
+    method: PhantomData<T>,
+    resource: PhantomData<R>,
+    pub id: D,
+    pub meta: Meta,
+    pub nonce: u64,
+    pub session: Session<S>,
+    pub node: Node<A, NP>,
+    pub data: MessageData,
+}
+
+pub trait Client<S, A, NP, K, V>
     where   S: Datable + Serializable,
             A: Datable + VariableSize + Serializable,
             NP: Datable + Serializable,
@@ -22,24 +128,16 @@ pub trait Network<S, A, NP, K, V>
 {
     /// Requests a new `Session` from the called network nodes.
     /// The request is sent to one or more nodes in the network. An empty list if from any node.
-    fn session_req<P: Datable>(&mut self,
+    fn session<P: Datable>(&mut self,
                                params: &P,
                                address: &A,
                                nodes: &Vec<Node<A, NP>>,
                                permission: &Permission)
-        -> Future<Session<S>>;
-    
-    /// Returns a new `Session` to the calling network node.
-    fn session_res<P: Datable>(&mut self,
-                               params: &P,
-                               address: &A,
-                               result: &Option<Session<S>>,
-                               error: &Option<String>)
-        -> Future<()>;
+        -> Future<Message<Session<S>>>;
 
     /// Requests the count of the items starting from the `from` key until, not included, the `to` key.
     /// The request is sent to one or more nodes in the network. An empty list if from any node.
-    fn count_req<P: Datable>(&mut self,
+    fn count<P: Datable>(&mut self,
                              params: &P,
                              session: &Session<S>,
                              address: &A,
@@ -59,7 +157,7 @@ pub trait Network<S, A, NP, K, V>
     
     /// Requests the list of the items starting from the `from` key until, not included, the `to` key.
     /// The request is sent to one or more nodes in the network. An empty list if from any node.
-    fn list_req<P: Datable>(&mut self,
+    fn list<P: Datable>(&mut self,
                             params: &P,
                             session: &Session<S>,
                             address: &A,
@@ -69,18 +167,9 @@ pub trait Network<S, A, NP, K, V>
                             count: &Option<u64>)
         -> Future<Vec<V>>;
     
-    /// Returns a list of items to the calling network node.
-    fn list_res<P: Datable>(&mut self,
-                            params: &P,
-                            session: &Session<S>,
-                            address: &A,
-                            result: &Option<Vec<V>>,
-                            error: &Option<String>)
-        -> Future<()>;
-    
     /// Request the lookup of an item from the called nodes using its key. The request is sent to one
     /// or more nodes in the network. An empty list if from any node.
-    fn lookup_req<P: Datable>(&mut self,
+    fn lookup<P: Datable>(&mut self,
                           params: &P,
                           session: &Session<S>,
                           address: &A,
@@ -88,18 +177,9 @@ pub trait Network<S, A, NP, K, V>
                           key: &K)
         -> Future<bool>;
     
-    /// Returns the lookup of an item to the calling network node.
-    fn lookup_res<P: Datable>(&mut self,
-                              params: &P,
-                              session: &Session<S>,
-                              address: &A,
-                              result: &Option<bool>,
-                              error: &Option<String>)
-        -> Future<()>;
-    
     /// Requests an item from the called nodes using its key. The request is sent to one or more
     /// nodes in the network. An empty list if from any node.
-    fn get_req<P: Datable>(&mut self,
+    fn get<P: Datable>(&mut self,
                            params: &P,
                            session: &Session<S>,
                            address: &A,
@@ -107,19 +187,10 @@ pub trait Network<S, A, NP, K, V>
                            key: &K)
         -> Future<V>;
     
-    /// Returns an item to the calling network node.
-    fn get_res<P: Datable>(&mut self,
-                       params: &P,
-                       session: &Session<S>,
-                       address: &A,
-                       result: &Option<V>,
-                       error: &Option<String>)
-        -> Future<()>;
-    
     /// Requests the creation of an item to the called nodes. The item should not exist in the network stores
     /// before the operation. The request is sent to one or more nodes in the network.
     /// An empty list if from any node.
-    fn create_req<P: Datable>(&mut self,
+    fn create<P: Datable>(&mut self,
                           params: &P,
                           session: &Session<S>,
                           address: &A,
@@ -139,7 +210,7 @@ pub trait Network<S, A, NP, K, V>
     /// Requests the update of an item to the called nodes. The item should already exist
     /// in the network stores before the operation. The request is sent to one or more
     /// nodes in the network. An empty list if from any node.
-    fn update_req<P: Datable>(&mut self,
+    fn update<P: Datable>(&mut self,
                           params: &P,
                           session: &Session<S>,
                           address: &A,
@@ -148,17 +219,9 @@ pub trait Network<S, A, NP, K, V>
                           value: &V)
         -> Future<()>;
     
-    /// Returns the result of the update of an item to the calling network node.
-    fn update_res<P: Datable>(&mut self,
-                              params: &P,
-                              session: &Session<S>,
-                              address: &A,
-                              error: &Option<String>)
-        -> Future<()>;
-    
     /// Requests the creation of an item to the called nodes if absent, update if present.
     /// The request is sent to one or more nodes in the network. An empty list if from any node.
-    fn upsert_req<P: Datable>(&mut self,
+    fn upsert<P: Datable>(&mut self,
                               params: &P,
                               session: &Session<S>,
                               address: &A,
@@ -167,19 +230,10 @@ pub trait Network<S, A, NP, K, V>
                               value: &V)
         -> Future<()>;
     
-    /// Returns the result of the creation of an item to the calling network node if absent,
-    /// update if present.
-    fn upsert_res<P: Datable>(&mut self,
-                              params: &P,
-                              session: &Session<S>,
-                              address: &A,
-                              error: &Option<String>)
-        -> Future<()>;
-    
     /// Requests the deletion of an item to the called network nodes. The item should
     /// already exist in the node store before the operation. The request is sent to one
     /// or more nodes in the network. An empty list if from any node.
-    fn delete_req<P: Datable>(&mut self,
+    fn delete<P: Datable>(&mut self,
                               params: &P,
                               session: &Session<S>,
                               address: &A,
@@ -187,33 +241,17 @@ pub trait Network<S, A, NP, K, V>
                               key: &K)
         -> Future<()>;
     
-    /// Returns the result of the deletion of an item to the calling network node.
-    fn delete_res<P: Datable>(&mut self,
-                              params: &P,
-                              session: &Session<S>,
-                              address: &A,
-                              error: &Option<String>)
-        -> Future<()>;
-    
     /// Requests a custom operation to the called network nodes.
     /// The request is sent to one or more nodes in the network. An empty list if from any node.
-    fn custom_req<P: Datable, R: Datable>(&mut self,
+    fn custom<P: Datable, R: Datable>(&mut self,
                                       params: &P,
                                       session: &Session<S>,
                                       address: &A,
                                       nodes: &Vec<Node<A, NP>>)
         -> Future<R>;
-    
-    /// Returns the result of a custom operation to the calling network node.
-    fn custom_res<P: Datable, R: Datable>(&mut self,
-                                          params: &P,
-                                          session: &Session<S>,
-                                          address: &A,
-                                          result: &Option<R>,
-                                          error: &Option<String>)
-        -> Future<()>;
 }
 
+/*
 pub trait Networkable<S, A, NP, K, V>
     where   S: Datable + Serializable,
             A: Datable + VariableSize + Serializable,
@@ -230,7 +268,7 @@ pub trait Networkable<S, A, NP, K, V>
 
     /// Requests a new `Session` from the called network nodes.
     /// The request is sent to one or more nodes in the network. An empty list if from any node.
-    fn network_session_req<Par, Net>(network: &mut Net,
+    fn network_session<Par, Net>(network: &mut Net,
                                      params: &Par,
                                      address: &A,
                                      nodes: &Vec<Node<A, NP>>,
@@ -259,12 +297,12 @@ pub trait Networkable<S, A, NP, K, V>
             Err(e) => { return Future::from_result(Err(e)) },
         }
 
-        network.session_req(params, address, nodes, permission)
+        network.session(params, address, nodes, permission)
     }
     
     /// Requests the count of the items starting from the `from` key until, not included, the `to` key.
     /// The request is sent to one or more nodes in the network. An empty list if from any node.
-    fn network_count_req<Par, Net>(network: &mut Net,
+    fn network_count<Par, Net>(network: &mut Net,
                                    params: &Par,
                                    session: &Session<S>,
                                    address: &A,
@@ -320,12 +358,12 @@ pub trait Networkable<S, A, NP, K, V>
             Err(e) => { return Future::from_result(Err(e)) },
         }
 
-        network.count_req(params, session, address, nodes, from, to)
+        network.count(params, session, address, nodes, from, to)
     }
     
     /// Requests the list of the items starting from the `from` key until, not included, the `to` key.
     /// The request is sent to one or more nodes in the network. An empty list if from any node.
-    fn network_list_req<Par, Net>(network: &mut Net,
+    fn network_list<Par, Net>(network: &mut Net,
                                   params: &Par,
                                   session: &Session<S>,
                                   address: &A,
@@ -382,12 +420,12 @@ pub trait Networkable<S, A, NP, K, V>
             Err(e) => { return Future::from_result(Err(e)) },
         }
 
-        network.list_req(params, session, address, nodes, from, to, count)
+        network.list(params, session, address, nodes, from, to, count)
     }
     
     /// Request the lookup of an item from the called nodes using its key. The request is sent to one
     /// or more nodes in the network. An empty list if from any node.
-    fn network_lookup_req<Par, Net>(network: &mut Net,
+    fn network_lookup<Par, Net>(network: &mut Net,
                                     params: &Par,
                                     session: &Session<S>,
                                     address: &A,
@@ -437,12 +475,12 @@ pub trait Networkable<S, A, NP, K, V>
             Err(e) => { return Future::from_result(Err(e)) },
         }
    
-        network.lookup_req(params, session, address, nodes, key)
+        network.lookup(params, session, address, nodes, key)
     }
     
     /// Requests an item from the called nodes using its key. The request is sent to one or more
     /// nodes in the network. An empty list if from any node.
-    fn network_get_req<Par, Net>(network: &mut Net,
+    fn network_get<Par, Net>(network: &mut Net,
                                  params: &Par,
                                  session: &Session<S>,
                                  address: &A,
@@ -493,13 +531,13 @@ pub trait Networkable<S, A, NP, K, V>
             Err(e) => { return Future::from_result(Err(e)) },
         }
 
-        network.get_req(params, session, address, nodes, key)
+        network.get(params, session, address, nodes, key)
     }
     
     /// Requests the creation of an item to the called nodes. The item should not exist in the network stores
     /// before the operation. The request is sent to one or more nodes in the network.
     /// An empty list if from any node.
-    fn network_create_req<Par, Net>(&self,
+    fn network_create<Par, Net>(&self,
                                     network: &mut Net,
                                     params: &Par,
                                     session: &Session<S>,
@@ -562,13 +600,13 @@ pub trait Networkable<S, A, NP, K, V>
 
         let value = value_res.unwrap();
 
-        network.create_req(params, session, address, nodes, &key, &value)
+        network.create(params, session, address, nodes, &key, &value)
     }
     
     /// Requests the update of an item to the called nodes. The item should already exist
     /// in the network stores before the operation. The request is sent to one or more
     /// nodes in the network. An empty list if from any node.
-    fn network_update_req<Par, Net>(&self,
+    fn network_update<Par, Net>(&self,
                                     network: &mut Net,
                                     params: &Par,
                                     session: &Session<S>,
@@ -631,12 +669,12 @@ pub trait Networkable<S, A, NP, K, V>
 
         let value = value_res.unwrap();
 
-        network.update_req(params, session, address, nodes, &key, &value)
+        network.update(params, session, address, nodes, &key, &value)
     }
     
     /// Requests the creation of an item to the called nodes if absent, update if present.
     /// The request is sent to one or more nodes in the network. An empty list if from any node.
-    fn network_upsert_req<Par, Net>(&self,
+    fn network_upsert<Par, Net>(&self,
                                     network: &mut Net,
                                     params: &Par,
                                     session: &Session<S>,
@@ -699,13 +737,13 @@ pub trait Networkable<S, A, NP, K, V>
 
         let value = value_res.unwrap();
         
-        network.upsert_req(params, session, address, nodes, &key, &value)
+        network.upsert(params, session, address, nodes, &key, &value)
     }
     
     /// Requests the deletion of an item to the called network nodes. The item should
     /// already exist in the node store before the operation. The request is sent to one
     /// or more nodes in the network. An empty list if from any node.
-    fn network_delete_req<Par, Net>(&self,
+    fn network_delete<Par, Net>(&self,
                                     network: &mut Net,
                                     params: &Par,
                                     session: &Session<S>,
@@ -759,12 +797,12 @@ pub trait Networkable<S, A, NP, K, V>
 
         let key = key_res.unwrap();
         
-        network.delete_req(params, session, address, nodes, &key)
+        network.delete(params, session, address, nodes, &key)
     }
 
     /// Requests a custom operation to the called network nodes.
     /// The request is sent to one or more nodes in the network. An empty list if from any node.
-    fn network_custom_req<Par, R, Net>(network: &mut Net,
+    fn network_custom<Par, R, Net>(network: &mut Net,
                                        params: &Par,
                                        session: &Session<S>,
                                        address: &A,
@@ -805,6 +843,7 @@ pub trait Networkable<S, A, NP, K, V>
             Err(e) => { return Future::from_result(Err(e)) },
         }
         
-        network.custom_req(params, session, address, nodes)
+        network.custom(params, session, address, nodes)
     }
 }
+*/
