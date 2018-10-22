@@ -24,19 +24,6 @@ use io::Permission;
 use io::Session;
 use io::Node;
 
-pub enum Resource {
-    None,
-    Node,
-    Coin,
-    Input,
-    Output,
-    Transaction,
-    BlockNode,
-    Block,
-    BlockGraph,
-    Custom,
-}
-
 pub enum MessageData<Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C>
     where   Ad: Datable + VariableSize,
             NP: Datable,
