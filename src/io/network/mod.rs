@@ -12,4 +12,4 @@ pub mod router;
 pub mod server;
 
 pub use self::node::Node;
-pub use self::message::Message;
+pub use self::message::*;

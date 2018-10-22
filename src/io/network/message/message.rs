@@ -4,8 +4,6 @@
 
 use rand::random;
 
-use std::marker::PhantomData;
-
 use base::Result;
 use base::Numerical;
 use base::{Sizable, ConstantSize, VariableSize};
@@ -17,15 +15,14 @@ use models::meta::Meta;
 use io::Session;
 use io::Storable;
 use io::Node;
-use io::message::MessageData;
+use io::Method;
+use io::Resource;
 
 /// Type used to represent a network message.
 #[derive(Clone, Eq, PartialEq, Ord, PartialOrd, Debug, Default, Hash, Serialize, Deserialize)]
-pub struct Message<M, R, S, MDS, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C>
-    where   M: Datable,
-            R: Datable,
-            S: Datable,
-            MDS: Datable,
+pub struct Message<S, RS, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C>
+    where   S: Datable,
+            RS: Datable,
             Ad: Datable + VariableSize,
             NP: Datable,
             D: Datable + ConstantSize,
@@ -40,10 +37,6 @@ pub struct Message<M, R, S, MDS, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP
             BGP: Datable,
             C: Datable
 {
-    /// Message method.
-    method: PhantomData<M>,
-    /// Message resource.
-    resource: PhantomData<R>,
     /// Message id (hash digest)
     pub id: D,
     /// Message metadata.
@@ -58,16 +51,16 @@ pub struct Message<M, R, S, MDS, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP
     pub receivers_len: u64,
     /// Message receiving nodes.
     pub receivers: Vec<Node<Ad, NP>>,
-    /// Message data.
-    pub data: MessageData<MDS, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C>,
+    /// Message method.
+    pub method: Method,
+    /// Message resource.
+    pub resource: Resource<RS, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C>,
 }
 
-impl<M, R, S, MDS, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, MC>
-    Message<M, R, S, MDS, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, MC>
-    where   M: Datable,
-            R: Datable,
-            S: Datable,
-            MDS: Datable,
+impl<S, RS, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, MC>
+    Message<S, RS, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, MC>
+    where   S: Datable,
+            RS: Datable,
             Ad: Datable + VariableSize,
             NP: Datable,
             D: Datable + ConstantSize,
@@ -86,8 +79,6 @@ impl<M, R, S, MDS, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, MC>
     pub fn new() -> Result<Self> {
 
         let mut msg = Message::default();
-
-        // TODO: check resource against method [ping <-> none; session <-> session, !ping /\ !session <-> !none]
         
         msg.nonce = random();
         msg.update_size();
@@ -112,22 +103,23 @@ impl<M, R, S, MDS, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, MC>
         Ok(self)
     }
 
-    /// Sets the `Message`s session.
+    /// Sets the `Message` session.
     pub fn session(mut self, session: &Session<S>) -> Result<Self> {
         session.check()?;
 
         self.session = session.clone();
-
-        // TODO: check session expiration time
-
-        // TODO: check session given method
 
         self.update_size();
 
         Ok(self)
     }
 
-    /// Sets the `Message`s set of receivers and its lenght.
+    /// Returns if the `Message` is expired.
+    pub fn is_expired(&self) -> Result<bool> {
+        self.session.is_expired()
+    }
+
+    /// Sets the `Message` set of receivers and its lenght.
     pub fn receivers(mut self, recvs: &Vec<Node<Ad, NP>>,) -> Result<Self>
     {
         recvs.check()?;
@@ -140,17 +132,20 @@ impl<M, R, S, MDS, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, MC>
         Ok(self)
     }
 
-    /// Sets the `Message`s data.
-    pub fn data(mut self, data: &MessageData<MDS, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, MC>) -> Result<Self> {
-        data.check()?;
+    /// Sets the `Message` method.
+    pub fn method(mut self, method: &Method) -> Result<Self> {
+        method.check()?;
 
-        self.data = data.clone();
+        self.method = method.to_owned();
 
-        // TODO: check data against resource
+        Ok(self)
+    }
 
-        // TODO: check data against method
+    /// Sets the `Message` resource.
+    pub fn resource(mut self, resource: &Resource<RS, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, MC>) -> Result<Self> {
+        resource.check()?;
 
-        self.update_size();
+        self.resource = resource.to_owned();
 
         Ok(self)
     }
@@ -299,13 +294,11 @@ impl<M, R, S, MDS, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, MC>
     }
 }
 
-impl<P, M, R, S, MDS, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C> Hashable<P, D>
-    for Message<M, R, S, MDS, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C>
+impl<P, S, RS, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C> Hashable<P, D>
+    for Message<S, RS, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C>
     where   P: Datable,
-            M: Datable,
-            R: Datable,
             S: Datable,
-            MDS: Datable,
+            RS: Datable,
             Ad: Datable + VariableSize,
             NP: Datable,
             D: Datable + ConstantSize,
@@ -321,14 +314,12 @@ impl<P, M, R, S, MDS, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C> Hashab
             C: Datable
 {}
 
-impl<CP, C, M, R, S, MDS, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, MC> Committable<CP, C>
-    for Message<M, R, S, MDS, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, MC>
+impl<CP, C, S, RS, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, MC> Committable<CP, C>
+    for Message<S, RS, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, MC>
     where   CP: Datable,
             C: Datable + ConstantSize,
-            M: Datable,
-            R: Datable,
             S: Datable,
-            MDS: Datable,
+            RS: Datable,
             Ad: Datable + VariableSize,
             NP: Datable,
             D: Datable + ConstantSize,
@@ -344,14 +335,12 @@ impl<CP, C, M, R, S, MDS, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, MC> C
             MC: Datable
 {}
 
-impl<AP, T, M, R, S, MDS, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C> Authenticatable<AP, T>
-    for Message<M, R, S, MDS, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C>
+impl<AP, T, S, RS, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C> Authenticatable<AP, T>
+    for Message<S, RS, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C>
     where   AP: Datable,
             T: Datable + ConstantSize,
-            M: Datable,
-            R: Datable,
             S: Datable,
-            MDS: Datable,
+            RS: Datable,
             Ad: Datable + VariableSize,
             NP: Datable,
             D: Datable + ConstantSize,
@@ -367,12 +356,10 @@ impl<AP, T, M, R, S, MDS, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C> Au
             C: Datable
 {}
 
-impl<M, R, S, MDS, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C> Sizable
-    for Message<M, R, S, MDS, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C>
-    where   M: Datable,
-            R: Datable,
-            S: Datable,
-            MDS: Datable,
+impl<S, RS, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C> Sizable
+    for Message<S, RS, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C>
+    where   S: Datable,
+            RS: Datable,
             Ad: Datable + VariableSize,
             NP: Datable,
             D: Datable + ConstantSize,
@@ -395,16 +382,14 @@ impl<M, R, S, MDS, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C> Sizable
             self.sender.size() +
             self.receivers_len.size() +
             self.receivers.size() +
-            self.data.size()
+            self.resource.size()
     }
 }
 
-impl<M, R, S, MDS, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C> Checkable
-    for Message<M, R, S, MDS, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C>
-    where   M: Datable,
-            R: Datable,
-            S: Datable,
-            MDS: Datable,
+impl<S, RS, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C> Checkable
+    for Message<S, RS, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C>
+    where   S: Datable,
+            RS: Datable,
             Ad: Datable + VariableSize,
             NP: Datable,
             D: Datable + ConstantSize,
@@ -423,8 +408,6 @@ impl<M, R, S, MDS, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C> Checkable
         self.id.check()?;
         self.id.check_size()?;
         self.meta.check()?;
-
-        // TODO: check resource against method [ping <-> none; session <-> session, !ping /\ !session <-> !none]
         
         if self.meta.get_size() != self.size() {
             return Err(String::from("invalid meta size"));
@@ -432,10 +415,6 @@ impl<M, R, S, MDS, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C> Checkable
 
         self.nonce.check()?;
         self.session.check()?;
-
-        // TODO: check session expiration time
-
-        // TODO: check session given method
 
         self.sender.check()?;
         self.receivers_len.check()?;
@@ -445,22 +424,20 @@ impl<M, R, S, MDS, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C> Checkable
             return Err(String::from("invalid length"));
         }
 
-        self.data.check()?;
+        self.method.check()?;
+        self.method.check_permission(&self.session.permission)?;
 
-        // TODO: check data against resource
-
-        // TODO: check data against method
+        self.resource.check()?;
+        self.resource.check_method(&self.method)?;
 
         Ok(())
     }
 }
 
-impl<M, R, S, MDS, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C> Serializable
-    for Message<M, R, S, MDS, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C>
-    where   M: Datable + Serializable,
-            R: Datable + Serializable,
-            S: Datable + Serializable,
-            MDS: Datable + Serializable,
+impl<S, RS, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C> Serializable
+    for Message<S, RS, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C>
+    where   S: Datable + Serializable,
+            RS: Datable + Serializable,
             Ad: Datable + VariableSize + Serializable,
             NP: Datable + Serializable,
             D: Datable + ConstantSize + Serializable,
@@ -476,12 +453,10 @@ impl<M, R, S, MDS, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C> Serializa
             C: Datable + Serializable
 {}
 
-impl<M, R, S, MDS, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C> Datable
-    for Message<M, R, S, MDS, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C>
-    where   M: Datable,
-            R: Datable,
-            S: Datable,
-            MDS: Datable,
+impl<S, RS, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C> Datable
+    for Message<S, RS, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C>
+    where   S: Datable,
+            RS: Datable,
             Ad: Datable + VariableSize,
             NP: Datable,
             D: Datable + ConstantSize,
@@ -497,14 +472,12 @@ impl<M, R, S, MDS, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C> Datable
             C: Datable
 {}
 
-impl<S, M, R, MS, MDS, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C>
-    Storable<S, D, Message<M, R, MS, MDS, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C>>
-    for Message<M, R, MS, MDS, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C>
+impl<S, MS, RS, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C>
+    Storable<S, D, Message<MS, RS, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C>>
+    for Message<MS, RS, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C>
     where   S: Datable + Serializable,
-            M: Datable + Serializable,
-            R: Datable + Serializable,
             MS: Datable + Serializable,
-            MDS: Datable + Serializable,
+            RS: Datable + Serializable,
             Ad: Datable + VariableSize + Serializable,
             NP: Datable + Serializable,
             D: Datable + ConstantSize + Serializable,

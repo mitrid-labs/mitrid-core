@@ -9,6 +9,7 @@ use base::Checkable;
 use base::Sizable;
 use base::Datable;
 use base::Serializable;
+use io::Permission;
 
 /// Type that represent a network action method.
 #[derive(Copy, Clone, PartialEq, Eq, PartialOrd, Ord, Debug, Hash, Serialize, Deserialize)]
@@ -55,6 +56,25 @@ impl Method {
             "custom" => Ok(Method::Custom),
             _ => Err("unknown method".into())
         }
+    }
+
+    /// Checks a `Permission` against the `Method`.
+    pub fn check_permission(&self, permission: &Permission) -> Result<()> {
+        if permission >= &Permission::Write {
+            if self < &Method::Create {
+                return Err(String::from("invalid permission"));
+            }
+        } else if permission == &Permission::Read {
+            if self >= &Method::Create {
+                return Err(String::from("invalid permission"));
+            }
+        } else if permission == &Permission::None {
+            if self != &Method::Ping || self != &Method::Custom {
+                return Err(String::from("invalid permission"));
+            }
+        }
+
+        Ok(())
     }
 }
 
