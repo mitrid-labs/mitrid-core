@@ -164,6 +164,13 @@ impl<S, RS, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, MC>
         Ok(self)
     }
 
+    /// Returns if the `Message` is an error message.
+    pub fn is_error(&self) -> Result<bool> {
+        self.check()?;
+
+        self.resource.is_error()
+    }
+
     /// Hashes cryptographically the `Message`.
     pub fn digest<HP: Datable>(&self, params: &HP, cb: &Fn(&Self, &HP) -> Result<D>) -> Result<D>
     {

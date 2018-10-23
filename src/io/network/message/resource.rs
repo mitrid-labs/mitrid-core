@@ -227,6 +227,16 @@ impl<S, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C>
         Resource::Error(error.to_owned())
     }
 
+    /// Returns if the `Resource` is an error resource.
+    pub fn is_error(&self) -> Result<bool> {
+        self.check()?;
+
+        match self {
+            &Resource::Error(_) => Ok(true),
+            _ => Ok(false),
+        }
+    }
+
     /// Checks a `Method` against the `Resource`.
     pub fn check_method(&self, method: &Method) -> Result<()> {
         match *method as u8 {
