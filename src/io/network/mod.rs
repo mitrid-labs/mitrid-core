@@ -14,6 +14,10 @@ pub mod message;
 /// Trait implemented by network clients.
 pub mod client;
 
+/// Trait implemented by network servers.
+pub mod server;
+
 pub use self::node::Node;
 pub use self::message::*;
 pub use self::client::*;
+pub use self::server::*;

@@ -9,6 +9,7 @@ use base::Checkable;
 use base::Serializable;
 use base::Datable;
 use io::store::Storable;
+use io::network::message::Method;
 use io::network::message::Resource;
 use io::network::message::Message;
 
@@ -67,6 +68,16 @@ impl<S, RS, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C>
             },
         }
     }
+
+    /// Returns the `Request` method.
+    pub fn method(&self) -> Method {
+        self.message.method.clone()
+    }
+
+    /// Returns the `Request` resource.
+    pub fn resource(&self) -> Resource<RS, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C> {
+        self.message.resource.clone()
+    }
 }
 
 impl<S, RS, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C> Sizable
@@ -111,7 +122,14 @@ impl<S, RS, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C> Checkable
             C: Datable
 {
     fn check(&self) -> Result<()> {
-        self.message.check()
+        self.message.check()?;
+
+        match self.resource() {
+            Resource::Error(_) => {
+                Err(String::from("invalid resource"))
+            },
+            _ => Ok(()),
+        }
     }
 }
 

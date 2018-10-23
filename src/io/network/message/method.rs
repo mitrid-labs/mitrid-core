@@ -31,8 +31,8 @@ pub enum Method {
     Create,
     /// Update a resource.
     Update,
-    /// Upgrade a resource.
-    Upgrade,
+    /// Upsert a resource.
+    Upsert,
     /// Delete a resource.
     Delete,
     /// Custom action.
@@ -51,7 +51,7 @@ impl Method {
             "get" => Ok(Method::Get),
             "create" => Ok(Method::Create),
             "update" => Ok(Method::Update),
-            "upgrade" => Ok(Method::Upgrade),
+            "upsert" => Ok(Method::Upsert),
             "delete" => Ok(Method::Delete),
             "custom" => Ok(Method::Custom),
             _ => Err("unknown method".into())
@@ -89,7 +89,7 @@ impl fmt::Display for Method {
             Method::Get => write!(f, "get"),
             Method::Create => write!(f, "create"),
             Method::Update => write!(f, "update"),
-            Method::Upgrade => write!(f, "upgrade"),
+            Method::Upsert => write!(f, "upsert"),
             Method::Delete => write!(f, "delete"),
             Method::Custom => write!(f, "custom"),
         }
