@@ -15,7 +15,8 @@ use io::Session;
 pub trait Store<S, K, V>
     where   S: Datable + Serializable,
             K: Datable + Serializable,
-            V: Datable + Serializable
+            V: Datable + Serializable,
+            Self: Clone + Send + Sync
 {
     /// Retrieves a new `Session` from the store.
     fn session<P: Datable>(&mut self, params: &P, permission: &Permission)

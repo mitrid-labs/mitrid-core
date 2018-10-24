@@ -30,7 +30,8 @@ pub trait Router<S, RS, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C>
             TP: Datable,
             BP: Datable,
             BGP: Datable,
-            C: Datable
+            C: Datable,
+            Self: Clone + Send + Sync
 {
     /// Returns the middleware callbacks applied sequentially by the router. Each callback takes as parameters
     /// the results of the preceding one.

@@ -8,7 +8,7 @@ use base::check::Checkable;
 use base::size::Sizable;
 
 /// Trait implemented by generic types that can be used as fields or parameters.
-pub trait Datable : 'static + Sized + Clone + Eq + Debug + Default + Sizable + Checkable {}
+pub trait Datable : 'static + Send + Sync + Sized + Clone + Eq + Debug + Default + Sizable + Checkable {}
 
 impl Datable for () {}
 

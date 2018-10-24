@@ -33,19 +33,23 @@ pub trait Client<T, S, RS, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C>
             TP: Datable + Serializable,
             BP: Datable + Serializable,
             BGP: Datable + Serializable,
-            C: Datable + Serializable
+            C: Datable + Serializable,
+            Self: Clone + Sized + Sync
 {
     /// Builds a list to `Request` messages to send in sequence.
     fn build<P: Datable>(&self, params: &P, addresses: &Vec<Ad>)
         -> Result<Vec<Request<S, RS, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C>>>;
 
     /// Client behaviour when `OnError` is set to Ignore.
-    fn send_ignore_on_error<P: Datable>(&self,
-                                        transport: &mut T,
-                                        send_params: &P,
-                                        requests: &Vec<Request<S, RS, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C>>,
-                                        responses: &mut Vec<Response<S, RS, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C>>)
+    fn send_ignore_on_error<SP, RP>(&self,
+                                    transport: &mut T,
+                                    send_params: &SP,
+                                    recv_params: &RP,
+                                    requests: &Vec<Request<S, RS, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C>>,
+                                    responses: &mut Vec<Response<S, RS, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C>>)
         -> Result<()>
+        where   SP: Datable,
+                RP: Datable
     {
         send_params.check()?;
         requests.check()?;
@@ -54,7 +58,8 @@ pub trait Client<T, S, RS, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C>
 
         for ref req in requests {
             let ser_req = req.to_bytes()?;
-            let ser_ress: Vec<Vec<u8>> = transport.send(send_params, &ser_req).wait()?;
+            transport.send(send_params, &ser_req).wait()?;
+            let (_, ser_ress) = transport.recv(recv_params).wait()?;
 
             for ser_res in ser_ress {
                 let res = Response::from_bytes(&ser_res)?;
@@ -69,12 +74,15 @@ pub trait Client<T, S, RS, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C>
     }
 
     /// Client behaviour when `OnError` is set to Fail.
-    fn send_fail_on_error<P: Datable>(&self,
-                                      transport: &mut T,
-                                      send_params: &P,
-                                      requests: &Vec<Request<S, RS, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C>>,
-                                      responses: &mut Vec<Response<S, RS, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C>>)
+    fn send_fail_on_error<SP, RP>(&self,
+                                  transport: &mut T,
+                                  send_params: &SP,
+                                  recv_params: &RP,
+                                  requests: &Vec<Request<S, RS, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C>>,
+                                  responses: &mut Vec<Response<S, RS, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C>>)
         -> Result<()>
+        where   SP: Datable,
+                RP: Datable
     {
         send_params.check()?;
         requests.check()?;
@@ -83,7 +91,8 @@ pub trait Client<T, S, RS, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C>
 
         for ref req in requests {
             let ser_req = req.to_bytes()?;
-            let ser_ress = transport.send(send_params, &ser_req).wait()?;
+            transport.send(send_params, &ser_req).wait()?;
+            let (_, ser_ress) = transport.recv(recv_params).wait()?;
 
             for ser_res in ser_ress {
                 let res = Response::from_bytes(&ser_res)?;
@@ -101,13 +110,16 @@ pub trait Client<T, S, RS, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C>
     }
 
     /// Client behaviour when `OnError` is set to RetryAndIgnore.
-    fn send_retry_and_ignore<P: Datable>(&self,
-                                         transport: &mut T,
-                                         send_params: &P,
-                                         times: u64,
-                                         requests: &Vec<Request<S, RS, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C>>,
-                                         responses: &mut Vec<Response<S, RS, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C>>)
+    fn send_retry_and_ignore<SP, RP>(&self,
+                                     transport: &mut T,
+                                     send_params: &SP,
+                                     recv_params: &RP,
+                                     times: u64,
+                                     requests: &Vec<Request<S, RS, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C>>,
+                                     responses: &mut Vec<Response<S, RS, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C>>)
         -> Result<()>
+        where   SP: Datable,
+                RP: Datable
     {
         send_params.check()?;
         requests.check()?;
@@ -123,7 +135,8 @@ pub trait Client<T, S, RS, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C>
                 }
 
                 let ser_req = req.to_bytes()?;
-                let ser_ress = transport.send(send_params, &ser_req).wait()?;
+                transport.send(send_params, &ser_req).wait()?;
+                let (_, ser_ress) = transport.recv(recv_params).wait()?;
 
                 for ser_res in ser_ress {
                     let res = Response::from_bytes(&ser_res)?;
@@ -150,13 +163,16 @@ pub trait Client<T, S, RS, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C>
     }
 
     /// Client behaviour when `OnError` is set to RetryAndFail.
-    fn send_retry_and_fail<P: Datable>(&self,
-                                       transport: &mut T,
-                                       send_params: &P,
-                                       times: u64,
-                                       requests: &Vec<Request<S, RS, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C>>,
-                                       responses: &mut Vec<Response<S, RS, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C>>)
+    fn send_retry_and_fail<SP, RP>(&self,
+                                   transport: &mut T,
+                                   send_params: &SP,
+                                   recv_params: &RP,
+                                   times: u64,
+                                   requests: &Vec<Request<S, RS, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C>>,
+                                   responses: &mut Vec<Response<S, RS, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C>>)
         -> Result<()>
+        where   SP: Datable,
+                RP: Datable
     {
         send_params.check()?;
         requests.check()?;
@@ -172,7 +188,8 @@ pub trait Client<T, S, RS, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C>
                 }
 
                 let ser_req = req.to_bytes()?;
-                let ser_ress = transport.send(send_params, &ser_req).wait()?;
+                transport.send(send_params, &ser_req).wait()?;
+                let (_, ser_ress) = transport.recv(recv_params).wait()?;
 
                 for ser_res in ser_ress {
                     let res = Response::from_bytes(&ser_res)?;
@@ -202,18 +219,20 @@ pub trait Client<T, S, RS, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C>
 
     /// Sends a sequence of `Request`s to one or more addresses. `Request`s are build
     /// by some params and the list of addresses.
-    fn send<P, CP, SP, DP>(&self,
-                           params: &P,
-                           addresses: &Vec<Ad>,
-                           transport: &mut T,
-                           connect_params: &CP,
-                           send_params: &SP,
-                           disconnect_params: &DP,
-                           on_error: OnError)
+    fn send<P, CP, SP, RP, DP>(&self,
+                               params: &P,
+                               addresses: &Vec<Ad>,
+                               transport: &mut T,
+                               connect_params: &CP,
+                               send_params: &SP,
+                               recv_params: &RP,
+                               disconnect_params: &DP,
+                               on_error: OnError)
         -> Future<Vec<Response<S, RS, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C>>>
         where   P: Datable,
                 CP: Datable,
                 SP: Datable,
+                RP: Datable,
                 DP: Datable
     {
         match params.check() {
@@ -245,7 +264,7 @@ pub trait Client<T, S, RS, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C>
 
         match on_error {
             OnError::Ignore => {
-                let res = self.send_ignore_on_error(transport, send_params, &requests, &mut responses);
+                let res = self.send_ignore_on_error(transport, send_params, recv_params, &requests, &mut responses);
                 match res {
                     Ok(_) => {},
                     Err(e) => {
@@ -254,7 +273,7 @@ pub trait Client<T, S, RS, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C>
                 }
             },
             OnError::Fail => {
-                let res = self.send_ignore_on_error(transport, send_params, &requests, &mut responses);
+                let res = self.send_fail_on_error(transport, send_params, recv_params, &requests, &mut responses);
                 match res {
                     Ok(_) => {},
                     Err(e) => {
@@ -263,7 +282,7 @@ pub trait Client<T, S, RS, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C>
                 }
             },
             OnError::RetryAndIgnore(times) => {
-                let res = self.send_retry_and_ignore(transport, send_params, times, &requests, &mut responses);
+                let res = self.send_retry_and_ignore(transport, send_params, recv_params, times, &requests, &mut responses);
                 match res {
                     Ok(_) => {},
                     Err(e) => {
@@ -272,7 +291,7 @@ pub trait Client<T, S, RS, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C>
                 }
             },
             OnError::RetryAndFail(times) => {
-                let res = self.send_retry_and_fail(transport, send_params, times, &requests, &mut responses);
+                let res = self.send_retry_and_fail(transport, send_params, recv_params, times, &requests, &mut responses);
                 match res {
                     Ok(_) => {},
                     Err(e) => {
