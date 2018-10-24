@@ -4,7 +4,7 @@
 
 use std::path::Path;
 
-use base::Result;
+use base::Future;
 use base::Serializable;
 use base::Datable;
 
@@ -13,20 +13,20 @@ pub trait Config
     where   Self: Datable + Serializable
 {
     /// Reads a `Config` from a json file.
-    fn read_from_json_file<P: AsRef<Path>>(path: P) -> Result<Self>;
+    fn read_from_json_file<P: AsRef<Path>>(path: P) -> Future<Self>;
 
     /// Writes the `Config` to a json file.
-    fn write_json_file<P: AsRef<Path>>(path: P) -> Result<()>;
+    fn write_json_file<P: AsRef<Path>>(path: P) -> Future<()>;
 
     /// Reads a `Config` from a binary file.
-    fn read_from_binary_file<P: AsRef<Path>>(path: P) -> Result<Self>;
+    fn read_from_binary_file<P: AsRef<Path>>(path: P) -> Future<Self>;
     
     /// Writes the `Config` to a binary file.
-    fn write_binary_file<P: AsRef<Path>>(path: P) -> Result<()>;
+    fn write_binary_file<P: AsRef<Path>>(path: P) -> Future<()>;
 
     /// Reads a `Config` from a hex file.
-    fn read_from_hex_file<P: AsRef<Path>>(path: P) -> Result<Self>;
+    fn read_from_hex_file<P: AsRef<Path>>(path: P) -> Future<Self>;
     
     /// Writes the `Config` to a hex file.
-    fn write_hex_file<P: AsRef<Path>>(path: P) -> Result<()>;
+    fn write_hex_file<P: AsRef<Path>>(path: P) -> Future<()>;
 }
