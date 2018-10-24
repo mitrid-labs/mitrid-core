@@ -1,3 +1,7 @@
+//! # App
+//!
+//! `app` is the module providing the trait implemented by I/O applications.
+
 use base::Result;
 use base::Future;
 use base::data::Datable;
@@ -16,12 +20,20 @@ pub trait App<Ap, C, StaP, StaR, StoP, StoR, RP, RR, EP, ER>
             RR: Datable,
             EP: Datable,
             ER: Datable,
+            Self: 'static + Sized + Send + Sync
 {
     /// Returns the application identifier
     fn app_id(&self) -> Ap;
 
-    /// Configs the application.
-    fn config(&mut self, config: &C) -> Result<()>;
+    /*
+    /// Creates the application channels.
+    fn channels(&self, buffer: u64) -> Channels<Ap, C, StaP, StaR, StoP, StoR, RP, RR, EP, ER> {
+        Channels::new(buffer)
+    }
+    */
+
+    /// Creates the application.
+    fn create(&mut self, config: &C) -> Result<Self>;
 
     /// Starts the application.
     fn start(&mut self, config: &C, req: &Request<Ap, C, StaP, StoP, RP, EP>)
