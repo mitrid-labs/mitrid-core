@@ -9,7 +9,7 @@ use base::Datable;
 /// Trait implemented by network transports.
 pub trait Transport<A>
     where   A: Datable + VariableSize,
-            Self: Clone + Send + Sync
+            Self: 'static + Clone + Send + Sync
 {
     /// Opens one or more connections to one or more network addresses.
     fn connect<P: Datable>(&mut self, params: &P, addresses: &Vec<A>) -> Future<()>;

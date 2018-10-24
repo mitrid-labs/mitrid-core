@@ -21,13 +21,13 @@ use io::network::message::Request;
 
 /// Trait implemented by network servers.
 pub trait Server<St, StS, StK, StV, T, H, R, S, RS, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C>
-    where   St: 'static + Store<StS, StK, StV>,
+    where   St: Store<StS, StK, StV>,
             StS: Datable + Serializable,
             StK: Datable + Serializable,
             StV: Datable + Serializable,
-            T: 'static + Transport<Ad>,
-            H: 'static + Handler<St, StS, StK, StV, S, RS, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C>,
-            R: 'static + Router<S, RS, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C>,
+            T: Transport<Ad>,
+            H: Handler<St, StS, StK, StV, S, RS, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C>,
+            R: Router<S, RS, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C>,
             S: Datable + Serializable,
             RS: Datable + Serializable,
             Ad: Datable + VariableSize + Serializable,
