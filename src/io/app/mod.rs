@@ -5,7 +5,7 @@
 /// Type used to interact with an I/O application.
 pub mod command;
 
-/// Trait implemented by types retrieving the I/O apps configurations.
+/// Trait implemented by types used to configure I/O applications.
 pub mod config;
 
 /// Trait implemented by I/O applications.
