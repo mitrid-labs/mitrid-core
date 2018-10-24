@@ -5,12 +5,11 @@
 use std::path::Path;
 
 use base::Future;
-use base::Serializable;
 use base::Datable;
 
 /// Trait implemented by types used to configure I/O applications.
 pub trait Config
-    where   Self: Datable + Serializable
+    where   Self: Datable
 {
     /// Reads a `Config` from a json file.
     fn read_from_json_file<P: AsRef<Path>>(path: P) -> Future<Self>;

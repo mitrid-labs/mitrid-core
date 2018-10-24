@@ -7,12 +7,14 @@ use base::Sizable;
 use base::Checkable;
 use base::Serializable;
 use base::Datable;
+use io::config::Config;
 
 /// Type used to represent an I/O command request.
 #[derive(Clone, Eq, PartialEq, Ord, PartialOrd, Debug, Hash, Serialize, Deserialize)]
 #[allow(unused_attributes)]
-pub enum Request<Ap, StaP, StoP, RP, EP>
+pub enum Request<Ap, C, StaP, StoP, RP, EP>
     where   Ap: Datable,
+            C: Config,
             StaP: Datable,
             StoP: Datable,
             RP: Datable,
@@ -22,17 +24,18 @@ pub enum Request<Ap, StaP, StoP, RP, EP>
     #[repr(u8)]
     None,
     /// Requests to starts an I/O application.
-    Start { app: Ap, params: StaP },
+    Start { app: Ap, config: C, params: StaP },
     /// Requests to stops an I/O application.
     Stop { app: Ap, params: StoP },
     /// Requests to restart an I/O application.
-    Restart { app: Ap, params: RP },
+    Restart { app: Ap, config: C, params: RP },
     /// Request to exec an operation on an I/O application.
     Exec { app: Ap, params: EP },
 }
 
-impl<Ap, StaP, StoP, RP, EP> Request<Ap, StaP, StoP, RP, EP>
+impl<Ap, C, StaP, StoP, RP, EP> Request<Ap, C, StaP, StoP, RP, EP>
     where   Ap: Datable,
+            C: Config,
             StaP: Datable,
             StoP: Datable,
             RP: Datable,
@@ -44,12 +47,14 @@ impl<Ap, StaP, StoP, RP, EP> Request<Ap, StaP, StoP, RP, EP>
     }
 
     /// Creates a new start `Request`.
-    pub fn new_start(app: &Ap, params: &StaP) -> Result<Self> {
+    pub fn new_start(app: &Ap, config: &C, params: &StaP) -> Result<Self> {
         app.check()?;
+        config.check()?;
         params.check()?;
 
         let req = Request::Start {
             app: app.to_owned(),
+            config: config.to_owned(),
             params: params.to_owned(),
         };
 
@@ -70,12 +75,14 @@ impl<Ap, StaP, StoP, RP, EP> Request<Ap, StaP, StoP, RP, EP>
     }
     
     /// Creates a new restart `Request`.
-    pub fn new_restart(app: &Ap, params: &RP) -> Result<Self> {
+    pub fn new_restart(app: &Ap, config: &C, params: &RP) -> Result<Self> {
         app.check()?;
+        config.check()?;
         params.check()?;
 
         let req = Request::Restart {
             app: app.to_owned(),
+            config: config.to_owned(),
             params: params.to_owned(),
         };
 
@@ -96,8 +103,9 @@ impl<Ap, StaP, StoP, RP, EP> Request<Ap, StaP, StoP, RP, EP>
     }
 }
 
-impl<Ap, StaP, StoP, RP, EP> Default for Request<Ap, StaP, StoP, RP, EP>
+impl<Ap, C, StaP, StoP, RP, EP> Default for Request<Ap, C, StaP, StoP, RP, EP>
     where   Ap: Datable,
+            C: Config,
             StaP: Datable,
             StoP: Datable,
             RP: Datable,
@@ -108,8 +116,9 @@ impl<Ap, StaP, StoP, RP, EP> Default for Request<Ap, StaP, StoP, RP, EP>
     }
 }
 
-impl<Ap, StaP, StoP, RP, EP> Sizable for Request<Ap, StaP, StoP, RP, EP>
+impl<Ap, C, StaP, StoP, RP, EP> Sizable for Request<Ap, C, StaP, StoP, RP, EP>
     where   Ap: Datable,
+            C: Config,
             StaP: Datable,
             StoP: Datable,
             RP: Datable,
@@ -118,14 +127,14 @@ impl<Ap, StaP, StoP, RP, EP> Sizable for Request<Ap, StaP, StoP, RP, EP>
     fn size(&self) -> u64 {
         match self {
             &Request::None => 1,
-            &Request::Start { ref app, ref params } => {
-                app.size() + params.size()
+            &Request::Start { ref app, ref config, ref params } => {
+                app.size() + config.size() + params.size()
             },
             &Request::Stop { ref app, ref params } => {
                 app.size() + params.size()
             },
-            &Request::Restart { ref app, ref params } => {
-                app.size() + params.size()
+            &Request::Restart { ref app, ref config, ref params } => {
+                app.size() + config.size() + params.size()
             },
             &Request::Exec { ref app, ref params } => {
                 app.size() + params.size()
@@ -134,8 +143,9 @@ impl<Ap, StaP, StoP, RP, EP> Sizable for Request<Ap, StaP, StoP, RP, EP>
     }
 }
 
-impl<Ap, StaP, StoP, RP, EP> Checkable for Request<Ap, StaP, StoP, RP, EP>
+impl<Ap, C, StaP, StoP, RP, EP> Checkable for Request<Ap, C, StaP, StoP, RP, EP>
     where   Ap: Datable,
+            C: Config,
             StaP: Datable,
             StoP: Datable,
             RP: Datable,
@@ -144,16 +154,18 @@ impl<Ap, StaP, StoP, RP, EP> Checkable for Request<Ap, StaP, StoP, RP, EP>
     fn check(&self) -> Result<()> {
         match self {
             &Request::None => Ok(()),
-            &Request::Start { ref app, ref params } => {
+            &Request::Start { ref app, ref config, ref params } => {
                 app.check()?;
+                config.check()?;
                 params.check()
             },
             &Request::Stop { ref app, ref params } => {
                 app.check()?;
                 params.check()
             },
-            &Request::Restart { ref app, ref params } => {
+            &Request::Restart { ref app, ref config, ref params } => {
                 app.check()?;
+                config.check()?;
                 params.check()
             },
             &Request::Exec { ref app, ref params } => {
@@ -164,16 +176,18 @@ impl<Ap, StaP, StoP, RP, EP> Checkable for Request<Ap, StaP, StoP, RP, EP>
     }
 }
 
-impl<Ap, StaP, StoP, RP, EP> Serializable for Request<Ap, StaP, StoP, RP, EP>
+impl<Ap, C, StaP, StoP, RP, EP> Serializable for Request<Ap, C, StaP, StoP, RP, EP>
     where   Ap: Datable + Serializable,
+            C: Config + Serializable,
             StaP: Datable + Serializable,
             StoP: Datable + Serializable,
             RP: Datable + Serializable,
             EP: Datable + Serializable,
 {}
 
-impl<Ap, StaP, StoP, RP, EP> Datable for Request<Ap, StaP, StoP, RP, EP>
+impl<Ap, C, StaP, StoP, RP, EP> Datable for Request<Ap, C, StaP, StoP, RP, EP>
     where   Ap: Datable,
+            C: Config,
             StaP: Datable,
             StoP: Datable,
             RP: Datable,
