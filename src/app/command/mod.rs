@@ -1,6 +1,6 @@
 //! # Command
 //!
-//! `command` is the module providing the types used to interact with I/O applications.
+//! `command` is the module providing the types used to interact with Mitrid applications.
 
 /// Type used to represent a command request.
 pub mod request;

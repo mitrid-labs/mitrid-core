@@ -31,3 +31,9 @@ pub mod models;
 
 /// Traits and types used to implement I/O operations.
 pub mod io;
+
+/// Types and traits used to create and manage the framework applications.
+pub mod app;
+
+// /// Types and traits used to manage and interact with the framework applications from the command line.
+// pub mod cli;

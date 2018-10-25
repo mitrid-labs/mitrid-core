@@ -1,15 +1,15 @@
 //! # App
 //!
-//! `app` is the module providing the trait implemented by I/O applications.
+//! `app` is the module providing the trait implemented by Mitrid applications.
 
 use base::Result;
 use base::Future;
 use base::data::Datable;
-use io::app::{Request, Response};
-use io::app::{RequestSender, ResponseSender};
-use io::app::Logger;
+use app::{Request, Response};
+use app::{RequestSender, ResponseSender};
+use app::Logger;
 
-/// Trait implemented by I/O application types.
+/// Trait implemented by Mitrid application types.
 pub trait App<Ap, StaP, StaR, StoP, StoR, RP, RR, EP, ER>
     where   Ap: Datable,
             StaP: Datable,

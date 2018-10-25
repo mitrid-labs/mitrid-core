@@ -1,6 +1,6 @@
 //! # Config
 //!
-//! `config` is the module providing the type used to configure the I/O applications.
+//! `config` is the module providing the type used to configure the Mitrid applications.
 
 use futures::Future as BasicFuture;
 use tokio_fs::{File, OpenOptions};
@@ -16,7 +16,7 @@ use base::Datable;
 use utils::Version;
 use utils::Stage;
 
-/// Type used to configure I/O applications.
+/// Type used to configure Mitrid applications.
 #[derive(Clone, PartialEq, Eq, PartialOrd, Ord, Debug, Default, Hash, Serialize, Deserialize)]
 pub struct Config<D, MnP, A, StP, SvP, ClP, CP>
     where   D: Datable + ConstantSize,

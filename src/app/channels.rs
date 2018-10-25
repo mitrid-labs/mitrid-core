@@ -1,17 +1,17 @@
 //! # Channels
 //!
-//! `channels` is the module providing the types used to communicate with the I/O applications.
+//! `channels` is the module providing the types used to communicate with applications.
 
 use futures::unsync::mpsc::{Sender, Receiver, channel};
 
 use base::Datable;
-use io::app::Request;
-use io::app::Response;
+use app::Request;
+use app::Response;
 
 pub type RequestSender<Ap, StaP, StoP, RP, EP> = Sender<Request<Ap, StaP, StoP, RP, EP>>;
 pub type RequestReceiver<Ap, StaP, StoP, RP, EP> = Receiver<Request<Ap, StaP, StoP, RP, EP>>;
 
-/// Type used to represent an I/O application `Request` channels.
+/// Type used to represent an application `Request` channels.
 #[derive(Debug)]
 pub struct RequestChannel<Ap, StaP, StoP, RP, EP>
     where   Ap: Datable,
@@ -47,7 +47,7 @@ impl<Ap, StaP, StoP, RP, EP> RequestChannel<Ap, StaP, StoP, RP, EP>
 pub type ResponseSender<Ap, StaR, StoR, RR, ER> = Sender<Response<Ap, StaR, StoR, RR, ER>>;
 pub type ResponseReceiver<Ap, StaR, StoR, RR, ER> = Receiver<Response<Ap, StaR, StoR, RR, ER>>;
 
-/// Type used to represent an I/O application `Response` channel.
+/// Type used to represent an application `Response` channel.
 #[derive(Debug)]
 pub struct ResponseChannel<Ap, StaR, StoR, RR, ER>
     where   Ap: Datable,
@@ -80,7 +80,7 @@ impl<Ap, StaR, StoR, RR, ER> ResponseChannel<Ap, StaR, StoR, RR, ER>
     }
 }
 
-/// Type used to represent an I/O application `Request` and `Response` channels.
+/// Type used to represent an application `Request` and `Response` channels.
 #[derive(Debug)]
 pub struct Channels<Ap, StaP, StaR, StoP, StoR, RP, RR, EP, ER>
     where   Ap: Datable,

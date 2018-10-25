@@ -14,14 +14,7 @@ pub mod store;
 /// Traits implemented by networking facilities and types that can use them.
 pub mod network;
 
-/// Types and traits used by I/O applications.
-pub mod app;
-
-// /// Trait implemented by types that can manage and interact with the I/O apps from the command line.
-// pub mod cli;
-
 pub use self::permission::Permission;
 pub use self::session::Session;
 pub use self::store::{Store, Storable};
 pub use self::network::*;
-pub use self::app::*;

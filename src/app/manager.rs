@@ -1,16 +1,16 @@
 //! # Manager
 //!
-//! `manager` is the module providing the trait used to manage I/O applications.
+//! `manager` is the module providing the trait used to manage Mitrid applications.
 
 use base::Result;
 use base::Future;
 use base::{ConstantSize, VariableSize};
 use base::Datable;
-use io::app::{RequestSender, ResponseSender};
-use io::app::Logger;
-use io::app::Config;
+use app::{RequestSender, ResponseSender};
+use app::Logger;
+use app::Config;
 
-/// Trait implemented by I/O applications managers.
+/// Trait implemented by Mitrid application managers.
 pub trait Manager<D, MnP, A, StP, SvP, ClP, CP, Ap, StaP, StaR, StoP, StoR, RP, RR, EP, ER>
     where   D: Datable + ConstantSize,
             MnP: Datable,

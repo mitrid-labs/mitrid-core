@@ -1,6 +1,6 @@
 //! # Request
 //!
-//! `request` is the module providing the type representing an I/O command request.
+//! `request` is the module providing the type representing a Mitrid application command request.
 
 use base::Result;
 use base::Sizable;
@@ -8,7 +8,7 @@ use base::Checkable;
 use base::Serializable;
 use base::Datable;
 
-/// Type used to represent an I/O command request.
+/// Type used to represent an application command request.
 #[derive(Clone, Eq, PartialEq, Ord, PartialOrd, Debug, Hash, Serialize, Deserialize)]
 #[allow(unused_attributes)]
 pub enum Request<Ap, StaP, StoP, RP, EP>
@@ -21,13 +21,13 @@ pub enum Request<Ap, StaP, StoP, RP, EP>
     /// An empty request.
     #[repr(u8)]
     None,
-    /// Requests to starts an I/O application.
+    /// Requests to starts an application.
     Start { app: Ap, params: StaP },
-    /// Requests to stops an I/O application.
+    /// Requests to stops an application.
     Stop { app: Ap, params: StoP },
-    /// Requests to restart an I/O application.
+    /// Requests to restart an application.
     Restart { app: Ap, params: RP },
-    /// Request to exec an operation on an I/O application.
+    /// Request to exec an operation on an application.
     Exec { app: Ap, params: EP },
 }
 

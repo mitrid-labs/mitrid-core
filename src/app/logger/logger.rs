@@ -3,7 +3,7 @@
 //! `logger` is the module providing the trait implemented by types that can log to stdout/stderr.
 
 use base::Result;
-use io::app::LogLevel;
+use app::LogLevel;
 
 /// Trait implemented by types that can log to stdout/stderr.
 pub trait Logger {

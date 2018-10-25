@@ -1,6 +1,6 @@
 //! # Response
 //!
-//! `response` is the module providing the type representing an I/O command response.
+//! `response` is the module providing the type representing an application command response.
 
 use base::Result;
 use base::Sizable;
@@ -8,7 +8,7 @@ use base::Checkable;
 use base::Serializable;
 use base::Datable;
 
-/// Type used to represent an I/O command response.
+/// Type used to represent an application command response.
 #[derive(Clone, Eq, PartialEq, Ord, PartialOrd, Debug, Hash, Serialize, Deserialize)]
 #[allow(unused_attributes)]
 pub enum Response<Ap, StaR, StoR, RR, ER>
@@ -21,13 +21,13 @@ pub enum Response<Ap, StaR, StoR, RR, ER>
     /// An empty response.
     #[repr(u8)]
     None,
-    /// Replies to the resuest of starting an I/O application.
+    /// Replies to the resuest of starting an application.
     Start { app: Ap, result: Option<StaR>, error: Option<String> },
-    /// Replies to the resuest of stopping an I/O application.
+    /// Replies to the resuest of stopping an application.
     Stop { app: Ap, result: Option<StoR>, error: Option<String> },
-    /// Replies to the resuest of restarting an I/O application.
+    /// Replies to the resuest of restarting an application.
     Restart { app: Ap, result: Option<RR>, error: Option<String> },
-    /// Replies to the resuest of executing an operation on an I/O application.
+    /// Replies to the resuest of executing an operation on an application.
     Exec { app: Ap, result: Option<ER>, error: Option<String> },
 }
 
