@@ -7,30 +7,27 @@ use futures::unsync::mpsc::{Sender, Receiver, channel};
 use base::Datable;
 use io::app::command::Request;
 use io::app::command::Response;
-use io::app::config::Config;
 
-pub type RequestSender<Ap, C, StaP, StoP, RP, EP> = Sender<Request<Ap, C, StaP, StoP, RP, EP>>;
-pub type RequestReceiver<Ap, C, StaP, StoP, RP, EP> = Receiver<Request<Ap, C, StaP, StoP, RP, EP>>;
+pub type RequestSender<Ap, StaP, StoP, RP, EP> = Sender<Request<Ap, StaP, StoP, RP, EP>>;
+pub type RequestReceiver<Ap, StaP, StoP, RP, EP> = Receiver<Request<Ap, StaP, StoP, RP, EP>>;
 
 /// Type used to represent an I/O application `Request` channels.
 #[derive(Debug)]
-pub struct RequestChannel<Ap, C, StaP, StoP, RP, EP>
+pub struct RequestChannel<Ap, StaP, StoP, RP, EP>
     where   Ap: Datable,
-            C: Config,
             StaP: Datable,
             StoP: Datable,
             RP: Datable,
             EP: Datable,
 {
     /// Request channel sender.
-    pub sender: RequestSender<Ap, C, StaP, StoP, RP, EP>,
+    pub sender: RequestSender<Ap, StaP, StoP, RP, EP>,
     /// Request channel receiver.
-    pub receiver: RequestReceiver<Ap, C, StaP, StoP, RP, EP>,
+    pub receiver: RequestReceiver<Ap, StaP, StoP, RP, EP>,
 }
 
-impl<Ap, C, StaP, StoP, RP, EP> RequestChannel<Ap, C, StaP, StoP, RP, EP>
+impl<Ap, StaP, StoP, RP, EP> RequestChannel<Ap, StaP, StoP, RP, EP>
     where   Ap: Datable,
-            C: Config,
             StaP: Datable,
             StoP: Datable,
             RP: Datable,
@@ -85,9 +82,8 @@ impl<Ap, StaR, StoR, RR, ER> ResponseChannel<Ap, StaR, StoR, RR, ER>
 
 /// Type used to represent an I/O application `Request` and `Response` channels.
 #[derive(Debug)]
-pub struct Channels<Ap, C, StaP, StaR, StoP, StoR, RP, RR, EP, ER>
+pub struct Channels<Ap, StaP, StaR, StoP, StoR, RP, RR, EP, ER>
     where   Ap: Datable,
-            C: Config,
             StaP: Datable,
             StaR: Datable,
             StoP: Datable,
@@ -98,14 +94,13 @@ pub struct Channels<Ap, C, StaP, StaR, StoP, StoR, RP, RR, EP, ER>
             ER: Datable
 {
     /// Request channel.
-    pub request: RequestChannel<Ap, C, StaP, StoP, RP, EP>,
+    pub request: RequestChannel<Ap, StaP, StoP, RP, EP>,
     /// Response channel.
     pub response: ResponseChannel<Ap, StaR, StoR, RR, ER>,
 }
 
-impl<Ap, C, StaP, StaR, StoP, StoR, RP, RR, EP, ER> Channels <Ap, C, StaP, StaR, StoP, StoR, RP, RR, EP, ER>
+impl<Ap, StaP, StaR, StoP, StoR, RP, RR, EP, ER> Channels <Ap, StaP, StaR, StoP, StoR, RP, RR, EP, ER>
     where   Ap: Datable,
-            C: Config,
             StaP: Datable,
             StaR: Datable,
             StoP: Datable,
