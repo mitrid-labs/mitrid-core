@@ -5,8 +5,8 @@
 use futures::unsync::mpsc::{Sender, Receiver, channel};
 
 use base::Datable;
-use io::app::command::Request;
-use io::app::command::Response;
+use io::app::Request;
+use io::app::Response;
 
 pub type RequestSender<Ap, StaP, StoP, RP, EP> = Sender<Request<Ap, StaP, StoP, RP, EP>>;
 pub type RequestReceiver<Ap, StaP, StoP, RP, EP> = Receiver<Request<Ap, StaP, StoP, RP, EP>>;
@@ -99,7 +99,7 @@ pub struct Channels<Ap, StaP, StaR, StoP, StoR, RP, RR, EP, ER>
     pub response: ResponseChannel<Ap, StaR, StoR, RR, ER>,
 }
 
-impl<Ap, StaP, StaR, StoP, StoR, RP, RR, EP, ER> Channels <Ap, StaP, StaR, StoP, StoR, RP, RR, EP, ER>
+impl<Ap, StaP, StaR, StoP, StoR, RP, RR, EP, ER> Channels<Ap, StaP, StaR, StoP, StoR, RP, RR, EP, ER>
     where   Ap: Datable,
             StaP: Datable,
             StaR: Datable,

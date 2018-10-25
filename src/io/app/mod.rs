@@ -1,6 +1,6 @@
 //! # App
 //!
-//! `app` is the module providing the traits and types used to manage the I/O applications.
+//! `app` is the module providing the traits and types used by I/O applications.
 
 /// Type used to interact with an I/O application.
 pub mod command;
@@ -11,5 +11,10 @@ pub mod channels;
 /// Trait implemented by I/O applications.
 pub mod app;
 
-// /// Trait implemented by I/O applications managers.
-// pub mod manager;
+/// Trait implemented by I/O applications managers.
+pub mod manager;
+
+pub use self::command::{Request, Response};
+pub use self::channels::*;
+pub use self::app::App;
+pub use self::manager::Manager;

@@ -5,8 +5,8 @@
 use base::Result;
 use base::Future;
 use base::data::Datable;
-use io::app::command::{Request, Response};
-use io::app::channels::{RequestSender, ResponseSender};
+use io::app::{Request, Response};
+use io::app::{RequestSender, ResponseSender};
 
 /// Trait implemented by I/O application types.
 pub trait App<Ap, StaP, StaR, StoP, StoR, RP, RR, EP, ER>
@@ -30,7 +30,7 @@ pub trait App<Ap, StaP, StaR, StoP, StoR, RP, RR, EP, ER>
     /// Returns the `App` `RequestSender`.
     fn request_sender(&self) -> RequestSender<Ap, StaP, StoP, RP, EP>;
 
-    /// Sets the `App` `App` `ResponseSender`.
+    /// Sets the `App` `ResponseSender`.
     fn response_sender(&mut self, sender: &ResponseSender<Ap, StaR, StoR, RR, ER>) -> Result<()>;
 
     /// Starts the `App`.

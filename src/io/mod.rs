@@ -20,7 +20,7 @@ pub mod logger;
 /// Trait implemented by types used to configure I/O applications.
 pub mod config;
 
-/// Types and traits used to manage the I/O applications.
+/// Types and traits used by I/O applications.
 pub mod app;
 
 // /// Trait implemented by types that can manage and interact with the I/O apps from the command line.
