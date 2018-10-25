@@ -15,8 +15,11 @@ use base::Serializable;
 #[derive(Copy, Clone, PartialEq, Eq, PartialOrd, Ord, Debug, Hash, Serialize, Deserialize)]
 #[repr(u8)]
 pub enum Stage {
+    /// Development stage.
     Development,
+    /// Testing stage.
     Testing,
+    /// Production stage.
     Production,
 }
 
