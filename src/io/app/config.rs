@@ -15,7 +15,7 @@ use base::Serializable;
 use base::Datable;
 use base::Evaluable;
 use utils::Version;
-use models::Stage;
+use utils::Stage;
 
 /// Type used to configure I/O applications.
 #[derive(Clone, PartialEq, Eq, PartialOrd, Ord, Debug, Default, Hash, Serialize, Deserialize)]

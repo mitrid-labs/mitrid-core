@@ -11,5 +11,9 @@ pub mod regex;
 /// Type and constants used for versioning (semver).
 pub mod version;
 
+/// Type used to define the distributed ledger stage.
+pub mod stage;
+
 pub use self::timestamp::{Timestamp, TimestampDiff};
 pub use self::version::Version;
+pub use self::stage::Stage;
