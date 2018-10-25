@@ -7,6 +7,7 @@ use base::Future;
 use base::data::Datable;
 use io::app::{Request, Response};
 use io::app::{RequestSender, ResponseSender};
+use io::app::Logger;
 
 /// Trait implemented by I/O application types.
 pub trait App<Ap, StaP, StaR, StoP, StoR, RP, RR, EP, ER>
@@ -19,7 +20,7 @@ pub trait App<Ap, StaP, StaR, StoP, StoR, RP, RR, EP, ER>
             RR: Datable,
             EP: Datable,
             ER: Datable,
-            Self: 'static + Sized + Send + Sync
+            Self: 'static + Sized + Send + Sync + Logger
 {
     /// Returns the `App` identifier.
     fn app_id(&self) -> Ap;

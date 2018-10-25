@@ -6,6 +6,7 @@ use base::Result;
 use base::Future;
 use base::Datable;
 use io::app::{RequestSender, ResponseSender};
+use io::app::Logger;
 
 /// Trait implemented by I/O applications managers.
 pub trait Manager<Ap, StaP, StaR, StoP, StoR, RP, RR, EP, ER>
@@ -18,7 +19,7 @@ pub trait Manager<Ap, StaP, StaR, StoP, StoR, RP, RR, EP, ER>
             RR: Datable,
             EP: Datable,
             ER: Datable,
-            Self: Sized
+            Self: Sized + Logger
 {
     /// Creates the `Manager`.
     fn create<P: Datable>(&mut self, params: &P) -> Result<Self>;
