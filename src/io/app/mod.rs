@@ -2,9 +2,6 @@
 //!
 //! `app` is the module providing the traits and types used to manage the I/O applications.
 
-/// Trait implemented by types used to configure I/O applications.
-pub mod config;
-
 /// Type used to interact with an I/O application.
 pub mod command;
 
