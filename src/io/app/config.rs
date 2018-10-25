@@ -13,7 +13,6 @@ use base::{Sizable, ConstantSize, VariableSize};
 use base::Checkable;
 use base::Serializable;
 use base::Datable;
-use base::Evaluable;
 use utils::Version;
 use utils::Stage;
 
@@ -315,16 +314,6 @@ impl<D, MnP, A, StP, SvP, ClP, CP> Serializable for Config<D, MnP, A, StP, SvP, 
 {}
 
 impl<D, MnP, A, StP, SvP, ClP, CP> Datable for Config<D, MnP, A, StP, SvP, ClP, CP>
-    where   D: Datable + ConstantSize,
-            MnP: Datable,
-            A: Datable + VariableSize,
-            StP: Datable,
-            SvP: Datable,
-            ClP: Datable,
-            CP: Datable
-{}
-
-impl<D, MnP, A, StP, SvP, ClP, CP> Evaluable for Config<D, MnP, A, StP, SvP, ClP, CP>
     where   D: Datable + ConstantSize,
             MnP: Datable,
             A: Datable + VariableSize,
