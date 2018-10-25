@@ -11,9 +11,6 @@ pub mod command;
 /// Types used to communicate with the I/O applications.
 pub mod channels;
 
-/// Types and traits used by the I/O applications for logging.
-pub mod logger;
-
 /// Trait implemented by I/O applications.
 pub mod app;
 

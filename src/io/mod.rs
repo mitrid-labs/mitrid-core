@@ -14,6 +14,9 @@ pub mod store;
 /// Traits implemented by networking facilities and types that can use them.
 pub mod network;
 
+/// Types and traits used by the I/O applications for logging.
+pub mod logger;
+
 /// Types and traits used to manage the I/O applications.
 pub mod app;
 
@@ -21,4 +24,5 @@ pub use self::permission::Permission;
 pub use self::session::Session;
 pub use self::store::{Store, Storable};
 pub use self::network::*;
+pub use self::logger::*;
 pub use self::app::*;
