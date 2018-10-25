@@ -13,6 +13,3 @@ pub mod app;
 
 // /// Trait implemented by I/O applications managers.
 // pub mod manager;
-
-// /// Trait implemented by types that can manage and interact with the I/O apps from the command line.
-// pub mod cli;

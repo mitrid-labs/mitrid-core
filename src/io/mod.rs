@@ -23,6 +23,9 @@ pub mod config;
 /// Types and traits used to manage the I/O applications.
 pub mod app;
 
+// /// Trait implemented by types that can manage and interact with the I/O apps from the command line.
+// pub mod cli;
+
 pub use self::permission::Permission;
 pub use self::session::Session;
 pub use self::store::{Store, Storable};
