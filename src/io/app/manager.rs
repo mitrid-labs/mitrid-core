@@ -4,13 +4,22 @@
 
 use base::Result;
 use base::Future;
+use base::{ConstantSize, VariableSize};
 use base::Datable;
 use io::app::{RequestSender, ResponseSender};
 use io::app::Logger;
+use io::app::Config;
 
 /// Trait implemented by I/O applications managers.
-pub trait Manager<Ap, StaP, StaR, StoP, StoR, RP, RR, EP, ER>
-    where   Ap: Datable,
+pub trait Manager<D, MnP, A, StP, SvP, ClP, CP, Ap, StaP, StaR, StoP, StoR, RP, RR, EP, ER>
+    where   D: Datable + ConstantSize,
+            MnP: Datable,
+            A: Datable + VariableSize,
+            StP: Datable,
+            SvP: Datable,
+            ClP: Datable,
+            CP: Datable,
+            Ap: Datable,
             StaP: Datable,
             StaR: Datable,
             StoP: Datable,
@@ -22,7 +31,10 @@ pub trait Manager<Ap, StaP, StaR, StoP, StoR, RP, RR, EP, ER>
             Self: Sized + Logger
 {
     /// Creates the `Manager`.
-    fn create<P: Datable>(&mut self, params: &P) -> Result<Self>;
+    fn create(&mut self, params: &MnP, config: &Config<D, MnP, A, StP, SvP, ClP, CP>) -> Result<Self>;
+
+    /// Returns the current `Config`.
+    fn config(&self) -> Config<D, MnP, A, StP, SvP, ClP, CP>;
 
     /// Returns the `Manager` `ResponseSender`.
     fn response_sender(&self) -> ResponseSender<Ap, StaR, StoR, RR, ER>;
