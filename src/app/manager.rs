@@ -2,16 +2,17 @@
 //!
 //! `manager` is the module providing the trait used to manage Mitrid applications.
 
+use futures::Future as BasicFuture;
+
 use std::collections::HashMap;
 
 use base::Result;
 use base::Future;
 use base::{ConstantSize, VariableSize};
 use base::Datable;
+use app::command::{Request, Response};
 use app::{RequestSender, ResponseSender};
-use app::{LogLevel, Logger};
-use app::Env;
-use app::Config;
+use app::{Env, Logger, Config};
 
 /// Trait implemented by Mitrid application managers.
 pub trait Manager<E, D, MnP, A, StP, SvP, ClP, CP, Ap, StaP, StaR, StoP, StoR, RP, RR, EP, ER>
@@ -34,17 +35,11 @@ pub trait Manager<E, D, MnP, A, StP, SvP, ClP, CP, Ap, StaP, StaR, StoP, StoR, R
             ER: Datable,
             Self: Sized + Logger
 {
-    /// Creates the `Manager`.
-    fn create(&mut self, params: &MnP, env: &E, config: &Config<D, MnP, A, StP, SvP, ClP, CP>) -> Result<Self>;
+    /// Starts the `Manager`.
+    fn start(&mut self, params: &MnP, env: &E, config: &Config<D, MnP, A, StP, SvP, ClP, CP>) -> Result<Self>;
 
-    /// Returns the current log level.
-    fn log_level(&self) -> LogLevel;
-
-    /// Returns the current CLI arguments.
-    fn args(&self) -> HashMap<String, String>;
-
-    /// Returns the current `Config`.
-    fn config(&self) -> Config<D, MnP, A, StP, SvP, ClP, CP>;
+    /// Returns the current environemnt.
+    fn env(&self) -> Result<E>;
 
     /// Returns the `Manager` `ResponseSender`.
     fn response_sender(&self) -> ResponseSender<Ap, StaR, StoR, RR, ER>;
@@ -55,18 +50,23 @@ pub trait Manager<E, D, MnP, A, StP, SvP, ClP, CP, Ap, StaP, StaR, StoP, StoR, R
     /// Adds to the `Manager` a `RequestSender`.
     fn add_request_sender(&mut self, app: &Ap, sender: &RequestSender<Ap, StaP, StoP, RP, EP>) -> Result<()>;
 
-    /// Creates an `App`.
-    fn create_app<P: Datable>(&mut self, params: &P) -> Result<(Ap, RequestSender<Ap, StaP, StoP, RP, EP>)>;
+    /// Runs an `App`.
+    fn run_app<P: Datable>(&mut self, params: &P) -> Result<HashMap<Ap, RequestSender<Ap, StaP, StoP, RP, EP>>>;
 
-    /// Starts an `App`.
-    fn start_app<P: Datable>(&mut self, params: &P, app: &Ap, start_params: &StaP) -> Future<StaR>;
+    /// Executes a command in the `App`.
+    fn exec_app(&mut self, req: &Request<Ap, StaP, StoP, RP, EP>) -> Future<Response<Ap, StaR, StoR, RR, ER>>;
 
-    /// Stops the `App`.
-    fn stop_app<P: Datable>(&mut self, params: &P, app: &Ap, stop_params: &StoP) -> Future<StoR>;
+    /// Logs a command response.
+    fn log_response(&self, req: &Response<Ap, StaR, StoR, RR, ER>);
 
-    /// Restarts the `App`.
-    fn restart_app<P: Datable>(&mut self, params: &P, app: &Ap, restart_params: &RP) -> Future<RR>;
+    /// Logs a `Result`.
+    fn log_result<T: Sized>(&self, res: &Result<T>);
 
-    /// Execs a custom command in the `App`.
-    fn exec_app<P: Datable>(&mut self, params: &P, app: &Ap, exec_params: &EP) -> Future<ER>;
+    /// Executes a command.
+    fn exec_cmd(&mut self, req: &Request<Ap, StaP, StoP, RP, EP>) {
+        let res = self.exec_app(req).wait();
+
+        self.log_result(&res);
+        self.log_response(&res.unwrap())
+    }
 }

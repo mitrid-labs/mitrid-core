@@ -23,8 +23,8 @@ pub mod config;
 /// Trait implemented by application managers.
 pub mod manager;
 
-// /// Types and traits used to manage and interact with the framework applications from the command line.
-// pub mod cli;
+/// Types and trait used to manage and interact with the framework applications from the command line.
+pub mod cli;
 
 pub use self::command::{Request, Response};
 pub use self::channels::*;

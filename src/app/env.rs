@@ -10,7 +10,9 @@ use base::Result;
 use app::logger::LogLevel;
 
 /// Trait implemented by types used to read the process environment.
-pub trait Env {
+pub trait Env
+    where   Self: 'static + Sized + Send + Sync
+{
     /// Returns the current arguments.
     fn args(&self) -> Result<HashMap<String, String>>;
 

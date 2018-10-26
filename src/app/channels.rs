@@ -2,7 +2,7 @@
 //!
 //! `channels` is the module providing the types used to communicate with applications.
 
-use futures::unsync::mpsc::{Sender, Receiver, channel};
+use futures::sync::mpsc::{Sender, Receiver, channel};
 
 use base::Datable;
 use app::Request;
