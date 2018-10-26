@@ -2,17 +2,21 @@
 //!
 //! `manager` is the module providing the trait used to manage Mitrid applications.
 
+use std::collections::HashMap;
+
 use base::Result;
 use base::Future;
 use base::{ConstantSize, VariableSize};
 use base::Datable;
 use app::{RequestSender, ResponseSender};
-use app::Logger;
+use app::{LogLevel, Logger};
+use app::Env;
 use app::Config;
 
 /// Trait implemented by Mitrid application managers.
-pub trait Manager<D, MnP, A, StP, SvP, ClP, CP, Ap, StaP, StaR, StoP, StoR, RP, RR, EP, ER>
-    where   D: Datable + ConstantSize,
+pub trait Manager<E, D, MnP, A, StP, SvP, ClP, CP, Ap, StaP, StaR, StoP, StoR, RP, RR, EP, ER>
+    where   E: Env,
+            D: Datable + ConstantSize,
             MnP: Datable,
             A: Datable + VariableSize,
             StP: Datable,
@@ -31,7 +35,13 @@ pub trait Manager<D, MnP, A, StP, SvP, ClP, CP, Ap, StaP, StaR, StoP, StoR, RP, 
             Self: Sized + Logger
 {
     /// Creates the `Manager`.
-    fn create(&mut self, params: &MnP, config: &Config<D, MnP, A, StP, SvP, ClP, CP>) -> Result<Self>;
+    fn create(&mut self, params: &MnP, env: &E, config: &Config<D, MnP, A, StP, SvP, ClP, CP>) -> Result<Self>;
+
+    /// Returns the current log level.
+    fn log_level(&self) -> LogLevel;
+
+    /// Returns the current CLI arguments.
+    fn args(&self) -> HashMap<String, String>;
 
     /// Returns the current `Config`.
     fn config(&self) -> Config<D, MnP, A, StP, SvP, ClP, CP>;
