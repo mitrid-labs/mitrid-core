@@ -41,7 +41,7 @@ pub trait CLI<M, E, D, MnP, A, StP, SvP, ClP, CP, Ap, StaP, StaR, StoP, StoR, RP
     fn config(&self) -> Config<D, MnP, A, StP, SvP, ClP, CP>;
 
     /// Creates a `Manager`.
-    fn create_manger(&mut self, manager_params: &MnP) -> Result<()>;
+    fn create_manager(&mut self, manager_params: &MnP) -> Result<()>;
     
     /// Returns the apps `Manager`, if present.
     fn manager(&self) -> Option<M>;
@@ -79,7 +79,7 @@ pub trait CLI<M, E, D, MnP, A, StP, SvP, ClP, CP, Ap, StaP, StaR, StoP, StoR, RP
         if let Some(mut manager) = self.manager() {
             manager.exec(&env, &config, &req)
         } else {
-            let res = self.create_manger(&config.manager_params);
+            let res = self.create_manager(&config.manager_params);
             self.log_result(&res);
             res.unwrap();
 
