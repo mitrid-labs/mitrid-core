@@ -4,11 +4,15 @@
 
 use base::Result;
 use app::LogLevel;
+use app::LogFile;
 
 /// Trait implemented by types that can log to stdout/stderr.
 pub trait Logger {
     /// Returns the current log level.
     fn log_level(&self) -> LogLevel;
+
+    /// Returns the current log file.
+    fn log_file(&self) -> LogFile;
 
     /// Sets the current log level.
     fn set_log_level(&mut self, log_level: &LogLevel) -> Result<()>;
