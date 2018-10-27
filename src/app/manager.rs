@@ -2,17 +2,15 @@
 //!
 //! `manager` is the module providing the trait used to manage Mitrid applications.
 
-use futures::Future as BasicFuture;
-
-use std::collections::HashMap;
+use futures::Stream;
 
 use base::Result;
-use base::Future;
 use base::{ConstantSize, VariableSize};
+use base::Checkable;
 use base::Datable;
 use app::command::{Request, Response};
-use app::{RequestSender, ResponseSender};
-use app::{Env, Logger, Config};
+use app::{RequestSender, ResponseReceiver};
+use app::{Env, Config, Logger};
 
 /// Trait implemented by Mitrid application managers.
 pub trait Manager<E, D, MnP, A, StP, SvP, ClP, CP, Ap, StaP, StaR, StoP, StoR, RP, RR, EP, ER>
@@ -35,38 +33,80 @@ pub trait Manager<E, D, MnP, A, StP, SvP, ClP, CP, Ap, StaP, StaR, StoP, StoR, R
             ER: Datable,
             Self: Sized + Logger
 {
-    /// Starts the `Manager`.
-    fn start(&mut self, params: &MnP, env: &E, config: &Config<D, MnP, A, StP, SvP, ClP, CP>) -> Result<Self>;
+    /// Creates an `App`.
+    fn create_app(&mut self, env: &E, config: &Config<D, MnP, A, StP, SvP, ClP, CP>, app: &Ap) -> Result<()>;
 
-    /// Returns the current environemnt.
-    fn env(&self) -> Result<E>;
+    /// Lookups for an `App`.
+    fn lookup_app(&self, app: &Ap) -> Result<bool>;
 
-    /// Returns the `Manager` `ResponseSender`.
-    fn response_sender(&self) -> ResponseSender<Ap, StaR, StoR, RR, ER>;
+    /// Gets an `App` `RequestSender`.
+    fn app_request_sender(&self, app: &Ap) -> Result<RequestSender<Ap, StaP, StoP, RP, EP>>;
 
-    /// Returns the `Manager` `RequestSender`s.
-    fn request_senders(&self) -> Vec<(Ap, RequestSender<Ap, StaP, StoP, RP, EP>)>;
-
-    /// Adds to the `Manager` a `RequestSender`.
-    fn add_request_sender(&mut self, app: &Ap, sender: &RequestSender<Ap, StaP, StoP, RP, EP>) -> Result<()>;
-
-    /// Runs an `App`.
-    fn run_app<P: Datable>(&mut self, params: &P) -> Result<HashMap<Ap, RequestSender<Ap, StaP, StoP, RP, EP>>>;
-
-    /// Executes a command in the `App`.
-    fn exec_app(&mut self, req: &Request<Ap, StaP, StoP, RP, EP>) -> Future<Response<Ap, StaR, StoR, RR, ER>>;
-
-    /// Logs a command response.
-    fn log_response(&self, req: &Response<Ap, StaR, StoR, RR, ER>);
+    /// Gets an `App` `ResponseReceiver`.
+    fn app_response_receiver(&self, app: &Ap) -> Result<ResponseReceiver<Ap, StaR, StoR, RR, ER>>;
 
     /// Logs a `Result`.
     fn log_result<T: Sized>(&self, res: &Result<T>);
 
-    /// Executes a command.
-    fn exec_cmd(&mut self, req: &Request<Ap, StaP, StoP, RP, EP>) {
-        let res = self.exec_app(req).wait();
+    /// Logs a command response.
+    fn log_response(&self, req: &Response<Ap, StaR, StoR, RR, ER>);
+
+    /// Executes a command request.
+    fn exec(&mut self, env: &E, config: &Config<D, MnP, A, StP, SvP, ClP, CP>, req: &Request<Ap, StaP, StoP, RP, EP>) {
+        let env_check = env.check();
+        self.log_result(&env_check);
+
+        let config_check = config.check();
+        self.log_result(&config_check);
+
+        let app_opt = match req {
+            &Request::None => None,
+            &Request::Start { ref app, .. } => Some(app),
+            &Request::Stop { ref app, .. } => Some(app),
+            &Request::Restart { ref app, .. } => Some(app),
+            &Request::Exec { ref app, .. } => Some(app),
+        };
+
+        if app_opt.is_none() {
+            let res = Response::None;
+            self.log_response(&res);
+        }
+
+        let app = app_opt.unwrap();
+
+        let lookup_res = self.lookup_app(app);
+        self.log_result(&lookup_res);
+
+        if lookup_res.unwrap() {
+            let create_app_res = self.create_app(env, config, app);
+            self.log_result(&create_app_res);
+            
+            create_app_res.unwrap();
+
+            return self.exec(env, config, req);
+        }
+
+        let sender_res = self.app_request_sender(app);
+        self.log_result(&sender_res);
+
+        let mut sender = sender_res.unwrap();
+
+        let res = sender
+                    .try_send(req.to_owned())
+                    .map_err(|e| format!("{:?}", e));
 
         self.log_result(&res);
-        self.log_response(&res.unwrap())
+
+        res.unwrap();
+
+        let res_stream_res = self.app_response_receiver(app);
+        self.log_result(&res_stream_res);
+
+        let res_stream = res_stream_res.unwrap();
+
+        for res_res in res_stream.wait() {
+            let res = res_res.unwrap();
+            self.log_response(&res);
+        }
     }
 }

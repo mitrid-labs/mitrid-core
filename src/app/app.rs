@@ -25,17 +25,8 @@ pub trait App<Ap, StaP, StaR, StoP, StoR, RP, RR, EP, ER>
             ER: Datable,
             Self: 'static + Sized + Send + Sync + Logger
 {
-    /// Returns the `App` identifier.
-    fn app_id(&self) -> Ap;
-
-    /// Creates the `App`.
-    fn create<P: Datable>(&mut self, params: &P) -> Result<Self>;
-
     /// Returns the `App` `RequestChannel`.
     fn request_channel(&self) -> RequestChannel<Ap, StaP, StoP, RP, EP>;
-
-    /// Sets the `App` `ResponseSender`.
-    fn set_response_sender(&mut self, sender: &ResponseSender<Ap, StaR, StoR, RR, ER>) -> Result<()>;
 
     /// Returns the `App` `ResponseSender`.
     fn response_sender(&self) -> ResponseSender<Ap, StaR, StoR, RR, ER>;

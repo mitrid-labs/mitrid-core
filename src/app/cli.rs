@@ -7,9 +7,10 @@ use std::collections::HashMap;
 
 use base::Result;
 use base::{ConstantSize, VariableSize};
+use base::Checkable;
 use base::Datable;
 use app::command::Request;
-use app::{Env, Logger, Manager};
+use app::{Env, Config, Logger, Manager};
 
 /// Trait implemented by CLI types.
 pub trait CLI<M, E, D, MnP, A, StP, SvP, ClP, CP, Ap, StaP, StaR, StoP, StoR, RP, RR, EP, ER>
@@ -35,6 +36,9 @@ pub trait CLI<M, E, D, MnP, A, StP, SvP, ClP, CP, Ap, StaP, StaR, StoP, StoR, RP
 {
     /// Returns the CLI environment.
     fn env(&self) -> E;
+
+    /// Returns the CLI configurations.
+    fn config(&self) -> Config<D, MnP, A, StP, SvP, ClP, CP>;
     
     /// Returns the CLI manager.
     fn manager(&self) -> M;
@@ -56,10 +60,18 @@ pub trait CLI<M, E, D, MnP, A, StP, SvP, ClP, CP, Ap, StaP, StaR, StoP, StoR, RP
     
     /// Runs the CLI.
     fn run(&mut self) {
+        let env = self.env();
+        let env_check = env.check();
+        self.log_result(&env_check);
+
+        let config = self.config();
+        let config_check = config.check();
+        self.log_result(&config_check);
+
         let res_req = self.parse_cmd();
         self.log_result(&res_req);
 
         let req = res_req.unwrap();
-        self.manager().exec_cmd(&req)
+        self.manager().exec(&env, &config, &req)
     }
 }

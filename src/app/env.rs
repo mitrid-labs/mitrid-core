@@ -7,11 +7,13 @@ use std::path::PathBuf;
 use std::collections::HashMap;
 
 use base::Result;
+use base::Datable;
+use base::Serializable;
 use app::logger::LogLevel;
 
 /// Trait implemented by types used to read the process environment.
 pub trait Env
-    where   Self: 'static + Sized + Send + Sync
+    where   Self: 'static + Sized + Send + Sync + Datable + Serializable
 {
     /// Returns the current arguments.
     fn args(&self) -> Result<HashMap<String, String>>;
