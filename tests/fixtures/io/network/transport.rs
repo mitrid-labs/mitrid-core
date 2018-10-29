@@ -1,3 +1,6 @@
+use futures::Future as BasicFuture;
+use futures::Stream as BasicStream;
+use mitrid_core::base::Result;
 use mitrid_core::base::Future;
 use mitrid_core::base::Stream;
 use mitrid_core::base::Datable;
@@ -16,13 +19,17 @@ pub struct ClientTransport(Arc<Mutex<TcpStream>>);
 impl BasicClientTransport<Address> for ClientTransport {
     fn connect<P: Datable>(_params: &P, addresses: &Vec<Address>) -> Future<Self> {
         if addresses.len() != 1 {
+            println!("invalid length");
             return Future::from_result(Err(String::from("invalid length")));
         }
 
         let addr = addresses[0].to_owned();
 
         match TcpStream::connect(&addr.to_string()) {
-            Err(e) => Future::from_result(Err(format!("{:?}", e))),
+            Err(e) => {
+                println!("{:?}", e);
+                Future::from_result(Err(format!("{:?}", e)))
+            }
             Ok(tcp_stream) => {
                 let ct = ClientTransport(Arc::new(Mutex::new(tcp_stream)));
                 Future::from_result(Ok(ct))
@@ -61,6 +68,25 @@ impl BasicClientTransport<Address> for ClientTransport {
 #[derive(Clone)]
 pub struct ServerTransport(Arc<Mutex<TcpListener>>);
 
+impl ServerTransport {
+    pub fn run(addresses: &Vec<Address>) -> Result<()> {
+        let mut server = ServerTransport::listen(&(), addresses).wait()?;
+
+        let mut ct = 0;
+
+        while ct < 1 {
+            let (mut client, _) = server.accept(&()).wait()?;
+            for recvd in client.recv(&()).wait() {
+                client.send(&(), &recvd?).wait()?
+            }
+
+            ct += 1;
+        }
+
+        Ok(())
+    }
+}
+
 impl BasicServerTransport<Address, ClientTransport> for ServerTransport {
     fn listen<P: Datable>(_params: &P, addresses: &Vec<Address>) -> Future<ServerTransport> {
         if addresses.len() != 1 {
@@ -72,13 +98,8 @@ impl BasicServerTransport<Address, ClientTransport> for ServerTransport {
         match TcpListener::bind(&addr.to_string()) {
             Err(e) => Future::from_result(Err(format!("{:?}", e))),
             Ok(listener) => {
-                match listener.set_nonblocking(true) {
-                    Err(e) => Future::from_result(Err(format!("{:?}", e))),
-                    Ok(_) => {
-                        let st = ServerTransport(Arc::new(Mutex::new(listener)));
-                        Future::from_result(Ok(st))
-                    },
-                }
+                let st = ServerTransport(Arc::new(Mutex::new(listener)));
+                Future::from_result(Ok(st))
             },
         }
     }
