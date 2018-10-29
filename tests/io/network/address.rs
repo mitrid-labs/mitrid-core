@@ -1,6 +1,7 @@
 use std::net::{SocketAddr, IpAddr, Ipv4Addr, Ipv6Addr};
+use std::str::FromStr;
 
-use fixtures::io::Address;
+use fixtures::io::{Address, address::DEFAULT_SOCKET};
 
 #[test]
 fn test_address_string() {
@@ -30,4 +31,16 @@ fn test_address_ipaddr() {
 
     let socketaddrv6_b = res.unwrap();
     assert_eq!(socketaddrv6_a, socketaddrv6_b);
+}
+
+#[test]
+fn test_address_default() {
+    let address = Address::default();
+
+    let addr_str = address.to_string();
+    assert_eq!(&addr_str, DEFAULT_SOCKET);
+
+    let socket = address.to_socket().unwrap();
+    let default_socket = SocketAddr::from_str(DEFAULT_SOCKET).unwrap();
+    assert_eq!(socket, default_socket);
 }

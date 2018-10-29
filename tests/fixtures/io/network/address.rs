@@ -7,7 +7,7 @@ use mitrid_core::base::Checkable;
 use mitrid_core::base::Serializable;
 use mitrid_core::base::Datable;
 
-#[derive(Clone, Eq, PartialEq, Ord, PartialOrd, Debug, Default, Hash, Serialize, Deserialize)]
+#[derive(Clone, Eq, PartialEq, Ord, PartialOrd, Debug, Hash, Serialize, Deserialize)]
 pub struct Address(pub String);
 
 impl Address {
@@ -28,6 +28,14 @@ impl Address {
             Ok(socket) => Ok(socket),
             Err(e) => Err(format!("{:?}", e)),
         }
+    }
+}
+
+pub const DEFAULT_SOCKET: &str = "127.0.0.1:6173";
+
+impl Default for Address {
+    fn default() -> Address {
+        Address::new(DEFAULT_SOCKET)
     }
 }
 
