@@ -1,7 +1,5 @@
 pub mod session;
-pub mod address;
-pub mod node;
+pub mod network;
 
 pub use self::session::Session;
-pub use self::address::Address;
-pub use self::node::Node;
+pub use self::network::*;
