@@ -5,6 +5,7 @@
 
 use base::Result;
 use base::Future;
+use base::Stream;
 use base::Checkable;
 use base::Datable;
 use base::Serializable;
@@ -36,7 +37,7 @@ pub trait Store<S, K, V>
                         from: &Option<K>,
                         to: &Option<K>,
                         count: &Option<u64>)
-        -> Future<Vec<V>>;
+        -> Stream<Vec<V>>;
     
     /// Lookups an item from its key.
     fn lookup<P: Datable>(&mut self,
@@ -136,37 +137,37 @@ pub trait Storable<S, K, V>
     {
         match params.check() {
             Ok(_) => {},
-            Err(e) => { return Future::from_result(Err(e)) },
+            Err(e) => { return Err(e).into() },
         }
 
         match session.check() {
             Ok(_) => {},
-            Err(e) => { return Future::from_result(Err(e)) },
+            Err(e) => { return Err(e).into() },
         }
 
         match session.is_expired() {
             Ok(expired) => {
                 if expired {
-                    return Future::from_result(Err(String::from("expired session")));
+                    return Err(String::from("expired session")).into();
                 }
             },
             Err(e) => {
-                return Future::from_result(Err(e));
+                return Err(e).into();
             }
         }
 
         if session.permission > Permission::Read {
-            return Future::from_result(Err(String::from("invalid permission")));
+            return Err(String::from("invalid permission")).into();
         }
 
         match from.check() {
             Ok(_) => {},
-            Err(e) => { return Future::from_result(Err(e)) },
+            Err(e) => { return Err(e).into() },
         }
 
         match to.check() {
             Ok(_) => {},
-            Err(e) => { return Future::from_result(Err(e)) },
+            Err(e) => { return Err(e).into() },
         }
 
         store.count(params, session, from, to)
@@ -179,43 +180,43 @@ pub trait Storable<S, K, V>
                            from: &Option<K>,
                            to: &Option<K>,
                            count: &Option<u64>)
-        -> Future<Vec<V>>
+        -> Stream<Vec<V>>
         where   Par: Datable,
                 St: Store<S, K, V>
     {
         match params.check() {
             Ok(_) => {},
-            Err(e) => { return Future::from_result(Err(e)) },
+            Err(e) => { return Stream::from_result(Err(e)) },
         }
 
         match session.check() {
             Ok(_) => {},
-            Err(e) => { return Future::from_result(Err(e)) },
+            Err(e) => { return Stream::from_result(Err(e)) },
         }
 
         match session.is_expired() {
             Ok(expired) => {
                 if expired {
-                    return Future::from_result(Err(String::from("expired session")));
+                    return Stream::from_result(Err(String::from("expired session")));
                 }
             },
             Err(e) => {
-                return Future::from_result(Err(e));
+                return Stream::from_result(Err(e));
             }
         }
 
         if session.permission > Permission::Read {
-            return Future::from_result(Err(String::from("invalid permission")));
+            return Stream::from_result(Err(String::from("invalid permission")));
         }
 
         match from.check() {
             Ok(_) => {},
-            Err(e) => { return Future::from_result(Err(e)) },
+            Err(e) => { return Stream::from_result(Err(e)) },
         }
 
         match to.check() {
             Ok(_) => {},
-            Err(e) => { return Future::from_result(Err(e)) },
+            Err(e) => { return Stream::from_result(Err(e)) },
         }
 
         store.list(params, session, from, to, count)
@@ -232,32 +233,32 @@ pub trait Storable<S, K, V>
     {
         match params.check() {
             Ok(_) => {},
-            Err(e) => { return Future::from_result(Err(e)) },
+            Err(e) => { return Err(e).into() },
         }
 
         match session.check() {
             Ok(_) => {},
-            Err(e) => { return Future::from_result(Err(e)) },
+            Err(e) => { return Err(e).into() },
         }
 
         match session.is_expired() {
             Ok(expired) => {
                 if expired {
-                    return Future::from_result(Err(String::from("expired session")));
+                    return Err(String::from("expired session")).into();
                 }
             },
             Err(e) => {
-                return Future::from_result(Err(e));
+                return Err(e).into();
             }
         }
 
         if session.permission > Permission::Read {
-            return Future::from_result(Err(String::from("invalid permission")));
+            return Err(String::from("invalid permission")).into();
         }
 
         match key.check() {
             Ok(_) => {},
-            Err(e) => { return Future::from_result(Err(e)) },
+            Err(e) => { return Err(e).into() },
         }
 
         store.lookup(params, session, key)
@@ -317,34 +318,34 @@ pub trait Storable<S, K, V>
     {
         match params.check() {
             Ok(_) => {},
-            Err(e) => { return Future::from_result(Err(e)) },
+            Err(e) => { return Err(e).into() },
         }
 
         match session.check() {
             Ok(_) => {},
-            Err(e) => { return Future::from_result(Err(e)) },
+            Err(e) => { return Err(e).into() },
         }
 
         match session.is_expired() {
             Ok(expired) => {
                 if expired {
-                    return Future::from_result(Err(String::from("expired session")));
+                    return Err(String::from("expired session")).into();
                 }
             },
             Err(e) => {
-                return Future::from_result(Err(e));
+                return Err(e).into();
             }
         }
 
         if session.permission < Permission::Write {
-            return Future::from_result(Err(String::from("invalid permission")));
+            return Err(String::from("invalid permission")).into();
         }
 
         let key_res = self.store_key();
 
         match key_res {
             Ok(_) => {},
-            Err(e) => { return Future::from_result(Err(e)); }
+            Err(e) => { return Err(e).into(); }
         }
 
         let key = key_res.unwrap();
@@ -353,7 +354,7 @@ pub trait Storable<S, K, V>
 
         match value_res {
             Ok(_) => {},
-            Err(e) => { return Future::from_result(Err(e)); }
+            Err(e) => { return Err(e).into(); }
         }
 
         let value = value_res.unwrap();
@@ -372,34 +373,34 @@ pub trait Storable<S, K, V>
     {
         match params.check() {
             Ok(_) => {},
-            Err(e) => { return Future::from_result(Err(e)) },
+            Err(e) => { return Err(e).into() },
         }
 
         match session.check() {
             Ok(_) => {},
-            Err(e) => { return Future::from_result(Err(e)) },
+            Err(e) => { return Err(e).into() },
         }
 
         match session.is_expired() {
             Ok(expired) => {
                 if expired {
-                    return Future::from_result(Err(String::from("expired session")));
+                    return Err(String::from("expired session")).into();
                 }
             },
             Err(e) => {
-                return Future::from_result(Err(e));
+                return Err(e).into();
             }
         }
 
         if session.permission < Permission::Write {
-            return Future::from_result(Err(String::from("invalid permission")));
+            return Err(String::from("invalid permission")).into();
         }
 
         let key_res = self.store_key();
 
         match key_res {
             Ok(_) => {},
-            Err(e) => { return Future::from_result(Err(e)); }
+            Err(e) => { return Err(e).into(); }
         }
 
         let key = key_res.unwrap();
@@ -408,7 +409,7 @@ pub trait Storable<S, K, V>
 
         match value_res {
             Ok(_) => {},
-            Err(e) => { return Future::from_result(Err(e)); }
+            Err(e) => { return Err(e).into(); }
         }
 
         let value = value_res.unwrap();
@@ -427,34 +428,34 @@ pub trait Storable<S, K, V>
     {
         match params.check() {
             Ok(_) => {},
-            Err(e) => { return Future::from_result(Err(e)) },
+            Err(e) => { return Err(e).into() },
         }
 
         match session.check() {
             Ok(_) => {},
-            Err(e) => { return Future::from_result(Err(e)) },
+            Err(e) => { return Err(e).into() },
         }
 
         match session.is_expired() {
             Ok(expired) => {
                 if expired {
-                    return Future::from_result(Err(String::from("expired session")));
+                    return Err(String::from("expired session")).into();
                 }
             },
             Err(e) => {
-                return Future::from_result(Err(e));
+                return Err(e).into();
             }
         }
 
         if session.permission < Permission::Write {
-            return Future::from_result(Err(String::from("invalid permission")));
+            return Err(String::from("invalid permission")).into();
         }
 
         let key_res = self.store_key();
 
         match key_res {
             Ok(_) => {},
-            Err(e) => { return Future::from_result(Err(e)); }
+            Err(e) => { return Err(e).into(); }
         }
 
         let key = key_res.unwrap();
@@ -463,7 +464,7 @@ pub trait Storable<S, K, V>
 
         match value_res {
             Ok(_) => {},
-            Err(e) => { return Future::from_result(Err(e)); }
+            Err(e) => { return Err(e).into(); }
         }
 
         let value = value_res.unwrap();
@@ -482,34 +483,34 @@ pub trait Storable<S, K, V>
     {
         match params.check() {
             Ok(_) => {},
-            Err(e) => { return Future::from_result(Err(e)) },
+            Err(e) => { return Err(e).into() },
         }
 
         match session.check() {
             Ok(_) => {},
-            Err(e) => { return Future::from_result(Err(e)) },
+            Err(e) => { return Err(e).into() },
         }
 
         match session.is_expired() {
             Ok(expired) => {
                 if expired {
-                    return Future::from_result(Err(String::from("expired session")));
+                    return Err(String::from("expired session")).into();
                 }
             },
             Err(e) => {
-                return Future::from_result(Err(e));
+                return Err(e).into();
             }
         }
 
         if session.permission < Permission::Write {
-            return Future::from_result(Err(String::from("invalid permission")));
+            return Err(String::from("invalid permission")).into();
         }
 
         let key_res = self.store_key();
 
         match key_res {
             Ok(_) => {},
-            Err(e) => { return Future::from_result(Err(e)); }
+            Err(e) => { return Err(e).into(); }
         }
 
         let key = key_res.unwrap();

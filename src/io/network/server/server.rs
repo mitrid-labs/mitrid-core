@@ -3,6 +3,7 @@
 //! `server` is the module providing the trait implemented by network servers.
 
 use futures::Future as BasicFuture;
+use futures::Stream as BasicStream;
 
 use std::thread;
 use std::sync::{Arc, Mutex};
@@ -14,18 +15,19 @@ use base::Checkable;
 use base::Serializable;
 use base::Datable;
 use io::store::Store;
-use io::network::transport::Transport;
+use io::network::transport::{ClientTransport, ServerTransport};
 use io::network::server::Handler;
 use io::network::server::Router;
 use io::network::message::Request;
 
 /// Trait implemented by network servers.
-pub trait Server<St, StS, StK, StV, T, H, R, S, RS, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C>
+pub trait Server<St, StS, StK, StV, ST, CT, H, R, S, RS, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C>
     where   St: Store<StS, StK, StV>,
             StS: Datable + Serializable,
             StK: Datable + Serializable,
             StV: Datable + Serializable,
-            T: Transport<Ad>,
+            ST: ServerTransport<Ad, CT>,
+            CT: ClientTransport<Ad>,
             H: Handler<St, StS, StK, StV, S, RS, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C>,
             R: Router<S, RS, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C>,
             S: Datable + Serializable,
@@ -48,7 +50,6 @@ pub trait Server<St, StS, StK, StV, T, H, R, S, RS, Ad, NP, D, Pk, Sig, Pr, Am, 
     /// Serves incoming requests.
     fn serve<P, LP, RcvP, SP, RP>(params: &P,
                                   store: St,
-                                  mut transport: T,
                                   listen_params: &LP,
                                   recv_params: &RcvP,
                                   send_params: &SP,
@@ -74,7 +75,7 @@ pub trait Server<St, StS, StK, StV, T, H, R, S, RS, Ad, NP, D, Pk, Sig, Pr, Am, 
         
         addresses.check()?;
 
-        transport.listen(listen_params, addresses).wait()?;
+        let mut transport = ST::listen(listen_params, addresses).wait()?;
 
         let threads_num = Arc::new(Mutex::new(0));
         let store = Arc::new(Mutex::new(store));
@@ -84,10 +85,11 @@ pub trait Server<St, StS, StK, StV, T, H, R, S, RS, Ad, NP, D, Pk, Sig, Pr, Am, 
         loop {
             while *threads_num.lock().unwrap() < thread_limit {
 
-                let res = transport.recv(recv_params)
-                            .and_then(|(transport, ser_reqs)| {
-                                for ser_req in ser_reqs {
-                                    match Request::from_bytes(ser_req.as_slice()) {
+                let res = transport.accept(recv_params)
+                            .and_then(|(mut transport, _)| {
+
+                                for ser_req in transport.recv(recv_params).wait() {
+                                    match Request::from_bytes(ser_req?.as_slice()) {
                                         Err(e) => {
                                             return Err(e);
                                         },

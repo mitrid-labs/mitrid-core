@@ -8,7 +8,8 @@ use futures::future as base_future;
 
 use std::ops::{Deref, DerefMut};
 
-use base::result::Result;
+use base::Result;
+use base::Stream;
 
 /// Alias to a `futures::Future` with `String` error.
 pub struct Future<T>(Box<BasicFuture<Item=T, Error=String>>);
@@ -45,5 +46,71 @@ impl<T> BasicFuture for Future<T> {
 
     fn poll(&mut self) -> Poll<Self::Item, Self::Error> {
         self.0.poll()
+    }
+}
+
+impl Into<Stream<()>> for Future<()> {
+    fn into(self) -> Stream<()> {
+        Stream::from_future(self)
+    }
+}
+
+impl Into<Stream<bool>> for Future<bool> {
+    fn into(self) -> Stream<bool> {
+        Stream::from_future(self)
+    }
+}
+
+impl Into<Stream<u8>> for Future<u8> {
+    fn into(self) -> Stream<u8> {
+        Stream::from_future(self)
+    }
+}
+
+impl Into<Stream<i8>> for Future<i8> {
+    fn into(self) -> Stream<i8> {
+        Stream::from_future(self)
+    }
+}
+
+impl Into<Stream<u16>> for Future<u16> {
+    fn into(self) -> Stream<u16> {
+        Stream::from_future(self)
+    }
+}
+
+impl Into<Stream<i16>> for Future<i16> {
+    fn into(self) -> Stream<i16> {
+        Stream::from_future(self)
+    }
+}
+
+impl Into<Stream<u32>> for Future<u32> {
+    fn into(self) -> Stream<u32> {
+        Stream::from_future(self)
+    }
+}
+
+impl Into<Stream<i32>> for Future<i32> {
+    fn into(self) -> Stream<i32> {
+        Stream::from_future(self)
+    }
+}
+
+impl Into<Stream<u64>> for Future<u64> {
+    fn into(self) -> Stream<u64> {
+        Stream::from_future(self)
+    }
+}
+
+impl Into<Stream<i64>> for Future<i64> {
+    fn into(self) -> Stream<i64> {
+        Stream::from_future(self)
+    }
+}
+
+impl Into<Stream<String>> for Future<String> {
+    fn into(self) -> Stream<String> {
+        Stream::from_future(self)
     }
 }

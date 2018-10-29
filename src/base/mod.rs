@@ -10,6 +10,9 @@ pub mod result;
 /// The Future type used across the library. An async Result.
 pub mod future;
 
+/// The Stream type used accross the library. An async stream of `Result`s.
+pub mod stream;
+
 /// Trait to be implemented by types that can be checked.
 pub mod check;
 
@@ -30,6 +33,7 @@ pub mod eval;
 
 pub use self::result::Result;
 pub use self::future::Future;
+pub use self::stream::Stream;
 pub use self::check::Checkable;
 pub use self::data::Datable;
 pub use self::serialize::Serializable;
