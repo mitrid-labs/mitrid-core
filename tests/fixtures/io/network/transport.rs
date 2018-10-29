@@ -30,7 +30,7 @@ impl BasicClientTransport<Address> for ClientTransport {
         }
     }
 
-    fn disconnect<P: Datable>(&mut self, _params: &P, _addresses: &Vec<Address>) -> Future<()> {
+    fn disconnect<P: Datable>(&mut self, _params: &P) -> Future<()> {
         (*self.0.lock().unwrap()).shutdown(Shutdown::Both)
             .map_err(|e| format!("{:?}", e)).into()
     }

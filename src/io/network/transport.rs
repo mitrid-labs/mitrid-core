@@ -16,7 +16,7 @@ pub trait ClientTransport<A>
     fn connect<P: Datable>(params: &P, addresses: &Vec<A>) -> Future<Self>;
 
     /// Closes the connections.
-    fn disconnect<P: Datable>(&mut self, params: &P, addresses: &Vec<A>) -> Future<()>;
+    fn disconnect<P: Datable>(&mut self, params: &P) -> Future<()>;
 
     /// Sends data through the network connections.
     fn send<P: Datable>(&mut self, params: &P, data: &[u8]) -> Future<()>;

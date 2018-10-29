@@ -301,7 +301,7 @@ pub trait Client<CT, S, RS, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C>
             },
         }
 
-        let disconn_res = transport.disconnect(disconnect_params, &addresses);
+        let disconn_res = transport.disconnect(disconnect_params);
         match disconn_res.wait() {
             Ok(_) => {},
             Err(e) => {
