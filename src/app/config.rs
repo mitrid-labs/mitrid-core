@@ -118,12 +118,10 @@ impl<D, MnP, A, StP, SvP, ClP, CP> Config<D, MnP, A, StP, SvP, ClP, CP>
             .and_then(|mut file| {
                 let mut json = String::new();
                 
-                match file.read_to_string(&mut json) {
-                    Err(e) => Err(format!("{}", e)),
-                    Ok(_) => {
-                        Config::from_json(&json)
-                    },
-                }
+                file.read_to_string(&mut json)
+                    .map_err(|e| format!("{:?}", e))?;
+
+                Config::from_json(&json)
             })
     }
 
@@ -139,15 +137,9 @@ impl<D, MnP, A, StP, SvP, ClP, CP> Config<D, MnP, A, StP, SvP, ClP, CP>
                 Err(format!("{}", e))
             })
             .and_then(|mut file| {
-                match self.to_json() {
-                    Err(e) => Err(e),
-                    Ok(json) => {
-                        match file.write_all(json.as_bytes()) {
-                            Err(e) => Err(format!("{}", e)),
-                            Ok(_) => Ok(()),
-                        }
-                    }
-                }
+                let json = self.to_json()?;
+                file.write_all(json.as_bytes())
+                    .map_err(|e| format!("{:?}", e))
             })
     }
 
@@ -160,12 +152,10 @@ impl<D, MnP, A, StP, SvP, ClP, CP> Config<D, MnP, A, StP, SvP, ClP, CP>
             .and_then(|mut file| {
                 let mut buf = Vec::new();
                 
-                match file.read_to_end(&mut buf) {
-                    Err(e) => Err(format!("{}", e)),
-                    Ok(_) => {
-                        Config::from_bytes(&buf)
-                    },
-                }
+                file.read_to_end(&mut buf)
+                    .map_err(|e| format!("{:?}", e))?;
+
+                Config::from_bytes(&buf)
             })
     }
     
@@ -181,15 +171,9 @@ impl<D, MnP, A, StP, SvP, ClP, CP> Config<D, MnP, A, StP, SvP, ClP, CP>
                 Err(format!("{}", e))
             })
             .and_then(|mut file| {
-                match self.to_bytes() {
-                    Err(e) => Err(e),
-                    Ok(buf) => {
-                        match file.write_all(&buf) {
-                            Err(e) => Err(format!("{}", e)),
-                            Ok(_) => Ok(()),
-                        }
-                    }
-                }
+                let buf = self.to_bytes()?;
+                file.write_all(&buf)
+                    .map_err(|e| format!("{:?}", e))
             })
     }
 
@@ -202,12 +186,10 @@ impl<D, MnP, A, StP, SvP, ClP, CP> Config<D, MnP, A, StP, SvP, ClP, CP>
             .and_then(|mut file| {
                 let mut hex = String::new();
                 
-                match file.read_to_string(&mut hex) {
-                    Err(e) => Err(format!("{}", e)),
-                    Ok(_) => {
-                        Config::from_hex(&hex)
-                    },
-                }
+                file.read_to_string(&mut hex)
+                    .map_err(|e| format!("{:?}", e))?;
+
+                Config::from_hex(&hex)
             })
     }
     
@@ -223,15 +205,10 @@ impl<D, MnP, A, StP, SvP, ClP, CP> Config<D, MnP, A, StP, SvP, ClP, CP>
                 Err(format!("{}", e))
             })
             .and_then(|mut file| {
-                match self.to_hex() {
-                    Err(e) => Err(e),
-                    Ok(hex) => {
-                        match file.write_all(hex.as_bytes()) {
-                            Err(e) => Err(format!("{}", e)),
-                            Ok(_) => Ok(()),
-                        }
-                    }
-                }
+                let hex = self.to_hex()?;
+                file.write_all(hex.as_bytes())
+                    .map_err(|e| format!("{:?}", e))
+
             })
     }
 }

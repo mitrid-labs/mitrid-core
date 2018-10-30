@@ -86,41 +86,29 @@ pub trait Server<St, StS, StK, StV, ST, CT, H, R, S, RS, Ad, NP, D, Pk, Sig, Pr,
                     .and_then(|(mut transport, _)| {
 
                         for ser_req in transport.recv(recv_params)? {
-                            match Request::from_bytes(ser_req.as_slice()) {
-                                Err(e) => {
-                                    return Err(e);
-                                },
-                                Ok(req) => {
-                                    let store = store.clone();
-                                    let mut transport = transport.clone();
-                                    let send_params = send_params.clone();
-                                    let handler = handler.clone(); 
-                                    let router = router.clone();
-                                    let route_params = route_params.clone();
-                                    let threads_num = threads_num.clone();
-                                    
-                                    let res = thread::spawn(move || {
-                                        *threads_num.lock().unwrap() += 1;
+                            let req = Request::from_bytes(ser_req.as_slice())?;
+                            let store = store.clone();
+                            let mut transport = transport.clone();
+                            let send_params = send_params.clone();
+                            let handler = handler.clone(); 
+                            let router = router.clone();
+                            let route_params = route_params.clone();
+                            let threads_num = threads_num.clone();
+                            
+                            let _ = thread::spawn(move || {
+                                *threads_num.lock().unwrap() += 1;
 
-                                        let store = &mut *store.lock().unwrap();
+                                let store = &mut *store.lock().unwrap();
 
-                                        router.route(store, &*handler, &route_params, &req)
-                                            .and_then(|res| {
-                                                transport.send(&send_params, &res.to_bytes().unwrap())
-                                            })
-                                            .or_else(|e| Err(format!("{:}", e)))
+                                router.route(store, &*handler, &route_params, &req)
+                                    .and_then(|res| {
+                                        transport.send(&send_params, &res.to_bytes().unwrap())
                                     })
-                                    .join()
-                                    .map_err(|e| format!("{:?}", e));
-
-                                    match res {
-                                        Err(e) => {
-                                            return Err(e);
-                                        },
-                                        Ok(_) => {}
-                                    }
-                                },
-                            }
+                                    .or_else(|e| Err(format!("{:}", e)))
+                            })
+                            .join()
+                            .map_err(|e| format!("{:?}", e))
+                            .unwrap();
                         }
 
                         Ok(())
