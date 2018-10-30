@@ -2,8 +2,7 @@
 //!
 //! `config` is the module providing the type used to configure the Mitrid applications.
 
-use futures::Future as BasicFuture;
-use tokio_fs::{File, OpenOptions};
+use std::fs::{File, OpenOptions};
 
 use std::path::Path;
 use std::io::{Read, Write};
@@ -126,7 +125,6 @@ impl<D, MnP, A, StP, SvP, ClP, CP> Config<D, MnP, A, StP, SvP, ClP, CP>
                     },
                 }
             })
-            .wait()
     }
 
     /// Writes the `Config` to a json file.
@@ -151,7 +149,6 @@ impl<D, MnP, A, StP, SvP, ClP, CP> Config<D, MnP, A, StP, SvP, ClP, CP>
                     }
                 }
             })
-            .wait()
     }
 
     /// Reads a `Config` from a binary file.
@@ -170,7 +167,6 @@ impl<D, MnP, A, StP, SvP, ClP, CP> Config<D, MnP, A, StP, SvP, ClP, CP>
                     },
                 }
             })
-            .wait()
     }
     
     /// Writes the `Config` to a binary file.
@@ -195,7 +191,6 @@ impl<D, MnP, A, StP, SvP, ClP, CP> Config<D, MnP, A, StP, SvP, ClP, CP>
                     }
                 }
             })
-            .wait()
     }
 
     /// Reads a `Config` from a hex file.
@@ -214,7 +209,6 @@ impl<D, MnP, A, StP, SvP, ClP, CP> Config<D, MnP, A, StP, SvP, ClP, CP>
                     },
                 }
             })
-            .wait()
     }
     
     /// Writes the `Config` to a hex file.
@@ -239,7 +233,6 @@ impl<D, MnP, A, StP, SvP, ClP, CP> Config<D, MnP, A, StP, SvP, ClP, CP>
                     }
                 }
             })
-            .wait()
     }
 }
 

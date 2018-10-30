@@ -4,7 +4,6 @@ extern crate serde;
 extern crate serde_derive;
 extern crate rand;
 extern crate sodiumoxide;
-extern crate futures;
 
 mod base;
 mod utils;

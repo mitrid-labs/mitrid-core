@@ -2,11 +2,7 @@
 //!
 //! `app` is the module providing the trait implemented by Mitrid applications.
 
-use futures::Future as BasicFuture;
-use futures::Stream;
-
 use base::Result;
-use base::Future;
 use base::data::Datable;
 use app::{Request, Response};
 use app::{RequestChannel, ResponseSender};
@@ -33,18 +29,17 @@ pub trait App<Ap, StaP, StaR, StoP, StoR, RP, RR, EP, ER>
 
     /// Executes a command in the `App`.
     fn exec(&mut self, req: &Request<Ap, StaP, StoP, RP, EP>)
-        -> Future<Response<Ap, StaR, StoR, RR, ER>>;
+        -> Result<Response<Ap, StaR, StoR, RR, ER>>;
 
     /// Logs a result.
     fn log_result<T: Sized>(&self, res: &Result<T>);
 
     /// Runs the `App`.
     fn run(&mut self) {
-        let mut sender = self.response_sender();
+        let sender = self.response_sender();
 
         loop {
-            for req_res in self.request_channel().receiver.wait() {
-                let req = req_res.unwrap();
+            for req in self.request_channel().receiver {
 
                 let res = self.exec(&req)
                             .or_else(|e| {
@@ -54,10 +49,9 @@ pub trait App<Ap, StaP, StaR, StoP, StoR, RP, RR, EP, ER>
                             })
                             .and_then(|res| {
                                 sender
-                                    .try_send(res)
+                                    .send(res)
                                     .map_err(|e| format!("{:?}", e))
-                            })
-                            .wait();
+                            });
 
                 self.log_result(&res);
                 res.unwrap();

@@ -14,8 +14,6 @@ travis-ci = { repository = "mitrid-labs/mitrid-core", branch = "master" }
 coveralls = { repository = "mitrid-labs/mitrid-core", branch = "master", service = "github" }
 
 [dependencies]
-futures = "^0.1"
-tokio-fs = "^0.1"
 serde = "^1"
 serde_derive = "^1"
 serde_json = "^1"

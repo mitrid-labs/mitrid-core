@@ -2,8 +2,6 @@
 //!
 //! `manager` is the module providing the trait used to manage Mitrid applications.
 
-use futures::Stream;
-
 use base::Result;
 use base::{ConstantSize, VariableSize};
 use base::Checkable;
@@ -89,23 +87,22 @@ pub trait Manager<E, D, MnP, A, StP, SvP, ClP, CP, Ap, StaP, StaR, StoP, StoR, R
         let sender_res = self.app_request_sender(app);
         self.log_result(&sender_res);
 
-        let mut sender = sender_res.unwrap();
+        let sender = sender_res.unwrap();
 
         let res = sender
-                    .try_send(req.to_owned())
+                    .send(req.to_owned())
                     .map_err(|e| format!("{:?}", e));
 
         self.log_result(&res);
 
         res.unwrap();
 
-        let res_stream_res = self.app_response_receiver(app);
-        self.log_result(&res_stream_res);
+        let responses_res = self.app_response_receiver(app);
+        self.log_result(&responses_res);
 
-        let res_stream = res_stream_res.unwrap();
+        let responses = responses_res.unwrap();
 
-        for res_res in res_stream.wait() {
-            let res = res_res.unwrap();
+        for res in responses {
             self.log_response(&res);
         }
     }

@@ -4,8 +4,6 @@
 //! for building blockchains and other distributed ledgers using block-based authenticated
 //! data structures (authenticated trees, authenticated graphs, etc).
 
-extern crate futures;
-extern crate tokio_fs;
 extern crate serde;
 #[macro_use]
 extern crate serde_derive;

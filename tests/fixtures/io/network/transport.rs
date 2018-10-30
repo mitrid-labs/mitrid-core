@@ -1,8 +1,4 @@
-use futures::Future as BasicFuture;
-use futures::Stream as BasicStream;
 use mitrid_core::base::Result;
-use mitrid_core::base::Future;
-use mitrid_core::base::Stream;
 use mitrid_core::base::Datable;
 use mitrid_core::io::network::ClientTransport as BasicClientTransport;
 use mitrid_core::io::network::ServerTransport as BasicServerTransport;
@@ -17,51 +13,41 @@ use fixtures::io::Address;
 pub struct ClientTransport(Arc<Mutex<TcpStream>>);
 
 impl BasicClientTransport<Address> for ClientTransport {
-    fn connect<P: Datable>(_params: &P, addresses: &Vec<Address>) -> Future<Self> {
+    fn connect<P: Datable>(_params: &P, addresses: &Vec<Address>) -> Result<Self> {
         if addresses.len() != 1 {
-            println!("invalid length");
-            return Future::from_result(Err(String::from("invalid length")));
+            return Err(String::from("invalid length"));
         }
 
         let addr = addresses[0].to_owned();
 
-        match TcpStream::connect(&addr.to_string()) {
-            Err(e) => {
-                println!("{:?}", e);
-                Future::from_result(Err(format!("{:?}", e)))
-            }
-            Ok(tcp_stream) => {
-                let ct = ClientTransport(Arc::new(Mutex::new(tcp_stream)));
-                Future::from_result(Ok(ct))
-            },
-        }
+        let tcp_stream = TcpStream::connect(&addr.to_string())
+                            .map_err(|e| format!("{:?}", e))?;
+
+        let ct = ClientTransport(Arc::new(Mutex::new(tcp_stream)));
+
+        Ok(ct)
     }
 
-    fn disconnect<P: Datable>(&mut self, _params: &P) -> Future<()> {
+    fn disconnect<P: Datable>(&mut self, _params: &P) -> Result<()> {
         (*self.0.lock().unwrap()).shutdown(Shutdown::Both)
             .map_err(|e| format!("{:?}", e)).into()
     }
 
-    fn send<P: Datable>(&mut self, _params: &P, data: &[u8]) -> Future<()> {
+    fn send<P: Datable>(&mut self, _params: &P, data: &[u8]) -> Result<()> {
         (*self.0.lock().unwrap())
             .write(data)
             .map(|_| ())
             .map_err(|e| format!("{:?}", e))
-            .into()
     }
 
-    fn recv<P: Datable>(&mut self, _params: &P) -> Stream<Vec<u8>> {
+    fn recv<P: Datable>(&mut self, _params: &P) -> Result<Vec<Vec<u8>>> {
         let mut buffer = Vec::new();
 
-        let res = (*self.0.lock().unwrap()).read_to_end(&mut buffer);
-        match res {
-            Ok(_) => {},
-            Err(e) => {
-                return Stream::from_result(Err(format!("{:?}", e)));
-            },
-        }
+        (*self.0.lock().unwrap())
+            .read_to_end(&mut buffer)
+            .map_err(|e| format!("{:?}", e))?;
 
-        Stream::from_result(Ok(buffer))
+        Ok(vec![buffer])
     }
 }
 
@@ -70,17 +56,12 @@ pub struct ServerTransport(Arc<Mutex<TcpListener>>);
 
 impl ServerTransport {
     pub fn run(addresses: &Vec<Address>) -> Result<()> {
-        let mut server = ServerTransport::listen(&(), addresses).wait()?;
+        let mut server = ServerTransport::listen(&(), addresses)?;
 
-        let mut ct = 0;
-
-        while ct < 1 {
-            let (mut client, _) = server.accept(&()).wait()?;
-            for recvd in client.recv(&()).wait() {
-                client.send(&(), &recvd?).wait()?
-            }
-
-            ct += 1;
+        let (mut client, _) = server.accept(&())?;
+        
+        for recvd in client.recv(&())? {
+            client.send(&(), &recvd)?
         }
 
         Ok(())
@@ -88,37 +69,33 @@ impl ServerTransport {
 }
 
 impl BasicServerTransport<Address, ClientTransport> for ServerTransport {
-    fn listen<P: Datable>(_params: &P, addresses: &Vec<Address>) -> Future<ServerTransport> {
+    fn listen<P: Datable>(_params: &P, addresses: &Vec<Address>) -> Result<ServerTransport> {
         if addresses.len() != 1 {
-            return Future::from_result(Err(String::from("invalid length")));
+            return Err(String::from("invalid length"));
         }
 
         let addr = addresses[0].to_owned();
 
-        match TcpListener::bind(&addr.to_string()) {
-            Err(e) => Future::from_result(Err(format!("{:?}", e))),
-            Ok(listener) => {
-                let st = ServerTransport(Arc::new(Mutex::new(listener)));
-                Future::from_result(Ok(st))
-            },
-        }
+        let listener = TcpListener::bind(&addr.to_string())
+                            .map_err(|e| format!("{:?}", e))?;
+
+        let st = ServerTransport(Arc::new(Mutex::new(listener)));
+
+        Ok(st)
     }
 
-    fn accept<P: Datable>(&mut self, _params: &P) -> Future<(ClientTransport, Vec<Address>)> {
-        match (*self.0.lock().unwrap()).accept() {
-            Err(e) => {
-                Future::from_result(Err(format!("{:?}", e)))
-            },
-            Ok((tcp_stream, socket)) => {
-                let transport = ClientTransport(Arc::new(Mutex::new(tcp_stream)));
-                let address = Address::from_socket(&socket);
+    fn accept<P: Datable>(&mut self, _params: &P) -> Result<(ClientTransport, Vec<Address>)> {
+        let (tcp_stream, socket) = (*self.0.lock().unwrap())
+                                        .accept()
+                                        .map_err(|e| format!("{:?}", e))?;
 
-                Future::from_result(Ok((transport, vec![address])))
-            },
-        }
+        let transport = ClientTransport(Arc::new(Mutex::new(tcp_stream)));
+        let address = Address::from_socket(&socket);
+
+        Ok((transport, vec![address]))
     }
 
-    fn close<P: Datable>(&mut self, _params: &P) -> Future<()> {
-        Future::from_result(Ok(()))
+    fn close<P: Datable>(&mut self, _params: &P) -> Result<()> {
+        Ok(())
     }
 }

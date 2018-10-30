@@ -2,7 +2,7 @@
 //!
 //! `channels` is the module providing the types used to communicate with applications.
 
-use futures::sync::mpsc::{Sender, Receiver, channel};
+use std::sync::mpsc::{Sender, Receiver, channel};
 
 use base::Datable;
 use app::Request;
@@ -34,8 +34,8 @@ impl<Ap, StaP, StoP, RP, EP> RequestChannel<Ap, StaP, StoP, RP, EP>
             EP: Datable,
 {
     /// Creates a new `RequestChannel`.
-    pub fn new(buffer: u64) -> Self {
-        let (sender, receiver) = channel(buffer as usize);
+    pub fn new() -> Self {
+        let (sender, receiver) = channel();
 
         RequestChannel {
             sender: sender,
@@ -70,8 +70,8 @@ impl<Ap, StaR, StoR, RR, ER> ResponseChannel<Ap, StaR, StoR, RR, ER>
             ER: Datable,
 {
     /// Creates a new `ResponseChannel`.
-    pub fn new(buffer: u64) -> Self {
-        let (sender, receiver) = channel(buffer as usize);
+    pub fn new() -> Self {
+        let (sender, receiver) = channel();
 
         ResponseChannel {
             sender: sender,
@@ -111,9 +111,9 @@ impl<Ap, StaP, StaR, StoP, StoR, RP, RR, EP, ER> Channels<Ap, StaP, StaR, StoP, 
             ER: Datable
 {
     /// Creates a new `Channels`.
-    pub fn new(buffer: u64) -> Self {
-        let request_channel = RequestChannel::new(buffer);
-        let response_channel = ResponseChannel::new(buffer);
+    pub fn new() -> Self {
+        let request_channel = RequestChannel::new();
+        let response_channel = ResponseChannel::new();
 
         Channels {
             request: request_channel,

@@ -2,11 +2,7 @@
 //!
 //! `client` is the module providing the trait implemented by network clients.
 
-use futures::Future as BasicFuture;
-use futures::Stream as BasicStream;
-
 use base::Result;
-use base::Future;
 use base::numerical::Numerical;
 use base::size::{ConstantSize, VariableSize};
 use base::Checkable;
@@ -59,10 +55,10 @@ pub trait Client<CT, S, RS, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C>
 
         for ref req in requests {
             let ser_req = req.to_bytes()?;
-            transport.send(send_params, &ser_req).wait()?;
+            transport.send(send_params, &ser_req)?;
 
-            for ser_res in transport.recv(recv_params).wait() {
-                let res = Response::from_bytes(&ser_res?)?;
+            for ser_res in transport.recv(recv_params)? {
+                let res = Response::from_bytes(&ser_res)?;
                 res.check()?;
                 ress.push(res);
             }
@@ -91,10 +87,10 @@ pub trait Client<CT, S, RS, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C>
 
         for ref req in requests {
             let ser_req = req.to_bytes()?;
-            transport.send(send_params, &ser_req).wait()?;
+            transport.send(send_params, &ser_req)?;
 
-            for ser_res in transport.recv(recv_params).wait() {
-                let res = Response::from_bytes(&ser_res?)?;
+            for ser_res in transport.recv(recv_params)? {
+                let res = Response::from_bytes(&ser_res)?;
                 res.check()?;
                 if res.is_error()? {
                     return Err(String::from("error response"));
@@ -134,10 +130,10 @@ pub trait Client<CT, S, RS, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C>
                 }
 
                 let ser_req = req.to_bytes()?;
-                transport.send(send_params, &ser_req).wait()?;
+                transport.send(send_params, &ser_req)?;
 
-                for ser_res in transport.recv(recv_params).wait() {
-                    let res = Response::from_bytes(&ser_res?)?;
+                for ser_res in transport.recv(recv_params)? {
+                    let res = Response::from_bytes(&ser_res)?;
                     res.check()?;
                     
                     if res.is_error()? {
@@ -186,10 +182,10 @@ pub trait Client<CT, S, RS, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C>
                 }
 
                 let ser_req = req.to_bytes()?;
-                transport.send(send_params, &ser_req).wait()?;
+                transport.send(send_params, &ser_req)?;
                 
-                for ser_res in transport.recv(recv_params).wait() {
-                    let res = Response::from_bytes(&ser_res?)?;
+                for ser_res in transport.recv(recv_params)? {
+                    let res = Response::from_bytes(&ser_res)?;
                     res.check()?;
                     
                     if res.is_error()? {
@@ -224,91 +220,38 @@ pub trait Client<CT, S, RS, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C>
                                recv_params: &RP,
                                disconnect_params: &DP,
                                on_error: OnError)
-        -> Future<Vec<Response<S, RS, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C>>>
+        -> Result<Vec<Response<S, RS, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C>>>
         where   P: Datable,
                 CP: Datable,
                 SP: Datable,
                 RP: Datable,
                 DP: Datable
     {
-        match params.check() {
-            Ok(_) => {},
-            Err(e) => {
-                return Future::from_result(Err(e));
-            }
-        }
+        params.check()?;
 
-        let reqs_res = self.build(params, addresses);
-        match reqs_res {
-            Ok(_) => {},
-            Err(e) => {
-                return Future::from_result(Err(e));
-            }
-        }
+        let requests = self.build(params, addresses)?;
 
-        let requests = reqs_res.unwrap();
-
-        let mut transport: CT;
-
-        let conn_res = CT::connect(connect_params, &addresses).wait();
-        match conn_res {
-            Err(e) => {
-                return Future::from_result(Err(e));
-            },
-            Ok(tsprt) => {
-                transport = tsprt;
-            } 
-        }
+        let mut transport = CT::connect(connect_params, &addresses)?;
 
         let mut responses = Vec::new();
 
         match on_error {
             OnError::Ignore => {
-                let res = self.send_ignore_on_error(&mut transport, send_params, recv_params, &requests, &mut responses);
-                match res {
-                    Ok(_) => {},
-                    Err(e) => {
-                        return Future::from_result(Err(e));
-                    }
-                }
+                self.send_ignore_on_error(&mut transport, send_params, recv_params, &requests, &mut responses)?;
             },
             OnError::Fail => {
-                let res = self.send_fail_on_error(&mut transport, send_params, recv_params, &requests, &mut responses);
-                match res {
-                    Ok(_) => {},
-                    Err(e) => {
-                        return Future::from_result(Err(e));
-                    }
-                }
+                self.send_fail_on_error(&mut transport, send_params, recv_params, &requests, &mut responses)?;
             },
             OnError::RetryAndIgnore(times) => {
-                let res = self.send_retry_and_ignore(&mut transport, send_params, recv_params, times, &requests, &mut responses);
-                match res {
-                    Ok(_) => {},
-                    Err(e) => {
-                        return Future::from_result(Err(e));
-                    }
-                }
+                self.send_retry_and_ignore(&mut transport, send_params, recv_params, times, &requests, &mut responses)?;
             },
             OnError::RetryAndFail(times) => {
-                let res = self.send_retry_and_fail(&mut transport, send_params, recv_params, times, &requests, &mut responses);
-                match res {
-                    Ok(_) => {},
-                    Err(e) => {
-                        return Future::from_result(Err(e));
-                    }
-                }
+                self.send_retry_and_fail(&mut transport, send_params, recv_params, times, &requests, &mut responses)?;
             },
         }
 
-        let disconn_res = transport.disconnect(disconnect_params);
-        match disconn_res.wait() {
-            Ok(_) => {},
-            Err(e) => {
-                return Future::from_result(Err(e));
-            }
-        }
+        transport.disconnect(disconnect_params)?;
 
-        Future::from_result(Ok(responses))
+        Ok(responses)
     }
 }

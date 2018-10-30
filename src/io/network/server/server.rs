@@ -2,9 +2,6 @@
 //!
 //! `server` is the module providing the trait implemented by network servers.
 
-use futures::Future as BasicFuture;
-use futures::Stream as BasicStream;
-
 use std::thread;
 use std::sync::{Arc, Mutex};
 
@@ -75,7 +72,7 @@ pub trait Server<St, StS, StK, StV, ST, CT, H, R, S, RS, Ad, NP, D, Pk, Sig, Pr,
         
         addresses.check()?;
 
-        let mut transport = ST::listen(listen_params, addresses).wait()?;
+        let mut transport = ST::listen(listen_params, addresses)?;
 
         let threads_num = Arc::new(Mutex::new(0));
         let store = Arc::new(Mutex::new(store));
@@ -85,58 +82,51 @@ pub trait Server<St, StS, StK, StV, ST, CT, H, R, S, RS, Ad, NP, D, Pk, Sig, Pr,
         loop {
             while *threads_num.lock().unwrap() < thread_limit {
 
-                let res = transport.accept(recv_params)
-                            .and_then(|(mut transport, _)| {
+                transport.accept(recv_params)
+                    .and_then(|(mut transport, _)| {
 
-                                for ser_req in transport.recv(recv_params).wait() {
-                                    match Request::from_bytes(ser_req?.as_slice()) {
+                        for ser_req in transport.recv(recv_params)? {
+                            match Request::from_bytes(ser_req.as_slice()) {
+                                Err(e) => {
+                                    return Err(e);
+                                },
+                                Ok(req) => {
+                                    let store = store.clone();
+                                    let mut transport = transport.clone();
+                                    let send_params = send_params.clone();
+                                    let handler = handler.clone(); 
+                                    let router = router.clone();
+                                    let route_params = route_params.clone();
+                                    let threads_num = threads_num.clone();
+                                    
+                                    let res = thread::spawn(move || {
+                                        *threads_num.lock().unwrap() += 1;
+
+                                        let store = &mut *store.lock().unwrap();
+
+                                        router.route(store, &*handler, &route_params, &req)
+                                            .and_then(|res| {
+                                                transport.send(&send_params, &res.to_bytes().unwrap())
+                                            })
+                                            .or_else(|e| Err(format!("{:}", e)))
+                                    })
+                                    .join()
+                                    .map_err(|e| format!("{:?}", e));
+
+                                    match res {
                                         Err(e) => {
                                             return Err(e);
                                         },
-                                        Ok(req) => {
-                                            let store = store.clone();
-                                            let mut transport = transport.clone();
-                                            let send_params = send_params.clone();
-                                            let handler = handler.clone(); 
-                                            let router = router.clone();
-                                            let route_params = route_params.clone();
-                                            let threads_num = threads_num.clone();
-                                            
-                                            let res = thread::spawn(move || {
-                                                *threads_num.lock().unwrap() += 1;
-
-                                                let store = &mut *store.lock().unwrap();
-
-                                                router.route(store, &*handler, &route_params, &req)
-                                                    .and_then(|res| {
-                                                        transport.send(&send_params, &res.to_bytes().unwrap()).wait()
-                                                    })
-                                                    .or_else(|e| Err(format!("{:}", e)))
-                                            })
-                                            .join()
-                                            .map_err(|e| format!("{:?}", e));
-
-                                            match res {
-                                                Err(e) => {
-                                                    return Err(e);
-                                                },
-                                                Ok(_) => {}
-                                            }
-                                        },
+                                        Ok(_) => {}
                                     }
-                                }
+                                },
+                            }
+                        }
 
-                                Ok(())
-                            })
-                            .or_else(|e| Err(format!("{:?}", e)))
-                            .wait();
-
-                match res {
-                    Ok(()) => {},
-                    Err(e) => {
-                        return Err(e);
-                    },
-                }
+                        Ok(())
+                    })
+                    .or_else(|e| Err(format!("{:?}", e)))?;
+                    
             }
 
             *threads_num.lock().unwrap() = 0;
