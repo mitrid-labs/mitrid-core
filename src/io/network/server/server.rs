@@ -41,8 +41,7 @@ pub trait Server<St, StS, StK, StV, ST, CT, H, R, S, RS, Ad, NP, D, Pk, Sig, Pr,
             TP: Datable + Serializable,
             BP: Datable + Serializable,
             BGP: Datable + Serializable,
-            C: Datable + Serializable,
-            Self: Clone + Sized + Sync
+            C: Datable + Serializable
 {
     /// Serves incoming requests.
     fn serve<P, LP, RcvP, SP, RP>(params: &P,
@@ -87,8 +86,8 @@ pub trait Server<St, StS, StK, StV, ST, CT, H, R, S, RS, Ad, NP, D, Pk, Sig, Pr,
 
                         for ser_req in transport.recv(recv_params)? {
                             let req = Request::from_bytes(ser_req.as_slice())?;
-                            let store = store.clone();
                             let mut transport = transport.clone();
+                            let store = store.clone();
                             let send_params = send_params.clone();
                             let handler = handler.clone(); 
                             let router = router.clone();

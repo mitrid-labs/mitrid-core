@@ -3,14 +3,21 @@ use mitrid_core::base::Datable;
 use mitrid_core::io::network::ClientTransport as BasicClientTransport;
 use mitrid_core::io::network::ServerTransport as BasicServerTransport;
 
-use std::sync::{Arc, Mutex};
 use std::net::{TcpListener, TcpStream, Shutdown};
 use std::io::{Write, Read};
+use std::mem;
+
+pub const BUFFER_SIZE: usize = 2048;
 
 use fixtures::io::Address;
 
-#[derive(Clone)]
-pub struct ClientTransport(Arc<Mutex<TcpStream>>);
+pub struct ClientTransport(TcpStream);
+
+impl Clone for ClientTransport {
+    fn clone(&self) -> ClientTransport {
+        ClientTransport(self.0.try_clone().unwrap())
+    }
+}
 
 impl BasicClientTransport<Address> for ClientTransport {
     fn connect<P: Datable>(_params: &P, addresses: &Vec<Address>) -> Result<Self> {
@@ -23,48 +30,75 @@ impl BasicClientTransport<Address> for ClientTransport {
         let tcp_stream = TcpStream::connect(&addr.to_string())
                             .map_err(|e| format!("{:?}", e))?;
 
-        let ct = ClientTransport(Arc::new(Mutex::new(tcp_stream)));
+        let ct = ClientTransport(tcp_stream);
 
         Ok(ct)
     }
 
     fn disconnect<P: Datable>(&mut self, _params: &P) -> Result<()> {
-        (*self.0.lock().unwrap()).shutdown(Shutdown::Both)
+        self.0.shutdown(Shutdown::Both)
             .map_err(|e| format!("{:?}", e)).into()
     }
 
     fn send<P: Datable>(&mut self, _params: &P, data: &[u8]) -> Result<()> {
-        (*self.0.lock().unwrap())
-            .write(data)
+        if data.len() > BUFFER_SIZE -4 {
+            return Err(format!("invalid length"));
+        }
+
+        let mut msg = [0u8; BUFFER_SIZE];
+
+        let len_msg: [u8; 4] = unsafe { mem::transmute(data.len() as u32) };
+
+        for i in 0..4 {
+            msg[i] = len_msg[i];
+        }
+
+        for i in 0..data.len() {
+            msg[i+4] = data[i];
+        }
+
+        self.0.write(&msg[..])
             .map(|_| ())
             .map_err(|e| format!("{:?}", e))
     }
 
     fn recv<P: Datable>(&mut self, _params: &P) -> Result<Vec<Vec<u8>>> {
-        let mut buffer = Vec::new();
+        let mut buffer: [u8; BUFFER_SIZE] = [0; BUFFER_SIZE];
 
-        (*self.0.lock().unwrap())
-            .read_to_end(&mut buffer)
+        self.0.read(&mut buffer[..])
             .map_err(|e| format!("{:?}", e))?;
 
-        Ok(vec![buffer])
+        let mut len_msg = [0u8; 4];
+
+        for i in 0..4 {
+            len_msg[i] = buffer[i];
+        }
+
+        let len: u32 = unsafe { mem::transmute(len_msg) };
+
+        let mut msg = Vec::new();
+
+        for i in 0..len as usize {
+            msg.push(buffer[i+4]);
+        }
+
+        Ok(vec![msg])
     }
 }
 
-#[derive(Clone)]
-pub struct ServerTransport(Arc<Mutex<TcpListener>>);
+pub struct ServerTransport(TcpListener);
 
 impl ServerTransport {
-    pub fn run(addresses: &Vec<Address>) -> Result<()> {
-        let mut server = ServerTransport::listen(&(), addresses)?;
+    pub fn run(addresses: &Vec<Address>) {
+        let mut server = ServerTransport::listen(&(), addresses).unwrap();
 
-        let (mut client, _) = server.accept(&())?;
+        let (mut client, _) = server.accept(&()).unwrap();
         
-        for recvd in client.recv(&())? {
-            client.send(&(), &recvd)?
-        }
+        let recvd = client.recv(&()).unwrap();
 
-        Ok(())
+        let msg = &recvd[0];
+
+        client.send(&(), msg.as_slice()).unwrap();
     }
 }
 
@@ -79,17 +113,16 @@ impl BasicServerTransport<Address, ClientTransport> for ServerTransport {
         let listener = TcpListener::bind(&addr.to_string())
                             .map_err(|e| format!("{:?}", e))?;
 
-        let st = ServerTransport(Arc::new(Mutex::new(listener)));
+        let st = ServerTransport(listener);
 
         Ok(st)
     }
 
     fn accept<P: Datable>(&mut self, _params: &P) -> Result<(ClientTransport, Vec<Address>)> {
-        let (tcp_stream, socket) = (*self.0.lock().unwrap())
-                                        .accept()
+        let (tcp_stream, socket) = self.0.accept()
                                         .map_err(|e| format!("{:?}", e))?;
 
-        let transport = ClientTransport(Arc::new(Mutex::new(tcp_stream)));
+        let transport = ClientTransport(tcp_stream);
         let address = Address::from_socket(&socket);
 
         Ok((transport, vec![address]))

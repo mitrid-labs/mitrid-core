@@ -1,6 +1,7 @@
 use mitrid_core::io::ClientTransport as BasicClientTransport;
 
 use std::thread;
+use std::time::Duration;
 
 use fixtures::io::Address;
 use fixtures::io::{ClientTransport, ServerTransport};
@@ -9,10 +10,10 @@ use fixtures::io::{ClientTransport, ServerTransport};
 fn test_ping_server() {
     thread::spawn(move || {
         let addresses = vec![Address::default()];
-        let res = ServerTransport::run(&addresses);
-        assert!(res.is_ok());
-        res.unwrap();
+        ServerTransport::run(&addresses);
     });
+
+    thread::sleep(Duration::from_millis(100));
 
     let addresses = vec![Address::default()];
     let res = ClientTransport::connect(&(), &addresses);
@@ -22,7 +23,6 @@ fn test_ping_server() {
     let msg_a = b"ping";
     let res = client.send(&(), msg_a);
     assert!(res.is_ok());
-    res.unwrap();
 
     let res = client.recv(&());
     assert!(res.is_ok());
@@ -35,6 +35,5 @@ fn test_ping_server() {
     assert_eq!(msg_a, msg_b);
 
     let res = client.disconnect(&());
-    assert!(res.is_ok());
-    res.unwrap();
+    assert!(res.is_ok())
 }

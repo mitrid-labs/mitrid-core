@@ -9,7 +9,7 @@ use base::Datable;
 /// Trait implemented by transports used by network clients.
 pub trait ClientTransport<A>
     where   A: Datable + VariableSize,
-            Self: 'static + Clone + Send + Sync
+            Self: 'static + Sized + Send + Sync + Clone
 {
     /// Opens one or more connections to one or more network addresses.
     fn connect<P: Datable>(params: &P, addresses: &Vec<A>) -> Result<Self>;
@@ -29,7 +29,7 @@ pub trait ClientTransport<A>
 pub trait ServerTransport<A, CT>
     where   A: Datable + VariableSize,
             CT: ClientTransport<A>,
-            Self: 'static + Clone + Send + Sync
+            Self: 'static + Sized + Send + Sync
 {
     /// Listens to connections incoming from one or more network addresses.
     fn listen<P: Datable>(sparams: &P, addresses: &Vec<A>) -> Result<Self>;
