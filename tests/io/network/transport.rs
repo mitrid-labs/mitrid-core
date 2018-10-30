@@ -10,7 +10,7 @@ use fixtures::io::{ClientTransport, ServerTransport};
 fn test_ping_server() {
     thread::spawn(move || {
         let addresses = vec![Address::default()];
-        ServerTransport::run(&addresses);
+        ServerTransport::serve_ping(&addresses);
     });
 
     thread::sleep(Duration::from_millis(100));

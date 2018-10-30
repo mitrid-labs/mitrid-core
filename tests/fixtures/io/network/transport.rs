@@ -89,7 +89,7 @@ impl BasicClientTransport<Address> for ClientTransport {
 pub struct ServerTransport(TcpListener);
 
 impl ServerTransport {
-    pub fn run(addresses: &Vec<Address>) {
+    pub fn serve_ping(addresses: &Vec<Address>) {
         let mut server = ServerTransport::listen(&(), addresses).unwrap();
 
         let (mut client, _) = server.accept(&()).unwrap();
