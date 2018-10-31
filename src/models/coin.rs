@@ -10,13 +10,13 @@ use base::Serializable;
 use base::{Sizable, ConstantSize};
 use base::Numerical;
 use crypto::{Hashable, Committable, Authenticatable};
-use io::Storable;
+use io::{Store, Storable};
 use models::Meta;
 
 /// Type used to represent a past `Output`.
 #[derive(Clone, PartialEq, Eq, PartialOrd, Ord, Debug, Default, Hash, Serialize, Deserialize)]
 pub struct Coin<D, A>
-    where   D: Datable + ConstantSize,
+    where   D: Ord + Datable + ConstantSize,
             A: Numerical
 {
     /// Coin id. It is the digest of the same coin, but with a default `D` id.
@@ -32,7 +32,7 @@ pub struct Coin<D, A>
 }
 
 impl<D, A> Coin<D, A>
-    where   D: Datable + ConstantSize,
+    where   D: Ord + Datable + ConstantSize,
             A: Numerical
 {
     /// Creates a new `Coin`.
@@ -221,26 +221,26 @@ impl<D, A> Coin<D, A>
 
 impl<P, D, A> Hashable<P, D> for Coin<D, A>
     where   P: Datable,
-            D: Datable + ConstantSize,
+            D: Ord + Datable + ConstantSize,
             A: Numerical
 {}
 
 impl<CP, C, D, A> Committable<CP, C> for Coin<D, A>
     where   CP: Datable,
             C: Datable + ConstantSize,
-            D: Datable + ConstantSize,
+            D: Ord + Datable + ConstantSize,
             A: Numerical
 {}
 
 impl<AP, T, D, A> Authenticatable<AP, T> for Coin<D, A>
     where   AP: Datable,
             T: Datable + ConstantSize,
-            D: Datable + ConstantSize,
+            D: Ord + Datable + ConstantSize,
             A: Numerical
 {}
 
 impl<D, A> Sizable for Coin<D, A>
-    where   D: Datable + ConstantSize,
+    where   D: Ord + Datable + ConstantSize,
             A: Numerical
 {
     fn size(&self) -> u64 {
@@ -253,7 +253,7 @@ impl<D, A> Sizable for Coin<D, A>
 }
 
 impl<D, A> Checkable for Coin<D, A>
-    where   D: Datable + ConstantSize,
+    where   D: Ord + Datable + ConstantSize,
             A: Numerical
 {
     fn check(&self) -> Result<()> {
@@ -274,19 +274,25 @@ impl<D, A> Checkable for Coin<D, A>
 }
 
 impl<D, A> Serializable for Coin<D, A>
-    where   D: Datable + ConstantSize + Serializable,
+    where   D: Ord + Datable + ConstantSize + Serializable,
             A: Numerical + Serializable
 {}
 
 impl<D, A> Datable for Coin<D, A>
-    where   D: Datable + ConstantSize,
+    where   D: Ord + Datable + ConstantSize,
             A: Numerical
 {}
 
-impl<S, D, A> Storable<S, D, Coin<D, A>> for Coin<D, A>
-    where   S: Datable + Serializable,
-            D: Datable + ConstantSize + Serializable,
-            A: Numerical + Serializable
+impl<St, S, D, A, StP, StPC, StRC>
+    Storable<St, S, D, Coin<D, A>, StP, StPC, StRC>
+    for Coin<D, A>
+    where   St: Store<S, D, Coin<D, A>, StP, StPC, StRC>,
+            S: Datable + Serializable,
+            D: Ord + Datable + ConstantSize + Serializable,
+            A: Numerical + Serializable,
+            StP: Datable,
+            StPC: Datable + Serializable,
+            StRC: Datable + Serializable
 {
     fn store_key(&self) -> Result<D> {
         self.id.check()?;

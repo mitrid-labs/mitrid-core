@@ -12,16 +12,22 @@ use io::network::message::Request;
 use io::network::message::Response;
 
 /// Trait implemented by the server handler.
-pub trait Handler<St, StS, StK, StV, S, RS, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C>
-    where   St: Store<StS, StK, StV>,
+pub trait Handler<St, StS, StK, StV, StP, StPC, StRC, S, RS, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C>
+    where   St: Store<StS, StK, StV, StP, StPC, StRC>,
             StS: Datable + Serializable,
-            StK: Datable + Serializable,
+            StK: Ord + Datable + Serializable,
+            StV: Datable + Serializable,
+            StP: Datable,
+            StPC: Datable + Serializable,
+            StRC: Datable + Serializable,
+            StS: Datable + Serializable,
+            StK: Ord + Datable + Serializable,
             StV: Datable + Serializable,
             S: Datable,
             RS: Datable,
             Ad: Datable + VariableSize,
             NP: Datable,
-            D: Datable + ConstantSize,
+            D: Ord + Datable + ConstantSize,
             Pk: Datable + ConstantSize,
             Sig: Datable + ConstantSize,
             Pr: Datable,

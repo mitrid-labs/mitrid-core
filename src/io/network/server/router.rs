@@ -15,12 +15,22 @@ use io::network::message::Response;
 use io::network::server::Handler;
 
 /// Trait implemented by the server router.
-pub trait Router<S, RS, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C>
-    where   S: Datable,
+pub trait Router<St, StS, StK, StV, StP, StPC, StRC, S, RS, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C>
+    where   St: Store<StS, StK, StV, StP, StPC, StRC>,
+            StS: Datable + Serializable,
+            StK: Ord + Datable + Serializable,
+            StV: Datable + Serializable,
+            StP: Datable,
+            StPC: Datable + Serializable,
+            StRC: Datable + Serializable,
+            StS: Datable + Serializable,
+            StK: Ord + Datable + Serializable,
+            StV: Datable + Serializable,
+            S: Datable,
             RS: Datable,
             Ad: Datable + VariableSize,
             NP: Datable,
-            D: Datable + ConstantSize,
+            D: Ord + Datable + ConstantSize,
             Pk: Datable + ConstantSize,
             Sig: Datable + ConstantSize,
             Pr: Datable,
@@ -45,17 +55,13 @@ pub trait Router<S, RS, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C>
     }
 
     /// Routes an incoming request to the right handler.
-    fn route<St, StS, StK, StV, H, P>(&self,
-                                      store: &mut St,
-                                      handler: &H,
-                                      params: &P,
-                                      request: &Request<S, RS, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C>)
+    fn route<H, P>(&self,
+                   store: &mut St,
+                   handler: &H,
+                   params: &P,
+                   request: &Request<S, RS, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C>)
         -> Result<Response<S, RS, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C>>
-        where   St: Store<StS, StK, StV>,
-                StS: Datable + Serializable,
-                StK: Datable + Serializable,
-                StV: Datable + Serializable,
-                H: Handler<St, StS, StK, StV, S, RS, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C>,
+        where   H: Handler<St, StS, StK, StV, StP, StPC, StRC, S, RS, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C>,
                 P: Datable
     {
         params.check()?;

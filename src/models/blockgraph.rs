@@ -13,7 +13,7 @@ use base::Serializable;
 use base::{Sizable, ConstantSize};
 use base::Evaluable;
 use crypto::{Hashable, Committable, Authenticatable};
-use io::Storable;
+use io::{Store, Storable};
 use models::Meta;
 use models::BlockNode;
 
@@ -21,7 +21,7 @@ use models::BlockNode;
 /// one can span the entire graph after following the `BlockNode`s' `Block`s `prev_block_id` links.
 #[derive(Clone, PartialEq, Eq, PartialOrd, Ord, Debug, Default, Hash, Serialize, Deserialize)]
 pub struct BlockGraph<D, P>
-    where   D: Datable + ConstantSize,
+    where   D: Ord + Datable + ConstantSize,
             P: Datable
 {
     /// BlockGraph id. It is the digest of the same blockgraph, but with a default `D` id.
@@ -41,7 +41,7 @@ pub struct BlockGraph<D, P>
 }
 
 impl<D, P> BlockGraph<D, P>
-    where   D: Datable + ConstantSize,
+    where   D: Ord + Datable + ConstantSize,
             P: Datable
 {
     /// Creates a new `BlockGraph`.
@@ -265,26 +265,26 @@ impl<D, P> BlockGraph<D, P>
 
 impl<HP, D, P> Hashable<HP, D> for BlockGraph<D, P>
     where   HP: Datable,
-            D: Datable + ConstantSize,
+            D: Ord + Datable + ConstantSize,
             P: Datable
 {}
 
 impl<CP, C, D, P> Committable<CP, C> for BlockGraph<D, P>
     where   CP: Datable,
             C: Datable + ConstantSize,
-            D: Datable + ConstantSize,
+            D: Ord + Datable + ConstantSize,
             P: Datable
 {}
 
 impl<AP, T, D, P> Authenticatable<AP, T> for BlockGraph<D, P>
     where   AP: Datable,
             T: Datable + ConstantSize,
-            D: Datable + ConstantSize,
+            D: Ord + Datable + ConstantSize,
             P: Datable
 {}
 
 impl<D, P> Sizable for BlockGraph<D, P>
-    where   D: Datable + ConstantSize,
+    where   D: Ord + Datable + ConstantSize,
             P: Datable
 {
     fn size(&self) -> u64 {
@@ -299,7 +299,7 @@ impl<D, P> Sizable for BlockGraph<D, P>
 }
 
 impl<D, P> Checkable for BlockGraph<D, P>
-    where   D: Datable + ConstantSize,
+    where   D: Ord + Datable + ConstantSize,
             P: Datable
 {
     fn check(&self) -> Result<()> {
@@ -336,24 +336,30 @@ impl<D, P> Checkable for BlockGraph<D, P>
 }
 
 impl<D, P> Serializable for BlockGraph<D, P>
-    where   D: Datable + ConstantSize + Serializable,
+    where   D: Ord + Datable + ConstantSize + Serializable,
             P: Datable + Serializable
 {}
 
 impl<D, P> Datable for BlockGraph<D, P>
-    where   D: Datable + ConstantSize,
+    where   D: Ord + Datable + ConstantSize,
             P: Datable
 {}
 
 impl<D, P> Evaluable for BlockGraph<D, P>
-    where   D: Datable + ConstantSize,
+    where   D: Ord + Datable + ConstantSize,
             P: Datable
 {}
 
-impl<S, D, P> Storable<S, D, BlockGraph<D, P>> for BlockGraph<D, P>
-    where   S: Datable + Serializable,
-            D: Datable + ConstantSize + Serializable,
-            P: Datable + Serializable
+impl<St, S, D, P, StP, StPC, StRC>
+    Storable<St, S, D, BlockGraph<D, P>, StP, StPC, StRC>
+    for BlockGraph<D, P>
+    where   St: Store<S, D, BlockGraph<D, P>, StP, StPC, StRC>,
+            S: Datable + Serializable,
+            D: Ord + Datable + ConstantSize + Serializable,
+            P: Datable + Serializable,
+            StP: Datable,
+            StPC: Datable + Serializable,
+            StRC: Datable + Serializable
 {
     fn store_key(&self) -> Result<D> {
         self.id.check()?;

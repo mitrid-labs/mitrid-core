@@ -10,13 +10,13 @@ use base::{Sizable, ConstantSize};
 use base::Numerical;
 use base::Evaluable;
 use crypto::{Hashable, Committable, Authenticatable};
-use io::Storable;
+use io::{Store, Storable};
 use models::Meta;
 
 /// Type representing the output of a `Transaction`.
 #[derive(Clone, PartialEq, Eq, PartialOrd, Ord, Debug, Default, Hash, Serialize, Deserialize)]
 pub struct Output<D, Pk, A, P>
-    where   D: Datable + ConstantSize,
+    where   D: Ord + Datable + ConstantSize,
             Pk: Datable + ConstantSize,
             A: Numerical,
             P: Datable
@@ -36,7 +36,7 @@ pub struct Output<D, Pk, A, P>
 }
 
 impl<D, Pk, A, P> Output<D, Pk, A, P>
-    where   D: Datable + ConstantSize,
+    where   D: Ord + Datable + ConstantSize,
             Pk: Datable + ConstantSize,
             A: Numerical,
             P: Datable
@@ -263,7 +263,7 @@ impl<D, Pk, A, P> Output<D, Pk, A, P>
 
 impl<HP, D, Pk, A, P> Hashable<HP, D> for Output<D, Pk, A, P>
     where   HP: Datable,
-            D: Datable + ConstantSize,
+            D: Ord + Datable + ConstantSize,
             Pk: Datable + ConstantSize,
             A: Numerical,
             P: Datable
@@ -272,7 +272,7 @@ impl<HP, D, Pk, A, P> Hashable<HP, D> for Output<D, Pk, A, P>
 impl<CP, C, D, Pk, A, P> Committable<CP, C> for Output<D, Pk, A, P>
     where   CP: Datable,
             C: Datable + ConstantSize,
-            D: Datable + ConstantSize,
+            D: Ord + Datable + ConstantSize,
             Pk: Datable + ConstantSize,
             A: Numerical,
             P: Datable
@@ -281,14 +281,14 @@ impl<CP, C, D, Pk, A, P> Committable<CP, C> for Output<D, Pk, A, P>
 impl<AP, T, D, Pk, A, P> Authenticatable<AP, T> for Output<D, Pk, A, P>
     where   AP: Datable,
             T: Datable + ConstantSize,
-            D: Datable + ConstantSize,
+            D: Ord + Datable + ConstantSize,
             Pk: Datable + ConstantSize,
             A: Numerical,
             P: Datable
 {}
 
 impl<D, Pk, A, P> Sizable for Output<D, Pk, A, P>
-    where   D: Datable + ConstantSize,
+    where   D: Ord + Datable + ConstantSize,
             Pk: Datable + ConstantSize,
             A: Numerical,
             P: Datable
@@ -304,7 +304,7 @@ impl<D, Pk, A, P> Sizable for Output<D, Pk, A, P>
 }
 
 impl<D, Pk, A, P> Checkable for Output<D, Pk, A, P>
-    where   D: Datable + ConstantSize,
+    where   D: Ord + Datable + ConstantSize,
             Pk: Datable + ConstantSize,
             A: Numerical,
             P: Datable
@@ -330,32 +330,38 @@ impl<D, Pk, A, P> Checkable for Output<D, Pk, A, P>
 }
 
 impl<D, Pk, A, P> Serializable for Output<D, Pk, A, P>
-    where   D: Datable + ConstantSize + Serializable,
+    where   D: Ord + Datable + ConstantSize + Serializable,
             Pk: Datable + ConstantSize + Serializable,
             A: Numerical + Serializable,
             P: Datable + Serializable
 {}
 
 impl<D, Pk, A, P> Datable for Output<D, Pk, A, P>
-    where   D: Datable + ConstantSize,
+    where   D: Ord + Datable + ConstantSize,
             Pk: Datable + ConstantSize,
             A: Numerical,
             P: Datable
 {}
 
 impl<D, Pk, A, P> Evaluable for Output<D, Pk, A, P>
-    where   D: Datable + ConstantSize,
+    where   D: Ord + Datable + ConstantSize,
             Pk: Datable + ConstantSize,
             A: Numerical,
             P: Datable
 {}
 
-impl<S, D, Pk, A, P> Storable<S, D, Output<D, Pk, A, P>> for Output<D, Pk, A, P>
-    where   S: Datable + Serializable,
-            D: Datable + ConstantSize + Serializable,
+impl<St, S, D, Pk, A, P, StP, StPC, StRC>
+    Storable<St, S, D, Output<D, Pk, A, P>, StP, StPC, StRC>
+    for Output<D, Pk, A, P>
+    where   St: Store<S, D, Output<D, Pk, A, P>, StP, StPC, StRC>,
+            S: Datable + Serializable,
+            D: Ord + Datable + ConstantSize + Serializable,
             Pk: Datable + ConstantSize + Serializable,
             A: Numerical + Serializable,
-            P: Datable + Serializable
+            P: Datable + Serializable,
+            StP: Datable,
+            StPC: Datable + Serializable,
+            StRC: Datable + Serializable
 {
     fn store_key(&self) -> Result<D> {
         self.id.check()?;

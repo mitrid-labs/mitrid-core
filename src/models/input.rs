@@ -11,14 +11,14 @@ use base::{Sizable, ConstantSize};
 use base::Numerical;
 use base::Evaluable;
 use crypto::{Hashable, Signable, Committable, Authenticatable};
-use io::Storable;
+use io::{Store, Storable};
 use models::Meta;
 use models::Coin;
 
 /// Type used to bind one or more `Input`s to a `Transaction` as one of its inputs.
 #[derive(Clone, PartialEq, Eq, PartialOrd, Ord, Debug, Default, Hash, Serialize, Deserialize)]
 pub struct Input<D, A, P, Pk, Sig>
-    where   D: Datable + ConstantSize,
+    where   D: Ord + Datable + ConstantSize,
             A: Numerical,
             P: Datable,
             Pk: Datable + ConstantSize,
@@ -39,7 +39,7 @@ pub struct Input<D, A, P, Pk, Sig>
 }
 
 impl<D, A, P, Pk, Sig> Input<D, A, P, Pk, Sig>
-    where   D: Datable + ConstantSize,
+    where   D: Ord + Datable + ConstantSize,
             A: Numerical,
             P: Datable,
             Pk: Datable + ConstantSize,
@@ -320,7 +320,7 @@ impl<D, A, P, Pk, Sig> Input<D, A, P, Pk, Sig>
 
 impl<HP, D, A, P, Pk, Sig> Hashable<HP, D> for Input<D, A, P, Pk, Sig>
     where   HP: Datable,
-            D: Datable + ConstantSize,
+            D: Ord + Datable + ConstantSize,
             A: Numerical,
             P: Datable,
             Pk: Datable + ConstantSize,
@@ -331,7 +331,7 @@ impl<SP, Sk, D, A, P, Pk, Sig> Signable<SP, Sk, Pk, Sig> for Input<D, A, P, Pk, 
     where   SP: Datable,
             Sk: Datable + ConstantSize,
             Sig: Datable + ConstantSize,
-            D: Datable + ConstantSize,
+            D: Ord + Datable + ConstantSize,
             A: Numerical,
             P: Datable,
             Pk: Datable + ConstantSize,
@@ -341,7 +341,7 @@ impl<SP, Sk, D, A, P, Pk, Sig> Signable<SP, Sk, Pk, Sig> for Input<D, A, P, Pk, 
 impl<CP, C, D, A, P, Pk, Sig> Committable<CP, C> for Input<D, A, P, Pk, Sig>
     where   CP: Datable,
             C: Datable + ConstantSize,
-            D: Datable + ConstantSize,
+            D: Ord + Datable + ConstantSize,
             A: Numerical,
             P: Datable,
             Pk: Datable + ConstantSize,
@@ -351,7 +351,7 @@ impl<CP, C, D, A, P, Pk, Sig> Committable<CP, C> for Input<D, A, P, Pk, Sig>
 impl<AP, T, D, A, P, Pk, Sig> Authenticatable<AP, T> for Input<D, A, P, Pk, Sig>
     where   AP: Datable,
             T: Datable + ConstantSize,
-            D: Datable + ConstantSize,
+            D: Ord + Datable + ConstantSize,
             A: Numerical,
             P: Datable,
             Pk: Datable + ConstantSize,
@@ -359,7 +359,7 @@ impl<AP, T, D, A, P, Pk, Sig> Authenticatable<AP, T> for Input<D, A, P, Pk, Sig>
 {}
 
 impl<D, A, P, Pk, Sig> Sizable for Input<D, A, P, Pk, Sig>
-    where   D: Datable + ConstantSize,
+    where   D: Ord + Datable + ConstantSize,
             A: Numerical,
             P: Datable,
             Pk: Datable + ConstantSize,
@@ -376,7 +376,7 @@ impl<D, A, P, Pk, Sig> Sizable for Input<D, A, P, Pk, Sig>
 }
 
 impl<D, A, P, Pk, Sig> Checkable for Input<D, A, P, Pk, Sig>
-    where   D: Datable + ConstantSize,
+    where   D: Ord + Datable + ConstantSize,
             A: Numerical,
             P: Datable,
             Pk: Datable + ConstantSize,
@@ -405,7 +405,7 @@ impl<D, A, P, Pk, Sig> Checkable for Input<D, A, P, Pk, Sig>
 }
 
 impl<D, A, P, Pk, Sig> Serializable for Input<D, A, P, Pk, Sig>
-    where   D: Datable + ConstantSize + Serializable,
+    where   D: Ord + Datable + ConstantSize + Serializable,
             A: Numerical + Serializable,
             P: Datable + Serializable,
             Pk: Datable + ConstantSize + Serializable,
@@ -413,7 +413,7 @@ impl<D, A, P, Pk, Sig> Serializable for Input<D, A, P, Pk, Sig>
 {}
 
 impl<D, A, P, Pk, Sig> Datable for Input<D, A, P, Pk, Sig>
-    where   D: Datable + ConstantSize,
+    where   D: Ord + Datable + ConstantSize,
             A: Numerical,
             P: Datable,
             Pk: Datable + ConstantSize,
@@ -421,20 +421,26 @@ impl<D, A, P, Pk, Sig> Datable for Input<D, A, P, Pk, Sig>
 {}
 
 impl<D, A, P, Pk, Sig> Evaluable for Input<D, A, P, Pk, Sig>
-    where   D: Datable + ConstantSize,
+    where   D: Ord + Datable + ConstantSize,
             A: Numerical,
             P: Datable,
             Pk: Datable + ConstantSize,
             Sig: Datable + ConstantSize
 {}
 
-impl<S, D, A, P, Pk, Sig> Storable<S, D, Input<D, A, P, Pk, Sig>> for Input<D, A, P, Pk, Sig>
-    where   S: Datable + Serializable,
-            D: Datable + ConstantSize + Serializable,
+impl<St, S, D, A, P, Pk, Sig, StP, StPC, StRC>
+    Storable<St, S, D, Input<D, A, P, Pk, Sig>, StP, StPC, StRC>
+    for Input<D, A, P, Pk, Sig>
+    where   St: Store<S, D, Input<D, A, P, Pk, Sig>, StP, StPC, StRC>,
+            S: Datable + Serializable,
+            D: Ord + Datable + ConstantSize + Serializable,
             A: Numerical + Serializable,
             P: Datable + Serializable,
             Pk: Datable + ConstantSize + Serializable,
-            Sig: Datable + ConstantSize + Serializable
+            Sig: Datable + ConstantSize + Serializable,
+            StP: Datable,
+            StPC: Datable + Serializable,
+            StRC: Datable + Serializable
 {
     fn store_key(&self) -> Result<D> {
         self.id.check()?;

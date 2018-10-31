@@ -9,13 +9,13 @@ use base::Serializable;
 use base::{Sizable, ConstantSize};
 use base::Evaluable;
 use crypto::{Hashable, Signable, Committable, Authenticatable};
-use io::Storable;
+use io::{Store, Storable};
 use models::Meta;
 
 /// Type used to represent a wallet (account) in the distributed ledger.
 #[derive(Clone, PartialEq, Eq, PartialOrd, Ord, Debug, Default, Hash, Serialize, Deserialize)]
 pub struct Wallet<D, Sk, Pk, Sig, P>
-    where   D: Datable + ConstantSize,
+    where   D: Ord + Datable + ConstantSize,
             Sk: Datable + ConstantSize,
             Pk: Datable + ConstantSize,
             Sig: Datable + ConstantSize,
@@ -36,7 +36,7 @@ pub struct Wallet<D, Sk, Pk, Sig, P>
 }
 
 impl<D, Sk, Pk, Sig, P> Wallet<D, Sk, Pk, Sig, P>
-    where   D: Datable + ConstantSize,
+    where   D: Ord + Datable + ConstantSize,
             Sk: Datable + ConstantSize,
             Pk: Datable + ConstantSize,
             Sig: Datable + ConstantSize,
@@ -309,7 +309,7 @@ impl<D, Sk, Pk, Sig, P> Wallet<D, Sk, Pk, Sig, P>
 
 impl<HP, D, Sk, Pk, Sig, P> Hashable<HP, D> for Wallet<D, Sk, Pk, Sig, P>
     where   HP: Datable,
-            D: Datable + ConstantSize,
+            D: Ord + Datable + ConstantSize,
             Sk: Datable + ConstantSize,
             Pk: Datable + ConstantSize,
             Sig: Datable + ConstantSize,
@@ -318,7 +318,7 @@ impl<HP, D, Sk, Pk, Sig, P> Hashable<HP, D> for Wallet<D, Sk, Pk, Sig, P>
 
 impl<SP, D, Sk, Pk, Sig, P> Signable<SP, Sk, Pk, Sig> for Wallet<D, Sk, Pk, Sig, P>
     where   SP: Datable,
-            D: Datable + ConstantSize,
+            D: Ord + Datable + ConstantSize,
             Sk: Datable + ConstantSize,
             Pk: Datable + ConstantSize,
             Sig: Datable + ConstantSize,
@@ -328,7 +328,7 @@ impl<SP, D, Sk, Pk, Sig, P> Signable<SP, Sk, Pk, Sig> for Wallet<D, Sk, Pk, Sig,
 impl<CP, C, D, Sk, Pk, Sig, P> Committable<CP, C> for Wallet<D, Sk, Pk, Sig, P>
     where   CP: Datable,
             C: Datable + ConstantSize,
-            D: Datable + ConstantSize,
+            D: Ord + Datable + ConstantSize,
             Sk: Datable + ConstantSize,
             Pk: Datable + ConstantSize,
             Sig: Datable + ConstantSize,
@@ -338,7 +338,7 @@ impl<CP, C, D, Sk, Pk, Sig, P> Committable<CP, C> for Wallet<D, Sk, Pk, Sig, P>
 impl<AP, T, D, Sk, Pk, Sig, P> Authenticatable<AP, T> for Wallet<D, Sk, Pk, Sig, P>
     where   AP: Datable,
             T: Datable + ConstantSize,
-            D: Datable + ConstantSize,
+            D: Ord + Datable + ConstantSize,
             Sk: Datable + ConstantSize,
             Pk: Datable + ConstantSize,
             Sig: Datable + ConstantSize,
@@ -346,7 +346,7 @@ impl<AP, T, D, Sk, Pk, Sig, P> Authenticatable<AP, T> for Wallet<D, Sk, Pk, Sig,
 {}
 
 impl<D, Sk, Pk, Sig, P> Sizable for Wallet<D, Sk, Pk, Sig, P>
-    where   D: Datable + ConstantSize,
+    where   D: Ord + Datable + ConstantSize,
             Sk: Datable + ConstantSize,
             Pk: Datable + ConstantSize,
             Sig: Datable + ConstantSize,
@@ -363,7 +363,7 @@ impl<D, Sk, Pk, Sig, P> Sizable for Wallet<D, Sk, Pk, Sig, P>
 }
 
 impl<D, Sk, Pk, Sig, P> Checkable for Wallet<D, Sk, Pk, Sig, P>
-    where   D: Datable + ConstantSize,
+    where   D: Ord + Datable + ConstantSize,
             Sk: Datable + ConstantSize,
             Pk: Datable + ConstantSize,
             Sig: Datable + ConstantSize,
@@ -394,7 +394,7 @@ impl<D, Sk, Pk, Sig, P> Checkable for Wallet<D, Sk, Pk, Sig, P>
 }
 
 impl<D, Sk, Pk, Sig, P> Serializable for Wallet<D, Sk, Pk, Sig, P>
-    where   D: Datable + ConstantSize + Serializable,
+    where   D: Ord + Datable + ConstantSize + Serializable,
             Sk: Datable + ConstantSize + Serializable,
             Pk: Datable + ConstantSize + Serializable,
             Sig: Datable + ConstantSize + Serializable,
@@ -402,7 +402,7 @@ impl<D, Sk, Pk, Sig, P> Serializable for Wallet<D, Sk, Pk, Sig, P>
 {}
 
 impl<D, Sk, Pk, Sig, P> Datable for Wallet<D, Sk, Pk, Sig, P>
-    where   D: Datable + ConstantSize,
+    where   D: Ord + Datable + ConstantSize,
             Sk: Datable + ConstantSize,
             Pk: Datable + ConstantSize,
             Sig: Datable + ConstantSize,
@@ -410,20 +410,26 @@ impl<D, Sk, Pk, Sig, P> Datable for Wallet<D, Sk, Pk, Sig, P>
 {}
 
 impl<D, Sk, Pk, Sig, P> Evaluable for Wallet<D, Sk, Pk, Sig, P>
-    where   D: Datable + ConstantSize,
+    where   D: Ord + Datable + ConstantSize,
             Sk: Datable + ConstantSize,
             Pk: Datable + ConstantSize,
             Sig: Datable + ConstantSize,
             P: Datable
 {}
 
-impl<S, D, Sk, Pk, Sig, P> Storable<S, D, Wallet<D, Sk, Pk, Sig, P>> for Wallet<D, Sk, Pk, Sig, P>
-    where   S: Datable + Serializable,
-            D: Datable + ConstantSize + Serializable,
+impl<St, S, D, Sk, Pk, Sig, P, StP, StPC, StRC>
+    Storable<St, S, D, Wallet<D, Sk, Pk, Sig, P>, StP, StPC, StRC>
+    for Wallet<D, Sk, Pk, Sig, P>
+    where   St: Store<S, D, Wallet<D, Sk, Pk, Sig, P>, StP, StPC, StRC>,
+            S: Datable + Serializable,
+            D: Ord + Datable + ConstantSize + Serializable,
             Sk: Datable + ConstantSize + Serializable,
             Pk: Datable + ConstantSize + Serializable,
             Sig: Datable + ConstantSize + Serializable,
-            P: Datable + Serializable
+            P: Datable + Serializable,
+            StP: Datable,
+            StPC: Datable + Serializable,
+            StRC: Datable + Serializable
 {
     fn store_key(&self) -> Result<D> {
         self.id.check()?;

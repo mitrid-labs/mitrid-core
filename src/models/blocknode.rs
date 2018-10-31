@@ -9,13 +9,13 @@ use base::Datable;
 use base::Serializable;
 use base::{Sizable, ConstantSize};
 use crypto::{Hashable, Committable, Authenticatable};
-use io::Storable;
+use io::{Store, Storable};
 use models::Meta;
 
 /// Type used to represent a node in the `BlockNode` and that references a `Block`.
 #[derive(Clone, PartialEq, Eq, PartialOrd, Ord, Debug, Default, Hash, Serialize, Deserialize)]
 pub struct BlockNode<D>
-    where   D: Datable + ConstantSize
+    where   D: Ord + Datable + ConstantSize
 {
     /// BlockNode id. It is the digest of the same coin, but with a default `D` id.
     pub id: D,
@@ -28,7 +28,7 @@ pub struct BlockNode<D>
 }
 
 impl<D> BlockNode<D>
-    where   D: Datable + ConstantSize
+    where   D: Ord + Datable + ConstantSize
 {
     /// Creates a new `BlockNode`.
     pub fn new() -> Self {
@@ -215,23 +215,23 @@ impl<D> BlockNode<D>
 
 impl<P, D> Hashable<P, D> for BlockNode<D>
     where   P: Datable,
-            D: Datable + ConstantSize
+            D: Ord + Datable + ConstantSize
 {}
 
 impl<CP, C, D> Committable<CP, C> for BlockNode<D>
     where   CP: Datable,
             C: Datable + ConstantSize,
-            D: Datable + ConstantSize
+            D: Ord + Datable + ConstantSize
 {}
 
 impl<AP, T, D> Authenticatable<AP, T> for BlockNode<D>
     where   AP: Datable,
             T: Datable + ConstantSize,
-            D: Datable + ConstantSize
+            D: Ord + Datable + ConstantSize
 {}
 
 impl<D> Sizable for BlockNode<D>
-    where   D: Datable + ConstantSize
+    where   D: Ord + Datable + ConstantSize
 {
     fn size(&self) -> u64 {
         self.id.size() +
@@ -242,7 +242,7 @@ impl<D> Sizable for BlockNode<D>
 }
 
 impl<D> Checkable for BlockNode<D>
-    where   D: Datable + ConstantSize
+    where   D: Ord + Datable + ConstantSize
 {
     fn check(&self) -> Result<()> {
         self.id.check()?;
@@ -261,16 +261,22 @@ impl<D> Checkable for BlockNode<D>
 }
 
 impl<D> Serializable for BlockNode<D>
-    where   D: Datable + ConstantSize + Serializable
+    where   D: Ord + Datable + ConstantSize + Serializable
 {}
 
 impl<D> Datable for BlockNode<D>
-    where   D: Datable + ConstantSize
+    where   D: Ord + Datable + ConstantSize
 {}
 
-impl<S, D> Storable<S, D, BlockNode<D>> for BlockNode<D>
-    where   S: Datable + Serializable,
-            D: Datable + ConstantSize + Serializable
+impl<St, S, D, StP, StPC, StRC>
+    Storable<St, S, D, BlockNode<D>, StP, StPC, StRC>
+    for BlockNode<D>
+    where   St: Store<S, D, BlockNode<D>, StP, StPC, StRC>,
+            S: Datable + Serializable,
+            D: Ord + Datable + ConstantSize + Serializable,
+            StP: Datable,
+            StPC: Datable + Serializable,
+            StRC: Datable + Serializable
 {
     fn store_key(&self) -> Result<D> {
         self.id.check()?;

@@ -8,7 +8,7 @@ use base::{Sizable, ConstantSize, VariableSize};
 use base::Checkable;
 use base::Serializable;
 use base::Datable;
-use io::store::Storable;
+use io::store::{Store, Storable};
 use io::network::message::Method;
 use io::network::message::Resource;
 use io::network::message::Message;
@@ -20,7 +20,7 @@ pub struct Request<S, RS, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C>
             RS: Datable,
             Ad: Datable + VariableSize,
             NP: Datable,
-            D: Datable + ConstantSize,
+            D: Ord + Datable + ConstantSize,
             Pk: Datable + ConstantSize,
             Sig: Datable + ConstantSize,
             Pr: Datable,
@@ -42,7 +42,7 @@ impl<S, RS, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C>
             RS: Datable,
             Ad: Datable + VariableSize,
             NP: Datable,
-            D: Datable + ConstantSize,
+            D: Ord + Datable + ConstantSize,
             Pk: Datable + ConstantSize,
             Sig: Datable + ConstantSize,
             Pr: Datable,
@@ -86,7 +86,7 @@ impl<S, RS, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C> Sizable
             RS: Datable,
             Ad: Datable + VariableSize,
             NP: Datable,
-            D: Datable + ConstantSize,
+            D: Ord + Datable + ConstantSize,
             Pk: Datable + ConstantSize,
             Sig: Datable + ConstantSize,
             Pr: Datable,
@@ -109,7 +109,7 @@ impl<S, RS, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C> Checkable
             RS: Datable,
             Ad: Datable + VariableSize,
             NP: Datable,
-            D: Datable + ConstantSize,
+            D: Ord + Datable + ConstantSize,
             Pk: Datable + ConstantSize,
             Sig: Datable + ConstantSize,
             Pr: Datable,
@@ -139,7 +139,7 @@ impl<S, RS, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C> Serializable
             RS: Datable + Serializable,
             Ad: Datable + VariableSize + Serializable,
             NP: Datable + Serializable,
-            D: Datable + ConstantSize + Serializable,
+            D: Ord + Datable + ConstantSize + Serializable,
             Pk: Datable + ConstantSize + Serializable,
             Sig: Datable + ConstantSize + Serializable,
             Pr: Datable + Serializable,
@@ -158,7 +158,7 @@ impl<S, RS, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C> Datable
             RS: Datable,
             Ad: Datable + VariableSize,
             NP: Datable,
-            D: Datable + ConstantSize,
+            D: Ord + Datable + ConstantSize,
             Pk: Datable + ConstantSize,
             Sig: Datable + ConstantSize,
             Pr: Datable,
@@ -171,15 +171,16 @@ impl<S, RS, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C> Datable
             C: Datable
 {}
 
-impl<S, MS, RS, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C>
-    Storable<S, D, Request<MS, RS, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C>>
+impl<St, S, MS, RS, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C, StP, StPC, StRC>
+    Storable<St, S, D, Request<MS, RS, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C>, StP, StPC, StRC>
     for Request<MS, RS, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C>
-    where   S: Datable + Serializable,
+    where   St: Store<S, D, Request<MS, RS, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C>, StP, StPC, StRC>,
+            S: Datable + Serializable,
             MS: Datable + Serializable,
             RS: Datable + Serializable,
             Ad: Datable + VariableSize + Serializable,
             NP: Datable + Serializable,
-            D: Datable + ConstantSize + Serializable,
+            D: Ord + Datable + ConstantSize + Serializable,
             Pk: Datable + ConstantSize + Serializable,
             Sig: Datable + ConstantSize + Serializable,
             Pr: Datable + Serializable,
@@ -189,7 +190,10 @@ impl<S, MS, RS, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C>
             TP: Datable + Serializable,
             BP: Datable + Serializable,
             BGP: Datable + Serializable,
-            C: Datable + Serializable
+            C: Datable + Serializable,
+            StP: Datable,
+            StPC: Datable + Serializable,
+            StRC: Datable + Serializable
 {
     fn store_key(&self) -> Result<D> {
         self.message.id.check()?;

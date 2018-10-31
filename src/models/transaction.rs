@@ -10,7 +10,7 @@ use base::{Sizable, ConstantSize};
 use base::Numerical;
 use base::Evaluable;
 use crypto::{Hashable, Committable, Authenticatable};
-use io::Storable;
+use io::{Store, Storable};
 use models::Meta;
 use models::Input;
 use models::Output;
@@ -18,7 +18,7 @@ use models::Output;
 /// Type used to produce one or more `Output`s from one or more `Input`s.
 #[derive(Clone, PartialEq, Eq, PartialOrd, Ord, Debug, Default, Hash, Serialize, Deserialize)]
 pub struct Transaction<D, A, IP, Pk, Sig, OP, P>
-    where   D: Datable + ConstantSize,
+    where   D: Ord + Datable + ConstantSize,
             A: Numerical,
             IP: Datable,
             Pk: Datable + ConstantSize,
@@ -43,7 +43,7 @@ pub struct Transaction<D, A, IP, Pk, Sig, OP, P>
 }
 
 impl<D, A, IP, Pk, Sig, OP, P> Transaction<D, A, IP, Pk, Sig, OP, P>
-    where   D: Datable + ConstantSize,
+    where   D: Ord + Datable + ConstantSize,
             A: Numerical,
             IP: Datable,
             Pk: Datable + ConstantSize,
@@ -269,7 +269,7 @@ impl<D, A, IP, Pk, Sig, OP, P> Transaction<D, A, IP, Pk, Sig, OP, P>
 
 impl<HP, D, A, IP, Pk, Sig, OP, P> Hashable<HP, D> for Transaction<D, A, IP, Pk, Sig, OP, P>
     where   HP: Datable,
-            D: Datable + ConstantSize,
+            D: Ord + Datable + ConstantSize,
             A: Numerical,
             IP: Datable,
             Pk: Datable + ConstantSize,
@@ -281,7 +281,7 @@ impl<HP, D, A, IP, Pk, Sig, OP, P> Hashable<HP, D> for Transaction<D, A, IP, Pk,
 impl<CP, C, D, A, IP, Pk, Sig, OP, P> Committable<CP, C> for Transaction<D, A, IP, Pk, Sig, OP, P>
     where   CP: Datable,
             C: Datable + ConstantSize,
-            D: Datable + ConstantSize,
+            D: Ord + Datable + ConstantSize,
             A: Numerical,
             IP: Datable,
             Pk: Datable + ConstantSize,
@@ -293,7 +293,7 @@ impl<CP, C, D, A, IP, Pk, Sig, OP, P> Committable<CP, C> for Transaction<D, A, I
 impl<AP, T, D, A, IP, Pk, Sig, OP, P> Authenticatable<AP, T> for Transaction<D, A, IP, Pk, Sig, OP, P>
     where   AP: Datable,
             T: Datable + ConstantSize,
-            D: Datable + ConstantSize,
+            D: Ord + Datable + ConstantSize,
             A: Numerical,
             IP: Datable,
             Pk: Datable + ConstantSize,
@@ -303,7 +303,7 @@ impl<AP, T, D, A, IP, Pk, Sig, OP, P> Authenticatable<AP, T> for Transaction<D, 
 {}
 
 impl<D, A, IP, Pk, Sig, OP, P> Sizable for Transaction<D, A, IP, Pk, Sig, OP, P>
-    where   D: Datable + ConstantSize,
+    where   D: Ord + Datable + ConstantSize,
             A: Numerical,
             IP: Datable,
             Pk: Datable + ConstantSize,
@@ -323,7 +323,7 @@ impl<D, A, IP, Pk, Sig, OP, P> Sizable for Transaction<D, A, IP, Pk, Sig, OP, P>
 }
 
 impl<D, A, IP, Pk, Sig, OP, P> Checkable for Transaction<D, A, IP, Pk, Sig, OP, P>
-    where   D: Datable + ConstantSize,
+    where   D: Ord + Datable + ConstantSize,
             A: Numerical,
             IP: Datable,
             Pk: Datable + ConstantSize,
@@ -361,7 +361,7 @@ impl<D, A, IP, Pk, Sig, OP, P> Checkable for Transaction<D, A, IP, Pk, Sig, OP, 
 }
 
 impl<D, A, IP, Pk, Sig, OP, P> Serializable for Transaction<D, A, IP, Pk, Sig, OP, P>
-    where   D: Datable + ConstantSize + Serializable,
+    where   D: Ord + Datable + ConstantSize + Serializable,
             A: Numerical + Serializable,
             IP: Datable + Serializable,
             Pk: Datable + ConstantSize + Serializable,
@@ -371,7 +371,7 @@ impl<D, A, IP, Pk, Sig, OP, P> Serializable for Transaction<D, A, IP, Pk, Sig, O
 {}
 
 impl<D, A, IP, Pk, Sig, OP, P> Datable for Transaction<D, A, IP, Pk, Sig, OP, P>
-    where   D: Datable + ConstantSize,
+    where   D: Ord + Datable + ConstantSize,
             A: Numerical,
             IP: Datable,
             Pk: Datable + ConstantSize,
@@ -381,7 +381,7 @@ impl<D, A, IP, Pk, Sig, OP, P> Datable for Transaction<D, A, IP, Pk, Sig, OP, P>
 {}
 
 impl<D, A, IP, Pk, Sig, OP, P> Evaluable for Transaction<D, A, IP, Pk, Sig, OP, P>
-    where   D: Datable + ConstantSize,
+    where   D: Ord + Datable + ConstantSize,
             A: Numerical,
             IP: Datable,
             Pk: Datable + ConstantSize,
@@ -390,16 +390,21 @@ impl<D, A, IP, Pk, Sig, OP, P> Evaluable for Transaction<D, A, IP, Pk, Sig, OP, 
             P: Datable
 {}
 
-impl<S, D, A, IP, Pk, Sig, OP, P> Storable<S, D, Transaction<D, A, IP, Pk, Sig, OP, P>>
+impl<St, S, D, A, IP, Pk, Sig, OP, P, StP, StPC, StRC>
+    Storable<St, S, D, Transaction<D, A, IP, Pk, Sig, OP, P>, StP, StPC, StRC>
     for Transaction<D, A, IP, Pk, Sig, OP, P>
-    where   S: Datable + Serializable,
-            D: Datable + ConstantSize + Serializable,
+    where   St: Store<S, D, Transaction<D, A, IP, Pk, Sig, OP, P>, StP, StPC, StRC>,
+            S: Datable + Serializable,
+            D: Ord + Datable + ConstantSize + Serializable,
             A: Numerical + Serializable,
             IP: Datable + Serializable,
             Pk: Datable + ConstantSize + Serializable,
             Sig: Datable + ConstantSize + Serializable,
             OP: Datable + Serializable,
-            P: Datable + Serializable
+            P: Datable + Serializable,
+            StP: Datable,
+            StPC: Datable + Serializable,
+            StRC: Datable + Serializable
 {
     fn store_key(&self) -> Result<D> {
         self.id.check()?;

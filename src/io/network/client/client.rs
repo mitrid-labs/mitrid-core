@@ -20,7 +20,7 @@ pub trait Client<CT, S, RS, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C>
             RS: Datable + Serializable,
             Ad: Datable + VariableSize + Serializable,
             NP: Datable + Serializable,
-            D: Datable + ConstantSize + Serializable,
+            D: Ord + Datable + ConstantSize + Serializable,
             Pk: Datable + ConstantSize + Serializable,
             Sig: Datable + ConstantSize + Serializable,
             Pr: Datable + Serializable,

@@ -18,20 +18,23 @@ use io::network::server::Router;
 use io::network::message::Request;
 
 /// Trait implemented by network servers.
-pub trait Server<St, StS, StK, StV, ST, CT, H, R, S, RS, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C>
-    where   St: Store<StS, StK, StV>,
+pub trait Server<St, StS, StK, StV, StP, StPC, StRC, ST, CT, H, R, S, RS, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C>
+    where   St: Store<StS, StK, StV, StP, StPC, StRC>,
             StS: Datable + Serializable,
-            StK: Datable + Serializable,
+            StK: Ord + Datable + Serializable,
             StV: Datable + Serializable,
+            StP: Datable,
+            StPC: Datable + Serializable,
+            StRC: Datable + Serializable,
             ST: ServerTransport<Ad, CT>,
             CT: ClientTransport<Ad>,
-            H: Handler<St, StS, StK, StV, S, RS, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C>,
-            R: Router<S, RS, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C>,
+            H: Handler<St, StS, StK, StV, StP, StPC, StRC, S, RS, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C>,
+            R: Router<St, StS, StK, StV, StP, StPC, StRC, S, RS, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C>,
             S: Datable + Serializable,
             RS: Datable + Serializable,
             Ad: Datable + VariableSize + Serializable,
             NP: Datable + Serializable,
-            D: Datable + ConstantSize + Serializable,
+            D: Ord + Datable + ConstantSize + Serializable,
             Pk: Datable + ConstantSize + Serializable,
             Sig: Datable + ConstantSize + Serializable,
             Pr: Datable + Serializable,
