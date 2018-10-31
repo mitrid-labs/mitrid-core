@@ -2,7 +2,9 @@ use std::sync::{Arc, Mutex};
 use std::collections::HashMap;
 
 use mitrid_core::base::Result;
+use mitrid_core::base::Sizable;
 use mitrid_core::base::Checkable;
+use mitrid_core::base::Datable;
 use mitrid_core::utils::{Timestamp, TimestampDiff};
 use mitrid_core::io::Permission;
 use mitrid_core::io::Store as BasicStore;
@@ -15,11 +17,83 @@ pub type StoreValue = Vec<u8>;
 
 pub const SESSION_DURATION: u64 = 3600;
 
-#[derive(Clone)]
+#[derive(Clone, Debug, Default)]
 pub struct Store {
     sessions: Arc<Mutex<HashMap<u64, Session>>>,
     items: Arc<Mutex<HashMap<StoreKey, StoreValue>>>,
 }
+
+#[allow(dead_code)]
+impl Store {
+    pub fn new() -> Store {
+        Store::default()
+    }
+}
+
+impl PartialEq for Store {
+    fn eq(&self, other: &Store) -> bool {
+        if self.size() != other.size() {
+            return false;
+        }
+
+        let this_sessions = &*self.sessions.lock().unwrap();
+        let other_sessions = &*other.sessions.lock().unwrap();
+
+        if this_sessions != other_sessions {
+            return false;
+        }
+
+        let this_items = &*self.items.lock().unwrap();
+        let other_items = &*other.items.lock().unwrap();
+
+        if this_items != other_items {
+            return false;
+        }
+
+        true
+    }
+}
+
+impl Eq for Store {}
+
+impl Sizable for Store {
+    fn size(&self) -> u64 {
+        let sessions = &*self.sessions.lock().unwrap();
+        let items = &*self.items.lock().unwrap();
+
+        let mut size = 0;
+
+        for (id, session) in sessions.iter() {
+            size += id.size();
+            size += session.size();
+        }
+
+        for (key, value) in items.iter() {
+            size += key.size();
+            size += value.size();
+        }
+
+        size
+    }
+}
+
+impl Checkable for Store {
+    fn check(&self) -> Result<()> {
+        let sessions = &*self.sessions.lock().unwrap();
+
+        for (id, session) in sessions.iter() {
+            session.check()?;
+
+            if session.id != *id {
+                return Err(String::from("invalid id"));
+            }
+        }
+
+        Ok(())
+    }
+}
+
+impl Datable for Store {}
 
 impl BasicStore<(), StoreKey, StoreValue, (), CustomParams, CustomResult> for Store {
     fn session(&mut self, _params: &(), permission: &Permission) -> Result<Session> {
@@ -396,24 +470,23 @@ impl BasicStore<(), StoreKey, StoreValue, (), CustomParams, CustomResult> for St
         }
 
         match params {
+            &CustomParams::Size => {
+                let res = CustomResult::new_size(self.size());
+                Ok(res)
+            },
             &CustomParams::Dump(ref dump_params) => {
                 match dump_params {
                     &DumpParams::Sessions => {
                         let sessions = &*self.sessions.lock().unwrap();
 
-                        let mut key_values = Vec::new();
-                        for (key, value) in sessions.iter() {
-                            key_values.push((key.to_owned(), value.to_owned()));
+                        let mut values = Vec::new();
+                        for value in sessions.values() {
+                            values.push(value.to_owned());
                         }
 
-                        let dump = DumpSessions {
-                            count: key_values.len() as u64,
-                            sessions: key_values,
-                        };
+                        let dump = DumpSessions::new(&values)?;
 
-                        let res = CustomResult::DumpSessions(dump);
-
-                        Ok(res)
+                        CustomResult::new_dump_sessions(&dump)
                     },
                     &DumpParams::Items => {
                         let items = &*self.items.lock().unwrap();
@@ -423,41 +496,28 @@ impl BasicStore<(), StoreKey, StoreValue, (), CustomParams, CustomResult> for St
                             key_values.push((key.to_owned(), value.to_owned()));
                         }
 
+                        let dump = DumpItems::new(&key_values);
 
-                        let dump = DumpItems {
-                            count: key_values.len() as u64,
-                            items: key_values,
-                        };
-
-                        let res = CustomResult::DumpItems(dump);
-
-                        Ok(res)
+                        CustomResult::new_dump_items(&dump)
                     },
                     &DumpParams::All => {
                         let sessions = &*self.sessions.lock().unwrap();
 
-                        let mut session_key_values = Vec::new();
-                        for (key, value) in sessions.iter() {
-                            session_key_values.push((key.to_owned(), value.to_owned()));
+                        let mut session_values = Vec::new();
+                        for value in sessions.values() {
+                            session_values.push(value.to_owned());
                         }
 
                         let items = &*self.items.lock().unwrap();
 
-                        let mut item_key_values = Vec::new();
+                        let mut item_values = Vec::new();
                         for (key, value) in items.iter() {
-                            item_key_values.push((key.to_owned(), value.to_owned()));
+                            item_values.push((key.to_owned(), value.to_owned()));
                         }
                         
-                        let dump = DumpAll {
-                            sessions_count: session_key_values.len() as u64,
-                            sessions: session_key_values,
-                            items_count: item_key_values.len() as u64,
-                            items: item_key_values,
-                        };
+                        let dump = DumpAll::new(&session_values, &item_values)?;
 
-                        let res = CustomResult::DumpAll(dump);
-
-                        Ok(res)
+                        CustomResult::new_dump_all(&dump)
                     },
                 }
             },
