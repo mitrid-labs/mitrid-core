@@ -1,2 +1,2 @@
-mod custom_ops;
+mod custom;
 mod store;

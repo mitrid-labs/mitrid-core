@@ -18,7 +18,7 @@ pub trait Store<S, K, V, P, PC, RC>
             P: Datable,
             PC: Datable + Serializable,
             RC: Datable + Serializable,
-            Self: 'static + Clone + Send + Sync
+            Self: 'static + Clone + Send + Sync + Checkable
 {
     /// Retrieves a new `Session` from the store.
     fn session(&mut self, params: &P, permission: &Permission)

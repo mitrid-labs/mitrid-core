@@ -1,4 +1,4 @@
 mod permission;
 mod session;
-// mod store;
+mod store;
 mod network;

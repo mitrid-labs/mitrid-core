@@ -10,7 +10,7 @@ use mitrid_core::io::Permission;
 use mitrid_core::io::Store as BasicStore;
 
 use fixtures::io::Session;
-use fixtures::io::store::custom_op::*;
+use fixtures::io::store::custom::*;
 
 pub type StoreKey = Vec<u8>;
 pub type StoreValue = Vec<u8>;
