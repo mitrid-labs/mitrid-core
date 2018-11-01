@@ -641,19 +641,19 @@ fn test_block_store() {
 
     let bits = 3;
 
-    let mut block = Block::new()
-                        .meta(&Meta::default())
-                        .unwrap()
-                        .prev_blocks(&vec![bn.clone()])
-                        .unwrap()
-                        .transactions(&vec![tx.clone()])
-                        .unwrap()
-                        .payload(&Payload::default())
-                        .unwrap()
-                        .prove(&Some(bits), &block_prove_cb)
-                        .unwrap()
-                        .finalize(&(), &block_digest_cb)
-                        .unwrap();
+    let block = Block::new()
+                    .meta(&Meta::default())
+                    .unwrap()
+                    .prev_blocks(&vec![bn.clone()])
+                    .unwrap()
+                    .transactions(&vec![tx.clone()])
+                    .unwrap()
+                    .payload(&Payload::default())
+                    .unwrap()
+                    .prove(&Some(bits), &block_prove_cb)
+                    .unwrap()
+                    .finalize(&(), &block_digest_cb)
+                    .unwrap();
 
     let mut store = Store::new();
     let res = block.store_create(&mut store, &());
@@ -662,8 +662,28 @@ fn test_block_store() {
     let res = block.store_create(&mut store, &());
     assert!(res.is_err());
 
-    block.transactions_len += 1;
+    let mut invalid_block = block.clone();
+    invalid_block.transactions_len += 1;
 
-    let res = block.store_create(&mut store, &());
+    let res = invalid_block.store_create(&mut store, &());
+    assert!(res.is_err());
+
+    let res = Block::store_lookup(&mut store, &(), &block.id);
+    assert!(res.is_ok());
+    assert!(res.unwrap());
+
+    let invalid_id = Digest::default();
+
+    let res = Block::store_lookup(&mut store, &(), &invalid_id);
+    assert!(res.is_ok());
+    assert!(!res.unwrap());
+
+    let res = Block::store_get(&mut store, &(), &block.id);
+    assert!(res.is_ok());
+
+    let found_block = res.unwrap();
+    assert_eq!(found_block, block);
+
+    let res = Block::store_get(&mut store, &(), &invalid_id);
     assert!(res.is_err());
 }

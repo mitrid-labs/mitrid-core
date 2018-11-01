@@ -433,17 +433,17 @@ fn test_input_store() {
 
     let (pk, sk) = Ed25519::keypair(None).unwrap();
 
-    let mut input = Input::new()
-                        .meta(&meta)
-                        .unwrap()
-                        .coin(&coin)
-                        .unwrap()
-                        .payload(&payload)
-                        .unwrap()
-                        .sign(&(), &sk, &pk, &input_sign_cb)
-                        .unwrap()
-                        .finalize(&(), &input_digest_cb)
-                        .unwrap();
+    let input = Input::new()
+                    .meta(&meta)
+                    .unwrap()
+                    .coin(&coin)
+                    .unwrap()
+                    .payload(&payload)
+                    .unwrap()
+                    .sign(&(), &sk, &pk, &input_sign_cb)
+                    .unwrap()
+                    .finalize(&(), &input_digest_cb)
+                    .unwrap();
 
     let mut store = Store::new();
     let res = input.store_create(&mut store, &());
@@ -452,17 +452,34 @@ fn test_input_store() {
     let res = input.store_create(&mut store, &());
     assert!(res.is_err());
 
-    let found_input = Input::store_get(&mut store, &(), &input.id).unwrap();
-    assert_eq!(found_input, input);
-
     let mut invalid_version = Version::default();
     invalid_version.buildmeta = "/\\".into();
 
     let mut invalid_meta = Meta::default();
     invalid_meta.version = invalid_version;
 
-    input.meta = invalid_meta;
+    let mut invalid_input = input.clone();
+    invalid_input.meta = invalid_meta;
 
-    let res = input.store_create(&mut store, &());
+    let res = invalid_input.store_create(&mut store, &());
+    assert!(res.is_err());
+
+    let res = Input::store_lookup(&mut store, &(), &input.id);
+    assert!(res.is_ok());
+    assert!(res.unwrap());
+
+    let invalid_id = Digest::default();
+
+    let res = Input::store_lookup(&mut store, &(), &invalid_id);
+    assert!(res.is_ok());
+    assert!(!res.unwrap());
+
+    let res = Input::store_get(&mut store, &(), &input.id);
+    assert!(res.is_ok());
+
+    let found_input = res.unwrap();
+    assert_eq!(found_input, input);
+
+    let res = Input::store_get(&mut store, &(), &invalid_id);
     assert!(res.is_err());
 }

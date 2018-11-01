@@ -255,13 +255,13 @@ fn test_blocknode_store() {
     let block_id = Digest::default();
     let block_height = 0;
 
-    let mut blocknode = BlockNode::new()
-                            .meta(&Meta::default())
-                            .unwrap()
-                            .block_data(&block_id, block_height)
-                            .unwrap()
-                            .finalize(&(), &blocknode_digest_cb)
-                            .unwrap();
+    let blocknode = BlockNode::new()
+                        .meta(&Meta::default())
+                        .unwrap()
+                        .block_data(&block_id, block_height)
+                        .unwrap()
+                        .finalize(&(), &blocknode_digest_cb)
+                        .unwrap();
 
     let mut store = Store::new();
     let res = blocknode.store_create(&mut store, &());
@@ -274,8 +274,29 @@ fn test_blocknode_store() {
     invalid_version.buildmeta = "/\\".into();
 
     let invalid_meta = Meta::default();
-    blocknode.meta = invalid_meta;
 
-    let res = blocknode.store_create(&mut store, &());
+    let mut invalid_blocknode = blocknode.clone();
+    invalid_blocknode.meta = invalid_meta;
+
+    let res = invalid_blocknode.store_create(&mut store, &());
+    assert!(res.is_err());
+
+    let res = BlockNode::store_lookup(&mut store, &(), &blocknode.id);
+    assert!(res.is_ok());
+    assert!(res.unwrap());
+
+    let invalid_id = Digest::default();
+
+    let res = BlockNode::store_lookup(&mut store, &(), &invalid_id);
+    assert!(res.is_ok());
+    assert!(!res.unwrap());
+
+    let res = BlockNode::store_get(&mut store, &(), &blocknode.id);
+    assert!(res.is_ok());
+
+    let found_blocknode = res.unwrap();
+    assert_eq!(found_blocknode, blocknode);
+
+    let res = BlockNode::store_get(&mut store, &(), &invalid_id);
     assert!(res.is_err());
 }

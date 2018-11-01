@@ -7,6 +7,7 @@ use mitrid_core::io::Storable;
 
 use fixtures::base::eval::*;
 use fixtures::base::Payload;
+use fixtures::crypto::Digest;
 use fixtures::crypto::PublicKey;
 use fixtures::crypto::SHA512HMAC;
 use fixtures::models::Amount;
@@ -332,19 +333,19 @@ fn test_output_store() {
     let amount = Amount::default();
     let payload = Payload::default();
 
-    let mut output = Output::new()
-                        .meta(&meta)
-                        .unwrap()
-                        .sender(&sender)
-                        .unwrap()
-                        .receiver(&receiver)
-                        .unwrap()
-                        .amount(&amount)
-                        .unwrap()
-                        .payload(&payload)
-                        .unwrap()
-                        .finalize(&(), &output_digest_cb)
-                        .unwrap();
+    let output = Output::new()
+                    .meta(&meta)
+                    .unwrap()
+                    .sender(&sender)
+                    .unwrap()
+                    .receiver(&receiver)
+                    .unwrap()
+                    .amount(&amount)
+                    .unwrap()
+                    .payload(&payload)
+                    .unwrap()
+                    .finalize(&(), &output_digest_cb)
+                    .unwrap();
 
     let mut store = Store::new();
     let res = output.store_create(&mut store, &());
@@ -353,17 +354,34 @@ fn test_output_store() {
     let res = output.store_create(&mut store, &());
     assert!(res.is_err());
 
-    let found_output = Output::store_get(&mut store, &(), &output.id).unwrap();
-    assert_eq!(found_output, output);
-
     let mut invalid_version = Version::default();
     invalid_version.buildmeta = "/\\".into();
 
     let mut invalid_meta = Meta::default();
     invalid_meta.version = invalid_version;
 
-    output.meta = invalid_meta;
+    let mut invalid_output = output.clone();
+    invalid_output.meta = invalid_meta;
 
-    let res = output.store_create(&mut store, &());
+    let res = invalid_output.store_create(&mut store, &());
+    assert!(res.is_err());
+
+    let res = Output::store_lookup(&mut store, &(), &output.id);
+    assert!(res.is_ok());
+    assert!(res.unwrap());
+
+    let invalid_id = Digest::default();
+
+    let res = Output::store_lookup(&mut store, &(), &invalid_id);
+    assert!(res.is_ok());
+    assert!(!res.unwrap());
+
+    let res = Output::store_get(&mut store, &(), &output.id);
+    assert!(res.is_ok());
+
+    let found_output = res.unwrap();
+    assert_eq!(found_output, output);
+
+    let res = Output::store_get(&mut store, &(), &invalid_id);
     assert!(res.is_err());
 }

@@ -273,7 +273,7 @@ fn test_coin_store() {
     let out_idx = 0;
     let out_amount = Amount::default();
 
-    let mut coin = Coin::new()
+    let coin = Coin::new()
                     .meta(&valid_meta)
                     .unwrap()
                     .output_data(&tx_id, out_idx, &out_amount)
@@ -288,17 +288,35 @@ fn test_coin_store() {
     let res = coin.store_create(&mut store, &());
     assert!(res.is_err());
 
-    let found_coin = Coin::store_get(&mut store, &(), &coin.id).unwrap();
-    assert_eq!(found_coin, coin);
-
     let mut invalid_version = Version::default();
     invalid_version.buildmeta = "/\\".into();
 
     let mut invalid_meta = Meta::default();
     invalid_meta.version = invalid_version;
 
-    coin.meta = invalid_meta;
+    let mut invalid_coin = coin.clone();
 
-    let res = coin.store_create(&mut store, &());
+    invalid_coin.meta = invalid_meta;
+
+    let res = invalid_coin.store_create(&mut store, &());
+    assert!(res.is_err());
+
+    let res = Coin::store_lookup(&mut store, &(), &coin.id);
+    assert!(res.is_ok());
+    assert!(res.unwrap());
+
+    let invalid_id = Digest::default();
+
+    let res = Coin::store_lookup(&mut store, &(), &invalid_id);
+    assert!(res.is_ok());
+    assert!(!res.unwrap());
+
+    let res = Coin::store_get(&mut store, &(), &coin.id);
+    assert!(res.is_ok());
+
+    let found_coin = res.unwrap();
+    assert_eq!(found_coin, coin);
+
+    let res = Coin::store_get(&mut store, &(), &invalid_id);
     assert!(res.is_err());
 }

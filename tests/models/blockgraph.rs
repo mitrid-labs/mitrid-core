@@ -337,15 +337,15 @@ fn test_blockgraph_store() {
 
     let tip_id = 0;
 
-    let mut bg = BlockGraph::new()
-                    .meta(&Meta::default())
-                    .unwrap()
-                    .frontier(Some(tip_id), &vec![bn])
-                    .unwrap()
-                    .payload(&Payload::default())
-                    .unwrap()
-                    .finalize(&(), &blockgraph_digest_cb)
-                    .unwrap();
+    let bg = BlockGraph::new()
+                .meta(&Meta::default())
+                .unwrap()
+                .frontier(Some(tip_id), &vec![bn])
+                .unwrap()
+                .payload(&Payload::default())
+                .unwrap()
+                .finalize(&(), &blockgraph_digest_cb)
+                .unwrap();
 
     let mut store = Store::new();
     let res = bg.store_create(&mut store, &());
@@ -354,8 +354,28 @@ fn test_blockgraph_store() {
     let res = bg.store_create(&mut store, &());
     assert!(res.is_err());
 
-    bg.tip_idx = Some(bg.frontier_len + 1);
+    let mut invalid_bg = bg.clone();
+    invalid_bg.tip_idx = Some(bg.frontier_len + 1);
 
-    let res = bg.store_create(&mut store, &());
+    let res = invalid_bg.store_create(&mut store, &());
+    assert!(res.is_err());
+
+    let res = BlockGraph::store_lookup(&mut store, &(), &bg.id);
+    assert!(res.is_ok());
+    assert!(res.unwrap());
+
+    let invalid_id = Digest::default();
+
+    let res = BlockGraph::store_lookup(&mut store, &(), &invalid_id);
+    assert!(res.is_ok());
+    assert!(!res.unwrap());
+
+    let res = BlockGraph::store_get(&mut store, &(), &bg.id);
+    assert!(res.is_ok());
+
+    let found_bg = res.unwrap();
+    assert_eq!(found_bg, bg);
+
+    let res = BlockGraph::store_get(&mut store, &(), &invalid_id);
     assert!(res.is_err());
 }
