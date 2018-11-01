@@ -582,3 +582,27 @@ fn test_block_hex() {
 
     assert_eq!(block_a, block_b);
 }
+
+#[test]
+fn test_block_count() {}
+
+#[test]
+fn test_block_list() {}
+
+#[test]
+fn test_block_lookup() {}
+
+#[test]
+fn test_block_get() {}
+
+#[test]
+fn test_block_create() {}
+
+#[test]
+fn test_block_update() {}
+
+#[test]
+fn test_block_upsert() {}
+
+#[test]
+fn test_block_delete() {}

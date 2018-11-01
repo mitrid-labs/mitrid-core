@@ -411,3 +411,27 @@ fn test_input_hex() {
 
     assert_eq!(input_a, input_b);
 }
+
+#[test]
+fn test_input_count() {}
+
+#[test]
+fn test_input_list() {}
+
+#[test]
+fn test_input_lookup() {}
+
+#[test]
+fn test_input_get() {}
+
+#[test]
+fn test_input_create() {}
+
+#[test]
+fn test_input_update() {}
+
+#[test]
+fn test_input_upsert() {}
+
+#[test]
+fn test_input_delete() {}

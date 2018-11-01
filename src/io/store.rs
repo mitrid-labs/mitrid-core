@@ -14,7 +14,7 @@ use io::Session;
 pub trait Store<S, K, V, P, PC, RC>
     where   S: Datable + Serializable,
             K: Ord + Datable + Serializable,
-            V: Datable + Serializable,
+            V: Datable + Serializable ,
             P: Datable,
             PC: Datable + Serializable,
             RC: Datable + Serializable,
@@ -102,30 +102,22 @@ pub trait Storable<St, S, K, V, P, PC, RC>
             P: Datable,
             PC: Datable + Serializable,
             RC: Datable + Serializable,
-            Self: Datable
+            Self: Datable + Serializable
 {
-    /// Returns the store key of the item.
+    /// Returns the store key of the implementor.
     fn store_key(&self) -> Result<K>;
 
-    /// Retrieves the store value of the item.
+    /// Retrieves the store value of the implementor.
     fn store_value(&self) -> Result<V>;
 
-    /// Retrieves a new session from the store.
-    fn store_session(store: &mut St,
-                     params: &P,
-                     permission: &Permission)
-        -> Result<Session<S>>
-    {
-        params.check()?;
-
-        permission.check()?;
-
-        store.session(params, permission)
+    /// Retrieves an instance of the implementor from a store value.
+    fn from_store_value(value: &V) -> Result<Self> {
+        let buf = value.to_bytes()?;
+        Self::from_bytes(&buf)
     }
     
     /// Counts the store items starting from the `from` key until, not included, the `to` key.
     fn store_count(store: &mut St,
-                   session: &Session<S>,
                    params: &P,
                    from: &Option<K>,
                    to: &Option<K>)
@@ -133,15 +125,9 @@ pub trait Storable<St, S, K, V, P, PC, RC>
     {
         params.check()?;
 
-        session.check()?;
+        let permission = Permission::Read;
 
-        if session.is_expired()? {
-            return Err(String::from("expired session"));
-        }
-
-        if session.permission > Permission::Read {
-            return Err(String::from("invalid permission")).into();
-        }
+        let session = store.session(&params, &permission)?;
 
         from.check()?;
         to.check()?;
@@ -154,29 +140,22 @@ pub trait Storable<St, S, K, V, P, PC, RC>
             }
         }
 
-        store.count(session, params, from, to)
+        store.count(&session, params, from, to)
     }
     
     /// Lists the store items starting from the `from` key until, not included, the `to` key.
     fn store_list(store: &mut St,
-                  session: &Session<S>,
                   params: &P,
                   from: &Option<K>,
                   to: &Option<K>,
                   count: &Option<u64>)
-        -> Result<Vec<V>>
+        -> Result<Vec<Self>>
     {
         params.check()?;
 
-        session.check()?;
+        let permission = Permission::Read;
 
-        if session.is_expired()? {
-            return Err(String::from("expired session"));
-        }
-
-        if session.permission > Permission::Read {
-            return Err(String::from("invalid permission"));
-        }
+        let session = store.session(&params, &permission)?;
 
         from.check()?;
         to.check()?;
@@ -195,157 +174,122 @@ pub trait Storable<St, S, K, V, P, PC, RC>
             }
         }
 
-        store.list(session, params, from, to, count)
+        let mut list = Vec::new();
+
+        for value in store.list(&session, params, from, to, count)?.iter() {
+            list.push(Self::from_store_value(&value)?);
+        }
+
+        Ok(list)
     }
     
     /// Lookups an item from its key.
     fn store_lookup(store: &mut St,
-                    session: &Session<S>,
                     params: &P,
                     key: &K)
         -> Result<bool>
     {
         params.check()?;
 
-        session.check()?;
+        let permission = Permission::Read;
 
-        if session.is_expired()? {
-            return Err(String::from("expired session"));
-        }
-
-        if session.permission > Permission::Read {
-            return Err(String::from("invalid permission")).into();
-        }
+        let session = store.session(&params, &permission)?;
 
         key.check()?;
 
-        store.lookup(session, params, key)
+        store.lookup(&session, params, key)
     }
     
     /// Retrieves an item from its key. The item should already exist in the store before the operation.
     fn store_get(store: &mut St,
-                 session: &Session<S>,
                  params: &P,
                  key: &K)
-        -> Result<V>
+        -> Result<Self>
     {
         params.check()?;
 
-        session.check()?;
+        let permission = Permission::Read;
 
-        if session.is_expired()? {
-            return Err(String::from("expired session"));
-        }
-
-        if session.permission > Permission::Read {
-            return Err(String::from("invalid permission"));
-        }
+        let session = store.session(&params, &permission)?;
 
         key.check()?;
 
-        store.get(session, params, key)
+        let value = store.get(&session, params, key)?;
+        Self::from_store_value(&value)
     }
     
     /// Creates an item in the store. The item should not exist in the store before the operation.
     fn store_create(&self,
                     store: &mut St,
-                    session: &Session<S>,
                     params: &P)
         -> Result<()>
     {
         params.check()?;
 
-        session.check()?;
+        let permission = Permission::Write;
 
-        if session.is_expired()? {
-            return Err(String::from("expired session"));
-        }
-
-        if session.permission < Permission::Write {
-            return Err(String::from("invalid permission")).into();
-        }
+        let session = store.session(&params, &permission)?;
 
         let key = self.store_key()?;
 
         let value = self.store_value()?;
 
-        store.create(session, params, &key, &value)
+        store.create(&session, params, &key, &value)
     }
     
     /// Updates the item in the store. The item should already exist in the store before the operation.
     fn store_update(&self,
                     store: &mut St,
-                    session: &Session<S>,
                     params: &P,)
         -> Result<()>
     {
         params.check()?;
 
-        session.check()?;
+        let permission = Permission::Write;
 
-        if session.is_expired()? {
-            return Err(String::from("expired session"));
-        }
-
-        if session.permission < Permission::Write {
-            return Err(String::from("invalid permission")).into();
-        }
+        let session = store.session(&params, &permission)?;
 
         let key = self.store_key()?;
 
         let value = self.store_value()?;
 
-        store.update(session, params, &key, &value)
+        store.update(&session, params, &key, &value)
     }
     
     /// Creates the item in the store if absent, update it if present.
     fn store_upsert(&self,
                     store: &mut St,
-                    session: &Session<S>,
                     params: &P)
         -> Result<()>
     {
         params.check()?;
 
-        session.check()?;
+        let permission = Permission::Write;
 
-        if session.is_expired()? {
-            return Err(String::from("expired session"));
-        }
-
-        if session.permission < Permission::Write {
-            return Err(String::from("invalid permission")).into();
-        }
+        let session = store.session(&params, &permission)?;
 
         let key = self.store_key()?;
 
         let value = self.store_value()?;
         
-        store.upsert(session, params, &key, &value)
+        store.upsert(&session, params, &key, &value)
     }
     
     /// Deletes the item from the store. The item should already exist in the store before the operation.
     fn store_delete(&self,
                     store: &mut St,
-                    session: &Session<S>,
                     params: &P)
         -> Result<()>
     {
         params.check()?;
 
-        session.check()?;
+        let permission = Permission::Write;
 
-        if session.is_expired()? {
-            return Err(String::from("expired session"));
-        }
-
-        if session.permission < Permission::Write {
-            return Err(String::from("invalid permission")).into();
-        }
+        let session = store.session(&params, &permission)?;
 
         let key = self.store_key()?;
         
-        store.delete(session, params, &key)
+        store.delete(&session, params, &key)
     }
 
     /// Custom operation in the store.

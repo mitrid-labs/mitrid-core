@@ -247,3 +247,27 @@ fn test_blocknode_hex() {
 
     assert_eq!(blocknode_a, blocknode_b);
 }
+
+#[test]
+fn test_blocknode_count() {}
+
+#[test]
+fn test_blocknode_list() {}
+
+#[test]
+fn test_blocknode_lookup() {}
+
+#[test]
+fn test_blocknode_get() {}
+
+#[test]
+fn test_blocknode_create() {}
+
+#[test]
+fn test_blocknode_update() {}
+
+#[test]
+fn test_blocknode_upsert() {}
+
+#[test]
+fn test_blocknode_delete() {}

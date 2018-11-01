@@ -442,3 +442,27 @@ fn test_transaction_hex() {
 
     assert_eq!(tx_a, tx_b);
 }
+
+#[test]
+fn test_transaction_count() {}
+
+#[test]
+fn test_transaction_list() {}
+
+#[test]
+fn test_transaction_lookup() {}
+
+#[test]
+fn test_transaction_get() {}
+
+#[test]
+fn test_transaction_create() {}
+
+#[test]
+fn test_transaction_update() {}
+
+#[test]
+fn test_transaction_upsert() {}
+
+#[test]
+fn test_transaction_delete() {}

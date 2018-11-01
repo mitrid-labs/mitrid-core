@@ -326,3 +326,27 @@ fn test_wallet_hex() {
 
     assert_eq!(wallet_a, wallet_b);
 }
+
+#[test]
+fn test_wallet_count() {}
+
+#[test]
+fn test_wallet_list() {}
+
+#[test]
+fn test_wallet_lookup() {}
+
+#[test]
+fn test_wallet_get() {}
+
+#[test]
+fn test_wallet_create() {}
+
+#[test]
+fn test_wallet_update() {}
+
+#[test]
+fn test_wallet_upsert() {}
+
+#[test]
+fn test_wallet_delete() {}

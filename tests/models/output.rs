@@ -321,3 +321,27 @@ fn test_output_hex() {
 
     assert_eq!(output_a, output_b);
 }
+
+#[test]
+fn test_output_count() {}
+
+#[test]
+fn test_output_list() {}
+
+#[test]
+fn test_output_lookup() {}
+
+#[test]
+fn test_output_get() {}
+
+#[test]
+fn test_output_create() {}
+
+#[test]
+fn test_output_update() {}
+
+#[test]
+fn test_output_upsert() {}
+
+#[test]
+fn test_output_delete() {}

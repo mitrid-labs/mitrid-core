@@ -322,3 +322,27 @@ fn test_blockgraph_hex() {
 
     assert_eq!(bg_a, bg_b);
 }
+
+#[test]
+fn test_blockgraph_count() {}
+
+#[test]
+fn test_blockgraph_list() {}
+
+#[test]
+fn test_blockgraph_lookup() {}
+
+#[test]
+fn test_blockgraph_get() {}
+
+#[test]
+fn test_blockgraph_create() {}
+
+#[test]
+fn test_blockgraph_update() {}
+
+#[test]
+fn test_blockgraph_upsert() {}
+
+#[test]
+fn test_blockgraph_delete() {}

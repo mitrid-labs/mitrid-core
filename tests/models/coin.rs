@@ -263,3 +263,27 @@ fn test_coin_hex() {
 
     assert_eq!(coin_a, coin_b)
 }
+
+#[test]
+fn test_coin_count() {}
+
+#[test]
+fn test_coin_list() {}
+
+#[test]
+fn test_coin_lookup() {}
+
+#[test]
+fn test_coin_get() {}
+
+#[test]
+fn test_coin_create() {}
+
+#[test]
+fn test_coin_update() {}
+
+#[test]
+fn test_coin_upsert() {}
+
+#[test]
+fn test_coin_delete() {}

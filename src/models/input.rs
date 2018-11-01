@@ -330,7 +330,6 @@ impl<HP, D, A, P, Pk, Sig> Hashable<HP, D> for Input<D, A, P, Pk, Sig>
 impl<SP, Sk, D, A, P, Pk, Sig> Signable<SP, Sk, Pk, Sig> for Input<D, A, P, Pk, Sig>
     where   SP: Datable,
             Sk: Datable + ConstantSize,
-            Sig: Datable + ConstantSize,
             D: Ord + Datable + ConstantSize,
             A: Numerical,
             P: Datable,
