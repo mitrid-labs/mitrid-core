@@ -18,7 +18,7 @@ use io::network::message::Message;
 pub struct Request<S, RS, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C>
     where   S: Datable,
             RS: Datable,
-            Ad: Datable + VariableSize,
+            Ad: Ord + Datable + VariableSize,
             NP: Datable,
             D: Ord + Datable + ConstantSize,
             Pk: Datable + ConstantSize,
@@ -40,7 +40,7 @@ impl<S, RS, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C>
     Request<S, RS, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C>
     where   S: Datable,
             RS: Datable,
-            Ad: Datable + VariableSize,
+            Ad: Ord + Datable + VariableSize,
             NP: Datable,
             D: Ord + Datable + ConstantSize,
             Pk: Datable + ConstantSize,
@@ -84,7 +84,7 @@ impl<S, RS, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C> Sizable
     for Request<S, RS, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C>
     where   S: Datable,
             RS: Datable,
-            Ad: Datable + VariableSize,
+            Ad: Ord + Datable + VariableSize,
             NP: Datable,
             D: Ord + Datable + ConstantSize,
             Pk: Datable + ConstantSize,
@@ -107,7 +107,7 @@ impl<S, RS, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C> Checkable
     for Request<S, RS, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C>
     where   S: Datable,
             RS: Datable,
-            Ad: Datable + VariableSize,
+            Ad: Ord + Datable + VariableSize,
             NP: Datable,
             D: Ord + Datable + ConstantSize,
             Pk: Datable + ConstantSize,
@@ -137,7 +137,7 @@ impl<S, RS, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C> Serializable
     for Request<S, RS, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C>
     where   S: Datable + Serializable,
             RS: Datable + Serializable,
-            Ad: Datable + VariableSize + Serializable,
+            Ad: Ord + Datable + VariableSize + Serializable,
             NP: Datable + Serializable,
             D: Ord + Datable + ConstantSize + Serializable,
             Pk: Datable + ConstantSize + Serializable,
@@ -156,7 +156,7 @@ impl<S, RS, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C> Datable
     for Request<S, RS, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C>
     where   S: Datable,
             RS: Datable,
-            Ad: Datable + VariableSize,
+            Ad: Ord + Datable + VariableSize,
             NP: Datable,
             D: Ord + Datable + ConstantSize,
             Pk: Datable + ConstantSize,
@@ -178,7 +178,7 @@ impl<St, S, MS, RS, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C, StP, StP
             S: Datable + Serializable,
             MS: Datable + Serializable,
             RS: Datable + Serializable,
-            Ad: Datable + VariableSize + Serializable,
+            Ad: Ord + Datable + VariableSize + Serializable,
             NP: Datable + Serializable,
             D: Ord + Datable + ConstantSize + Serializable,
             Pk: Datable + ConstantSize + Serializable,

@@ -18,7 +18,7 @@ pub trait Client<CT, S, RS, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C>
     where   CT: ClientTransport<Ad>,
             S: Datable + Serializable,
             RS: Datable + Serializable,
-            Ad: Datable + VariableSize + Serializable,
+            Ad: Ord + Datable + VariableSize + Serializable,
             NP: Datable + Serializable,
             D: Ord + Datable + ConstantSize + Serializable,
             Pk: Datable + ConstantSize + Serializable,

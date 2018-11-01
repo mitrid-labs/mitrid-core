@@ -285,9 +285,9 @@ fn test_blocknode_store() {
     assert!(res.is_ok());
     assert!(res.unwrap());
 
-    let invalid_id = Digest::default();
+    let unknown_id = Digest::default();
 
-    let res = BlockNode::store_lookup(&mut store, &(), &invalid_id);
+    let res = BlockNode::store_lookup(&mut store, &(), &unknown_id);
     assert!(res.is_ok());
     assert!(!res.unwrap());
 
@@ -297,6 +297,124 @@ fn test_blocknode_store() {
     let found_blocknode = res.unwrap();
     assert_eq!(found_blocknode, blocknode);
 
-    let res = BlockNode::store_get(&mut store, &(), &invalid_id);
+    let res = BlockNode::store_get(&mut store, &(), &unknown_id);
     assert!(res.is_err());
+
+    let mut from = Some(blocknode.id.clone());
+    let mut to = Some(blocknode.id.clone());
+
+    let res = BlockNode::store_count(&mut store, &(), &from, &to);
+    assert!(res.is_err());
+
+    from = None;
+    to = None;
+
+    let res = BlockNode::store_count(&mut store, &(), &from, &to);
+    assert!(res.is_ok());
+
+    let count = res.unwrap();
+    assert_eq!(count, 1);
+
+    from = Some(blocknode.id.clone());
+
+    let res = BlockNode::store_count(&mut store, &(), &from, &to);
+    assert!(res.is_ok());
+
+    let count = res.unwrap();
+    assert_eq!(count, 1);
+
+    from = None;
+    to = Some(blocknode.id.clone());
+
+    let res = BlockNode::store_count(&mut store, &(), &from, &to);
+    assert!(res.is_ok());
+
+    let count = res.unwrap();
+    assert_eq!(count, 0);
+
+    let mut from = Some(blocknode.id.clone());
+    let mut to = Some(blocknode.id.clone());
+    let mut count = None;
+
+    let res = BlockNode::store_list(&mut store, &(), &from, &to, &count);
+    assert!(res.is_err());
+
+    count = Some(0);
+
+    let res = BlockNode::store_list(&mut store, &(), &from, &to, &count);
+    assert!(res.is_err());
+
+    from = None;
+    to = None;
+    count = None;
+
+    let res = BlockNode::store_list(&mut store, &(), &from, &to, &count);
+    assert!(res.is_ok());
+
+    let list = res.unwrap();
+    assert_eq!(list, vec![blocknode.clone()]);
+
+    from = Some(blocknode.id.clone());
+
+    let res = BlockNode::store_list(&mut store, &(), &from, &to, &count);
+    assert!(res.is_ok());
+
+    let list = res.unwrap();
+    assert_eq!(list, vec![blocknode.clone()]);
+
+    from = None;
+    to = Some(blocknode.id.clone());
+
+    let res = BlockNode::store_list(&mut store, &(), &from, &to, &count);
+    assert!(res.is_ok());
+
+    let list = res.unwrap();
+    assert_eq!(list, vec![]);
+
+    let res = blocknode.store_delete(&mut store, &());
+    assert!(res.is_ok());
+
+    let res = blocknode.store_delete(&mut store, &());
+    assert!(res.is_err());
+
+    let res = BlockNode::store_lookup(&mut store, &(), &blocknode.id);
+    assert!(res.is_ok());
+    assert!(!res.unwrap());
+
+    let res = BlockNode::store_get(&mut store, &(), &blocknode.id);
+    assert!(res.is_err());
+
+    from = None;
+    to = None;
+
+    let res = BlockNode::store_count(&mut store, &(), &to, &from);
+    assert!(res.is_ok());
+
+    let count = res.unwrap();
+    assert_eq!(count, 0);
+
+    let count = None;
+
+    let res = BlockNode::store_list(&mut store, &(), &to, &from, &count);
+    assert!(res.is_ok());
+
+    let list = res.unwrap();
+    assert_eq!(list, vec![]);
+
+    let res = blocknode.store_upsert(&mut store, &());
+    assert!(res.is_ok());
+
+    let res = BlockNode::store_count(&mut store, &(), &to, &from);
+    assert!(res.is_ok());
+
+    let count = res.unwrap();
+    assert_eq!(count, 1);
+
+    let count = None;
+
+    let res = BlockNode::store_list(&mut store, &(), &to, &from, &count);
+    assert!(res.is_ok());
+
+    let list = res.unwrap();
+    assert_eq!(list, vec![blocknode.clone()]);
 }

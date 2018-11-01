@@ -305,9 +305,9 @@ fn test_coin_store() {
     assert!(res.is_ok());
     assert!(res.unwrap());
 
-    let invalid_id = Digest::default();
+    let unknown_id = Digest::default();
 
-    let res = Coin::store_lookup(&mut store, &(), &invalid_id);
+    let res = Coin::store_lookup(&mut store, &(), &unknown_id);
     assert!(res.is_ok());
     assert!(!res.unwrap());
 
@@ -317,6 +317,124 @@ fn test_coin_store() {
     let found_coin = res.unwrap();
     assert_eq!(found_coin, coin);
 
-    let res = Coin::store_get(&mut store, &(), &invalid_id);
+    let res = Coin::store_get(&mut store, &(), &unknown_id);
     assert!(res.is_err());
+
+    let mut from = Some(coin.id.clone());
+    let mut to = Some(coin.id.clone());
+
+    let res = Coin::store_count(&mut store, &(), &from, &to);
+    assert!(res.is_err());
+
+    from = None;
+    to = None;
+
+    let res = Coin::store_count(&mut store, &(), &from, &to);
+    assert!(res.is_ok());
+
+    let count = res.unwrap();
+    assert_eq!(count, 1);
+
+    from = Some(coin.id.clone());
+
+    let res = Coin::store_count(&mut store, &(), &from, &to);
+    assert!(res.is_ok());
+
+    let count = res.unwrap();
+    assert_eq!(count, 1);
+
+    from = None;
+    to = Some(coin.id.clone());
+
+    let res = Coin::store_count(&mut store, &(), &from, &to);
+    assert!(res.is_ok());
+
+    let count = res.unwrap();
+    assert_eq!(count, 0);
+
+    let mut from = Some(coin.id.clone());
+    let mut to = Some(coin.id.clone());
+    let mut count = None;
+
+    let res = Coin::store_list(&mut store, &(), &from, &to, &count);
+    assert!(res.is_err());
+
+    count = Some(0);
+
+    let res = Coin::store_list(&mut store, &(), &from, &to, &count);
+    assert!(res.is_err());
+
+    from = None;
+    to = None;
+    count = None;
+
+    let res = Coin::store_list(&mut store, &(), &from, &to, &count);
+    assert!(res.is_ok());
+
+    let list = res.unwrap();
+    assert_eq!(list, vec![coin.clone()]);
+
+    from = Some(coin.id.clone());
+
+    let res = Coin::store_list(&mut store, &(), &from, &to, &count);
+    assert!(res.is_ok());
+
+    let list = res.unwrap();
+    assert_eq!(list, vec![coin.clone()]);
+
+    from = None;
+    to = Some(coin.id.clone());
+
+    let res = Coin::store_list(&mut store, &(), &from, &to, &count);
+    assert!(res.is_ok());
+
+    let list = res.unwrap();
+    assert_eq!(list, vec![]);
+
+    let res = coin.store_delete(&mut store, &());
+    assert!(res.is_ok());
+
+    let res = coin.store_delete(&mut store, &());
+    assert!(res.is_err());
+
+    let res = Coin::store_lookup(&mut store, &(), &coin.id);
+    assert!(res.is_ok());
+    assert!(!res.unwrap());
+
+    let res = Coin::store_get(&mut store, &(), &coin.id);
+    assert!(res.is_err());
+
+    from = None;
+    to = None;
+
+    let res = Coin::store_count(&mut store, &(), &to, &from);
+    assert!(res.is_ok());
+
+    let count = res.unwrap();
+    assert_eq!(count, 0);
+
+    let count = None;
+
+    let res = Coin::store_list(&mut store, &(), &to, &from, &count);
+    assert!(res.is_ok());
+
+    let list = res.unwrap();
+    assert_eq!(list, vec![]);
+
+    let res = coin.store_upsert(&mut store, &());
+    assert!(res.is_ok());
+
+    let res = Coin::store_count(&mut store, &(), &to, &from);
+    assert!(res.is_ok());
+
+    let count = res.unwrap();
+    assert_eq!(count, 1);
+
+    let count = None;
+
+    let res = Coin::store_list(&mut store, &(), &to, &from, &count);
+    assert!(res.is_ok());
+
+    let list = res.unwrap();
+    assert_eq!(list, vec![coin.clone()]);
 }

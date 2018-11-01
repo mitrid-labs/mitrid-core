@@ -25,7 +25,7 @@ use io::Method;
 #[allow(unused_attributes)]
 pub enum Resource<S, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C>
     where   S: Datable,
-            Ad: Datable + VariableSize,
+            Ad: Ord + Datable + VariableSize,
             NP: Datable,
             D: Ord + Datable + ConstantSize,
             Pk: Datable + ConstantSize,
@@ -84,7 +84,7 @@ pub enum Resource<S, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C>
 
 impl<S, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C>
     Resource<S, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C>
-    where   S: Datable, Ad: Datable + VariableSize,
+    where   S: Datable, Ad: Ord + Datable + VariableSize,
             NP: Datable,
             D: Ord + Datable + ConstantSize,
             Pk: Datable + ConstantSize,
@@ -281,7 +281,7 @@ impl<S, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C>
 impl<S, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C> Default
     for Resource<S, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C>
     where   S: Datable,
-            Ad: Datable + VariableSize,
+            Ad: Ord + Datable + VariableSize,
             NP: Datable,
             D: Ord + Datable + ConstantSize,
             Pk: Datable + ConstantSize,
@@ -303,7 +303,7 @@ impl<S, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C> Default
 impl<S, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C> Sizable
     for Resource<S, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C>
     where   S: Datable,
-            Ad: Datable + VariableSize,
+            Ad: Ord + Datable + VariableSize,
             NP: Datable,
             D: Ord + Datable + ConstantSize,
             Pk: Datable + ConstantSize,
@@ -346,7 +346,7 @@ impl<S, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C> Sizable
 impl<S, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C> Checkable
     for Resource<S, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C>
     where   S: Datable,
-            Ad: Datable + VariableSize,
+            Ad: Ord + Datable + VariableSize,
             NP: Datable,
             D: Ord + Datable + ConstantSize,
             Pk: Datable + ConstantSize,
@@ -389,7 +389,7 @@ impl<S, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C> Checkable
 impl<S, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C> Serializable
     for Resource<S, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C>
     where   S: Datable + Serializable,
-            Ad: Datable + VariableSize + Serializable,
+            Ad: Ord + Datable + VariableSize + Serializable,
             NP: Datable + Serializable,
             D: Ord + Datable + ConstantSize + Serializable,
             Pk: Datable + ConstantSize + Serializable,
@@ -407,7 +407,7 @@ impl<S, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C> Serializable
 impl<S, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C> Datable
     for Resource<S, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C>
     where   S: Datable,
-            Ad: Datable + VariableSize,
+            Ad: Ord + Datable + VariableSize,
             NP: Datable,
             D: Ord + Datable + ConstantSize,
             Pk: Datable + ConstantSize,

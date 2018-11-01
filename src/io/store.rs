@@ -23,7 +23,7 @@ pub trait Store<S, P, PC, RC>
         -> Result<Session<S>>;
     
     /// Counts the store items starting from the `from` key until, not included, the `to` key.
-    fn count(&mut self,
+    fn count(&self,
              session: &Session<S>,
              params: &P,
             from: &Option<Vec<u8>>,
@@ -31,7 +31,7 @@ pub trait Store<S, P, PC, RC>
         -> Result<u64>;
     
     /// Lists the store items starting from the `from` key until, not included, the `to` key.
-    fn list(&mut self,
+    fn list(&self,
             session: &Session<S>,
             params: &P,
             from: &Option<Vec<u8>>,
@@ -40,14 +40,14 @@ pub trait Store<S, P, PC, RC>
         -> Result<Vec<Vec<u8>>>;
     
     /// Lookups an item from its key.
-    fn lookup(&mut self,
+    fn lookup(&self,
               session: &Session<S>,
               params: &P,
               key: &[u8])
         -> Result<bool>;
     
     /// Retrieves an item from its key. The item should already exist in the store before the operation.
-    fn get(&mut self,
+    fn get(&self,
            session: &Session<S>,
            params: &P,
            key: &[u8])
