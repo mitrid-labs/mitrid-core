@@ -13,7 +13,7 @@ use io::Session;
 /// Trait representing the operations implemented by a store.
 pub trait Store<S, K, V, P, PC, RC>
     where   S: Datable + Serializable,
-            K: Datable + Serializable,
+            K: Ord + Datable + Serializable,
             V: Datable + Serializable,
             P: Datable,
             PC: Datable + Serializable,
@@ -97,7 +97,7 @@ pub trait Store<S, K, V, P, PC, RC>
 pub trait Storable<St, S, K, V, P, PC, RC>
     where   St: Store<S, K, V, P, PC, RC>,
             S: Datable + Serializable,
-            K: Datable + Serializable,
+            K: Ord + Datable + Serializable,
             V: Datable + Serializable,
             P: Datable,
             PC: Datable + Serializable,
@@ -144,8 +144,15 @@ pub trait Storable<St, S, K, V, P, PC, RC>
         }
 
         from.check()?;
-
         to.check()?;
+
+        if let Some(from) = from {
+            if let Some(to) = to {
+                if from >= to {
+                    return Err(String::from("invalid range"));
+                } 
+            }
+        }
 
         store.count(session, params, from, to)
     }
@@ -172,8 +179,21 @@ pub trait Storable<St, S, K, V, P, PC, RC>
         }
 
         from.check()?;
-
         to.check()?;
+
+        if let Some(from) = from {
+            if let Some(to) = to {
+                if from >= to {
+                    return Err(String::from("invalid range"));
+                } 
+            }
+        }
+
+        if let Some(count) = count {
+            if *count == 0 {
+                return Err(String::from("invalid count"));
+            }
+        }
 
         store.list(session, params, from, to, count)
     }
