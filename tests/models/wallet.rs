@@ -3,12 +3,14 @@ use mitrid_core::base::Sizable;
 use mitrid_core::base::Serializable;
 use mitrid_core::utils::Version;
 use mitrid_core::models::Meta;
+use mitrid_core::io::Storable;
 
 use fixtures::base::eval::*;
 use fixtures::base::Payload;
 use fixtures::crypto::Ed25519;
 use fixtures::crypto::SHA512HMAC;
 use fixtures::models::wallet::*;
+use fixtures::io::store::*;
 
 #[test]
 fn test_wallet_meta() {
@@ -328,25 +330,37 @@ fn test_wallet_hex() {
 }
 
 #[test]
-fn test_wallet_count() {}
+fn test_wallet_store() {
+    let (pk, sk) = Ed25519::keypair(None).unwrap();
 
-#[test]
-fn test_wallet_list() {}
+    let mut wallet = Wallet::new()
+                        .meta(&Meta::default())
+                        .unwrap()
+                        .payload(&Payload::default())
+                        .unwrap()
+                        .sign(&(), &sk, &pk, &wallet_sign_cb)
+                        .unwrap()
+                        .finalize(&(), &wallet_digest_cb)
+                        .unwrap();
 
-#[test]
-fn test_wallet_lookup() {}
+    let mut store = Store::new();
+    let res = wallet.store_create(&mut store, &());
+    assert!(res.is_ok());
 
-#[test]
-fn test_wallet_get() {}
+    let res = wallet.store_create(&mut store, &());
+    assert!(res.is_err());
 
-#[test]
-fn test_wallet_create() {}
+    let found_wallet = Wallet::store_get(&mut store, &(), &wallet.id).unwrap();
+    assert_eq!(found_wallet, wallet);
 
-#[test]
-fn test_wallet_update() {}
+    let mut invalid_version = Version::default();
+    invalid_version.buildmeta = "/\\".into();
 
-#[test]
-fn test_wallet_upsert() {}
+    let mut invalid_meta = Meta::default();
+    invalid_meta.version = invalid_version;
 
-#[test]
-fn test_wallet_delete() {}
+    wallet.meta = invalid_meta;
+
+    let res = wallet.store_create(&mut store, &());
+    assert!(res.is_err());
+}

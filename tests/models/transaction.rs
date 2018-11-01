@@ -3,6 +3,7 @@ use mitrid_core::base::Checkable;
 use mitrid_core::base::Serializable;
 use mitrid_core::utils::Version;
 use mitrid_core::models::Meta;
+use mitrid_core::io::Storable;
 
 use fixtures::base::eval::*;
 use fixtures::base::Payload;
@@ -13,6 +14,7 @@ use fixtures::models::coin::*;
 use fixtures::models::input::*;
 use fixtures::models::output::*;
 use fixtures::models::transaction::*;
+use fixtures::io::store::*;
 
 #[test]
 fn test_transaction_meta() {
@@ -444,25 +446,66 @@ fn test_transaction_hex() {
 }
 
 #[test]
-fn test_transaction_count() {}
+fn test_transaction_store() {
+    let coin = Coin::new()
+                    .finalize(&(), &coin_digest_cb)
+                    .unwrap();
 
-#[test]
-fn test_transaction_list() {}
+    let (pk, sk) = Ed25519::keypair(None).unwrap();
 
-#[test]
-fn test_transaction_lookup() {}
+    let input = Input::new()
+                    .meta(&Meta::default())
+                    .unwrap()
+                    .coin(&coin)
+                    .unwrap()
+                    .payload(&Payload::default())
+                    .unwrap()
+                    .sign(&(), &sk, &pk, &input_sign_cb)
+                    .unwrap()
+                    .finalize(&(), &input_digest_cb)
+                    .unwrap();
 
-#[test]
-fn test_transaction_get() {}
+    let output = Output::new()
+                    .meta(&Meta::default())
+                    .unwrap()
+                    .sender(&PublicKey::default())
+                    .unwrap()
+                    .receiver(&PublicKey::default())
+                    .unwrap()
+                    .amount(&Amount::default())
+                    .unwrap()
+                    .payload(&Payload::default())
+                    .unwrap()
+                    .finalize(&(), &output_digest_cb)
+                    .unwrap();
 
-#[test]
-fn test_transaction_create() {}
+    let payload = Payload::default();
 
-#[test]
-fn test_transaction_update() {}
+    let mut tx = Transaction::new()
+                    .meta(&Meta::default())
+                    .unwrap()
+                    .inputs(&vec![input])
+                    .unwrap()
+                    .outputs(&vec![output])
+                    .unwrap()
+                    .payload(&payload)
+                    .unwrap()
+                    .finalize(&(), &transaction_digest_cb)
+                    .unwrap();
 
-#[test]
-fn test_transaction_upsert() {}
+    let mut store = Store::new();
+    let res = tx.store_create(&mut store, &());
+    assert!(res.is_ok());
 
-#[test]
-fn test_transaction_delete() {}
+    let res = tx.store_create(&mut store, &());
+    assert!(res.is_err());
+
+    let mut invalid_version = Version::default();
+    invalid_version.buildmeta = "/\\".into();
+
+    let invalid_meta = Meta::default();
+    tx.meta = invalid_meta;
+
+    let res = tx.store_create(&mut store, &());
+    assert!(res.is_err());
+}

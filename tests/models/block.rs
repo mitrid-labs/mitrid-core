@@ -3,6 +3,7 @@ use mitrid_core::base::Sizable;
 use mitrid_core::base::Serializable;
 use mitrid_core::utils::Version;
 use mitrid_core::models::Meta;
+use mitrid_core::io::Storable;
 
 use fixtures::base::eval::*;
 use fixtures::base::Payload;
@@ -16,6 +17,7 @@ use fixtures::models::output::*;
 use fixtures::models::transaction::*;
 use fixtures::models::blocknode::*;
 use fixtures::models::block::*;
+use fixtures::io::store::*;
 
 #[test]
 fn test_block_meta() {
@@ -584,25 +586,84 @@ fn test_block_hex() {
 }
 
 #[test]
-fn test_block_count() {}
+fn test_block_store() {
+    let block_height = 0;
 
-#[test]
-fn test_block_list() {}
+    let bn = BlockNode::new()
+                .meta(&Meta::default())
+                .unwrap()
+                .block_data(&Digest::default(), block_height)
+                .unwrap();
 
-#[test]
-fn test_block_lookup() {}
+    let coin = Coin::new()
+                    .finalize(&(), &coin_digest_cb)
+                    .unwrap();
 
-#[test]
-fn test_block_get() {}
+    let (pk, sk) = Ed25519::keypair(None).unwrap();
 
-#[test]
-fn test_block_create() {}
+    let input = Input::new()
+                    .meta(&Meta::default())
+                    .unwrap()
+                    .coin(&coin)
+                    .unwrap()
+                    .payload(&Payload::default())
+                    .unwrap()
+                    .sign(&(), &sk, &pk, &input_sign_cb)
+                    .unwrap()
+                    .finalize(&(), &input_digest_cb)
+                    .unwrap();
 
-#[test]
-fn test_block_update() {}
+    let output = Output::new()
+                    .meta(&Meta::default())
+                    .unwrap()
+                    .sender(&PublicKey::default())
+                    .unwrap()
+                    .receiver(&PublicKey::default())
+                    .unwrap()
+                    .amount(&Amount::default())
+                    .unwrap()
+                    .payload(&Payload::default())
+                    .unwrap()
+                    .finalize(&(), &output_digest_cb)
+                    .unwrap();
 
-#[test]
-fn test_block_upsert() {}
+    let tx = Transaction::new()
+                .meta(&Meta::default())
+                .unwrap()
+                .inputs(&vec![input])
+                .unwrap()
+                .outputs(&vec![output])
+                .unwrap()
+                .payload(&Payload::default())
+                .unwrap()
+                .finalize(&(), &transaction_digest_cb)
+                .unwrap();
 
-#[test]
-fn test_block_delete() {}
+    let bits = 3;
+
+    let mut block = Block::new()
+                        .meta(&Meta::default())
+                        .unwrap()
+                        .prev_blocks(&vec![bn.clone()])
+                        .unwrap()
+                        .transactions(&vec![tx.clone()])
+                        .unwrap()
+                        .payload(&Payload::default())
+                        .unwrap()
+                        .prove(&Some(bits), &block_prove_cb)
+                        .unwrap()
+                        .finalize(&(), &block_digest_cb)
+                        .unwrap();
+
+    let mut store = Store::new();
+    let res = block.store_create(&mut store, &());
+    assert!(res.is_ok());
+
+    let res = block.store_create(&mut store, &());
+    assert!(res.is_err());
+
+    block.transactions_len += 1;
+
+    let res = block.store_create(&mut store, &());
+    assert!(res.is_err());
+}

@@ -3,10 +3,12 @@ use mitrid_core::base::Sizable;
 use mitrid_core::base::Serializable;
 use mitrid_core::utils::Version;
 use mitrid_core::models::Meta;
+use mitrid_core::io::Storable;
 
 use fixtures::crypto::Digest;
 use fixtures::crypto::SHA512HMAC;
 use fixtures::models::blocknode::*;
+use fixtures::io::store::*;
 
 #[test]
 fn test_blocknode_meta() {
@@ -249,25 +251,31 @@ fn test_blocknode_hex() {
 }
 
 #[test]
-fn test_blocknode_count() {}
+fn test_blocknode_store() {
+    let block_id = Digest::default();
+    let block_height = 0;
 
-#[test]
-fn test_blocknode_list() {}
+    let mut blocknode = BlockNode::new()
+                            .meta(&Meta::default())
+                            .unwrap()
+                            .block_data(&block_id, block_height)
+                            .unwrap()
+                            .finalize(&(), &blocknode_digest_cb)
+                            .unwrap();
 
-#[test]
-fn test_blocknode_lookup() {}
+    let mut store = Store::new();
+    let res = blocknode.store_create(&mut store, &());
+    assert!(res.is_ok());
 
-#[test]
-fn test_blocknode_get() {}
+    let res = blocknode.store_create(&mut store, &());
+    assert!(res.is_err());
 
-#[test]
-fn test_blocknode_create() {}
+    let mut invalid_version = Version::default();
+    invalid_version.buildmeta = "/\\".into();
 
-#[test]
-fn test_blocknode_update() {}
+    let invalid_meta = Meta::default();
+    blocknode.meta = invalid_meta;
 
-#[test]
-fn test_blocknode_upsert() {}
-
-#[test]
-fn test_blocknode_delete() {}
+    let res = blocknode.store_create(&mut store, &());
+    assert!(res.is_err());
+}

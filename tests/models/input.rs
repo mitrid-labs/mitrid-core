@@ -3,6 +3,7 @@ use mitrid_core::base::Sizable;
 use mitrid_core::base::Serializable;
 use mitrid_core::utils::Version;
 use mitrid_core::models::Meta;
+use mitrid_core::io::Storable;
 
 use fixtures::base::eval::*;
 use fixtures::base::Payload;
@@ -12,6 +13,7 @@ use fixtures::crypto::SHA512HMAC;
 use fixtures::models::Amount;
 use fixtures::models::coin::*;
 use fixtures::models::input::*;
+use fixtures::io::store::*;
 
 #[test]
 fn test_input_meta() {
@@ -413,25 +415,54 @@ fn test_input_hex() {
 }
 
 #[test]
-fn test_input_count() {}
+fn test_input_store() {
+    let meta = Meta::default();
+    let tx_id = Digest::default();
+    let out_idx = 0;
+    let out_amount = Amount::default();
 
-#[test]
-fn test_input_list() {}
+    let coin = Coin::new()
+                    .meta(&meta)
+                    .unwrap()
+                    .output_data(&tx_id, out_idx, &out_amount)
+                    .unwrap()
+                    .finalize(&(), &coin_digest_cb)
+                    .unwrap();
 
-#[test]
-fn test_input_lookup() {}
+    let payload = Payload::default();
 
-#[test]
-fn test_input_get() {}
+    let (pk, sk) = Ed25519::keypair(None).unwrap();
 
-#[test]
-fn test_input_create() {}
+    let mut input = Input::new()
+                        .meta(&meta)
+                        .unwrap()
+                        .coin(&coin)
+                        .unwrap()
+                        .payload(&payload)
+                        .unwrap()
+                        .sign(&(), &sk, &pk, &input_sign_cb)
+                        .unwrap()
+                        .finalize(&(), &input_digest_cb)
+                        .unwrap();
 
-#[test]
-fn test_input_update() {}
+    let mut store = Store::new();
+    let res = input.store_create(&mut store, &());
+    assert!(res.is_ok());
 
-#[test]
-fn test_input_upsert() {}
+    let res = input.store_create(&mut store, &());
+    assert!(res.is_err());
 
-#[test]
-fn test_input_delete() {}
+    let found_input = Input::store_get(&mut store, &(), &input.id).unwrap();
+    assert_eq!(found_input, input);
+
+    let mut invalid_version = Version::default();
+    invalid_version.buildmeta = "/\\".into();
+
+    let mut invalid_meta = Meta::default();
+    invalid_meta.version = invalid_version;
+
+    input.meta = invalid_meta;
+
+    let res = input.store_create(&mut store, &());
+    assert!(res.is_err());
+}

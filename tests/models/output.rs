@@ -3,6 +3,7 @@ use mitrid_core::base::Checkable;
 use mitrid_core::base::Serializable;
 use mitrid_core::utils::Version;
 use mitrid_core::models::Meta;
+use mitrid_core::io::Storable;
 
 use fixtures::base::eval::*;
 use fixtures::base::Payload;
@@ -10,6 +11,7 @@ use fixtures::crypto::PublicKey;
 use fixtures::crypto::SHA512HMAC;
 use fixtures::models::Amount;
 use fixtures::models::output::*;
+use fixtures::io::store::*;
 
 #[test]
 fn test_output_meta() {
@@ -323,25 +325,45 @@ fn test_output_hex() {
 }
 
 #[test]
-fn test_output_count() {}
+fn test_output_store() {
+    let meta = Meta::default();
+    let sender = PublicKey::default();
+    let receiver = PublicKey::default();
+    let amount = Amount::default();
+    let payload = Payload::default();
 
-#[test]
-fn test_output_list() {}
+    let mut output = Output::new()
+                        .meta(&meta)
+                        .unwrap()
+                        .sender(&sender)
+                        .unwrap()
+                        .receiver(&receiver)
+                        .unwrap()
+                        .amount(&amount)
+                        .unwrap()
+                        .payload(&payload)
+                        .unwrap()
+                        .finalize(&(), &output_digest_cb)
+                        .unwrap();
 
-#[test]
-fn test_output_lookup() {}
+    let mut store = Store::new();
+    let res = output.store_create(&mut store, &());
+    assert!(res.is_ok());
 
-#[test]
-fn test_output_get() {}
+    let res = output.store_create(&mut store, &());
+    assert!(res.is_err());
 
-#[test]
-fn test_output_create() {}
+    let found_output = Output::store_get(&mut store, &(), &output.id).unwrap();
+    assert_eq!(found_output, output);
 
-#[test]
-fn test_output_update() {}
+    let mut invalid_version = Version::default();
+    invalid_version.buildmeta = "/\\".into();
 
-#[test]
-fn test_output_upsert() {}
+    let mut invalid_meta = Meta::default();
+    invalid_meta.version = invalid_version;
 
-#[test]
-fn test_output_delete() {}
+    output.meta = invalid_meta;
+
+    let res = output.store_create(&mut store, &());
+    assert!(res.is_err());
+}

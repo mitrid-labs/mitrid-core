@@ -3,6 +3,7 @@ use mitrid_core::base::Sizable;
 use mitrid_core::base::Serializable;
 use mitrid_core::utils::Version;
 use mitrid_core::models::Meta;
+use mitrid_core::io::Storable;
 
 use fixtures::base::eval::*;
 use fixtures::base::Payload;
@@ -10,6 +11,7 @@ use fixtures::crypto::Digest;
 use fixtures::crypto::SHA512HMAC;
 use fixtures::models::blocknode::*;
 use fixtures::models::blockgraph::*;
+use fixtures::io::store::*;
 
 #[test]
 fn test_blockgraph_meta() {
@@ -324,25 +326,36 @@ fn test_blockgraph_hex() {
 }
 
 #[test]
-fn test_blockgraph_count() {}
+fn test_blockgraph_store() {
+    let block_height = 0;
 
-#[test]
-fn test_blockgraph_list() {}
+    let bn = BlockNode::new()
+                .meta(&Meta::default())
+                .unwrap()
+                .block_data(&Digest::default(), block_height)
+                .unwrap();
 
-#[test]
-fn test_blockgraph_lookup() {}
+    let tip_id = 0;
 
-#[test]
-fn test_blockgraph_get() {}
+    let mut bg = BlockGraph::new()
+                    .meta(&Meta::default())
+                    .unwrap()
+                    .frontier(Some(tip_id), &vec![bn])
+                    .unwrap()
+                    .payload(&Payload::default())
+                    .unwrap()
+                    .finalize(&(), &blockgraph_digest_cb)
+                    .unwrap();
 
-#[test]
-fn test_blockgraph_create() {}
+    let mut store = Store::new();
+    let res = bg.store_create(&mut store, &());
+    assert!(res.is_ok());
 
-#[test]
-fn test_blockgraph_update() {}
+    let res = bg.store_create(&mut store, &());
+    assert!(res.is_err());
 
-#[test]
-fn test_blockgraph_upsert() {}
+    bg.tip_idx = Some(bg.frontier_len + 1);
 
-#[test]
-fn test_blockgraph_delete() {}
+    let res = bg.store_create(&mut store, &());
+    assert!(res.is_err());
+}
