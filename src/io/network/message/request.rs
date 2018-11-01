@@ -174,7 +174,7 @@ impl<S, RS, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C> Datable
 impl<St, S, MS, RS, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C, StP, StPC, StRC>
     Storable<St, S, D, Request<MS, RS, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C>, StP, StPC, StRC>
     for Request<MS, RS, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C>
-    where   St: Store<S, D, Request<MS, RS, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C>, StP, StPC, StRC>,
+    where   St: Store<S, StP, StPC, StRC>,
             S: Datable + Serializable,
             MS: Datable + Serializable,
             RS: Datable + Serializable,

@@ -5,18 +5,17 @@ use mitrid_core::base::Serializable;
 use mitrid_core::base::Datable;
 
 use fixtures::io::Session;
-use fixtures::io::store::{StoreKey, StoreValue};
 
 #[derive(Clone, PartialEq, Eq, PartialOrd, Ord, Debug, Default, Hash, Serialize, Deserialize)]
 pub struct DumpAll {
     pub sessions_count: u64,
     pub sessions: Vec<(u64, Session)>,
     pub items_count: u64,
-    pub items: Vec<(StoreKey, StoreValue)>,
+    pub items: Vec<(Vec<u8>, Vec<u8>)>,
 }
 
 impl DumpAll {
-    pub fn new(sessions: &Vec<Session>, items: &Vec<(StoreKey, StoreValue)>) -> Result<DumpAll> {
+    pub fn new(sessions: &Vec<Session>, items: &Vec<(Vec<u8>, Vec<u8>)>) -> Result<DumpAll> {
         sessions.check()?;
 
         let mut session_values = Vec::new();

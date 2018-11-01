@@ -3,8 +3,7 @@ use mitrid_core::base::Checkable;
 use mitrid_core::base::Serializable;
 
 use fixtures::io::Session;
-use fixtures::io::store::{StoreKey, StoreValue};
-use fixtures::io::store::custom::{CustomResult, DumpSessions, DumpItems, DumpAll};
+use fixtures::io::store::{CustomResult, DumpSessions, DumpItems, DumpAll};
 
 #[test]
 fn test_custom_result_new_size() {
@@ -88,7 +87,7 @@ fn test_custom_result_check() {
     assert!(res.is_err());
 
     let mut dump_items = DumpItems::default();
-    dump_items.items.push((StoreKey::default(), StoreValue::default()));
+    dump_items.items.push((Vec::default(), Vec::default()));
 
     result = CustomResult::DumpItems(dump_items);
     let res = result.check();

@@ -4,16 +4,14 @@ use mitrid_core::base::Checkable;
 use mitrid_core::base::Serializable;
 use mitrid_core::base::Datable;
 
-use fixtures::io::store::{StoreKey, StoreValue};
-
 #[derive(Clone, PartialEq, Eq, PartialOrd, Ord, Debug, Default, Hash, Serialize, Deserialize)]
 pub struct DumpItems {
     pub count: u64,
-    pub items: Vec<(StoreKey, StoreValue)>,
+    pub items: Vec<(Vec<u8>, Vec<u8>)>,
 }
 
 impl DumpItems {
-    pub fn new(items: &Vec<(StoreKey, StoreValue)>) -> DumpItems {
+    pub fn new(items: &Vec<(Vec<u8>, Vec<u8>)>) -> DumpItems {
         DumpItems {
             count: items.len() as u64,
             items: items.to_owned(),

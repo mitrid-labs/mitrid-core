@@ -3,13 +3,12 @@ use mitrid_core::base::Checkable;
 use mitrid_core::base::Serializable;
 
 use fixtures::io::Session;
-use fixtures::io::store::{StoreKey, StoreValue};
 use fixtures::io::store::custom::DumpAll;
 
 #[test]
 fn test_dump_all_new() {
     let sessions = vec![Session::default()];
-    let items = vec![(StoreKey::default(), StoreValue::default())];
+    let items = vec![(Vec::default(), Vec::default())];
     
     let res = DumpAll::new(&sessions, &items);
     assert!(res.is_ok());
@@ -62,7 +61,7 @@ fn test_dump_all_check() {
     let res = result.check();
     assert!(res.is_err());
 
-    result.items.push((StoreKey::default(), StoreValue::default()));
+    result.items.push((Vec::default(), Vec::default()));
     let res = result.check();
     assert!(res.is_ok());
 }

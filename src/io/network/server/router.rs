@@ -16,7 +16,7 @@ use io::network::server::Handler;
 
 /// Trait implemented by the server router.
 pub trait Router<St, StS, StK, StV, StP, StPC, StRC, S, RS, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C>
-    where   St: Store<StS, StK, StV, StP, StPC, StRC>,
+    where   St: Store<StS, StP, StPC, StRC>,
             StS: Datable + Serializable,
             StK: Ord + Datable + Serializable,
             StV: Datable + Serializable,

@@ -271,7 +271,7 @@ impl<D> Datable for BlockNode<D>
 impl<St, S, D, StP, StPC, StRC>
     Storable<St, S, D, BlockNode<D>, StP, StPC, StRC>
     for BlockNode<D>
-    where   St: Store<S, D, BlockNode<D>, StP, StPC, StRC>,
+    where   St: Store<S, StP, StPC, StRC>,
             S: Datable + Serializable,
             D: Ord + Datable + ConstantSize + Serializable,
             StP: Datable,
@@ -284,7 +284,7 @@ impl<St, S, D, StP, StPC, StRC>
         Ok(self.id.clone())
     }
 
-    fn store_value(&self) -> Result<BlockNode<D>> {
+    fn store_value(&self) -> Result<Self> {
         self.check()?;
 
         Ok(self.clone())

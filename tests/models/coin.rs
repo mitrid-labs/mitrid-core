@@ -3,11 +3,16 @@ use mitrid_core::models::Meta;
 use mitrid_core::base::Checkable;
 use mitrid_core::base::Sizable;
 use mitrid_core::base::Serializable;
+/*
+use mitrid_core::io::Store as BasicStore;
+use mitrid_core::io::Storable;
+*/
 
 use fixtures::crypto::Digest;
 use fixtures::crypto::SHA512HMAC;
 use fixtures::models::Amount;
 use fixtures::models::coin::*;
+//use fixtures::io::store::*;
 
 #[test]
 fn test_coin_meta() {
@@ -265,25 +270,51 @@ fn test_coin_hex() {
 }
 
 #[test]
-fn test_coin_count() {}
+fn test_coin_store_count() {}
 
 #[test]
-fn test_coin_list() {}
+fn test_coin_store_list() {}
 
 #[test]
-fn test_coin_lookup() {}
+fn test_coin_store_lookup() {}
 
 #[test]
-fn test_coin_get() {}
+fn test_coin_store_get() {}
 
 #[test]
-fn test_coin_create() {}
+fn test_coin_store_create() {
+    /*
+    let valid_meta = Meta::default();
+    let tx_id = Digest::default();
+    let out_idx = 0;
+    let out_amount = Amount::default();
+
+    let mut coin = Coin::new()
+                    .meta(&valid_meta)
+                    .unwrap()
+                    .output_data(&tx_id, out_idx, &out_amount)
+                    .unwrap()
+                    .finalize(&(), &coin_digest_cb)
+                    .unwrap();
+
+    let mut store = Store::new();
+    let res = coin.store_create(&mut store, &());
+    assert!(res.is_ok());
+
+    let res = coin.store_create(&mut store, &());
+    assert!(res.is_err());
+
+    let found_coin = Coin::store_get(&mut store, &(), &coin.id).unwrap();
+    assert_eq!(found_coin, coin);
+    */
+}
+
 
 #[test]
-fn test_coin_update() {}
+fn test_coin_store_update() {}
 
 #[test]
-fn test_coin_upsert() {}
+fn test_coin_store_upsert() {}
 
 #[test]
-fn test_coin_delete() {}
+fn test_coin_store_delete() {}

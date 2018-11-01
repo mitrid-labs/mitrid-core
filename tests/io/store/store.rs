@@ -20,8 +20,8 @@ fn test_store_size() {
     let size_b = store.size();
     assert_eq!(size_b, size_a + session_size);
 
-    let key = StoreKey::default();
-    let value = StoreValue::default();
+    let key = Vec::default();
+    let value = Vec::default();
 
     let _ = store.create(&session, &(), &key, &value).unwrap();
 
@@ -46,8 +46,8 @@ fn test_store_check() {
     let res = store.check();
     assert!(res.is_ok());
 
-    let key = StoreKey::default();
-    let value = StoreValue::default();
+    let key = Vec::default();
+    let value = Vec::default();
 
     let _ = store.create(&session, &(), &key, &value).unwrap();
     let res = store.check();
@@ -82,8 +82,8 @@ fn test_store_count() {
     let write_permission = Permission::Write;
     let write_session = store.session(&(), &write_permission).unwrap();
 
-    let key = StoreKey::default();
-    let value = StoreValue::default();
+    let key = Vec::default();
+    let value = Vec::default();
 
     store.create(&write_session, &(), &key, &value).unwrap();
 
@@ -123,8 +123,8 @@ fn test_store_list() {
     let write_permission = Permission::Write;
     let write_session = store.session(&(), &write_permission).unwrap();
 
-    let key = StoreKey::default();
-    let value = StoreValue::default();
+    let key = Vec::default();
+    let value = Vec::default();
 
     store.create(&write_session, &(), &key, &value).unwrap();
 
@@ -183,8 +183,8 @@ fn test_store_lookup() {
     let write_permission = Permission::Write;
     let write_session = store.session(&(), &write_permission).unwrap();
 
-    let mut key = StoreKey::default();
-    let value = StoreValue::default();
+    let mut key = Vec::default();
+    let value = Vec::default();
 
     store.create(&write_session, &(), &key, &value).unwrap();
 
@@ -212,8 +212,8 @@ fn test_store_get() {
     let write_permission = Permission::Write;
     let write_session = store.session(&(), &write_permission).unwrap();
 
-    let mut key = StoreKey::default();
-    let value = StoreValue::default();
+    let mut key = Vec::default();
+    let value = Vec::default();
 
     store.create(&write_session, &(), &key, &value).unwrap();
 
@@ -239,8 +239,8 @@ fn test_store_get() {
 fn test_store_create() {
     let mut store = Store::new();
 
-    let key = StoreKey::default();
-    let value = StoreValue::default();
+    let key = Vec::default();
+    let value = Vec::default();
 
     let read_permission = Permission::Read;
     let read_session = store.session(&(), &read_permission).unwrap();
@@ -262,8 +262,8 @@ fn test_store_update() {
     let write_permission = Permission::Write;
     let write_session = store.session(&(), &write_permission).unwrap();
 
-    let mut key = StoreKey::default();
-    let mut value = StoreValue::default();
+    let mut key = Vec::default();
+    let mut value = Vec::default();
 
     store.create(&write_session, &(), &key, &value).unwrap();
 
@@ -297,8 +297,8 @@ fn test_store_upsert() {
     let write_permission = Permission::Write;
     let write_session = store.session(&(), &write_permission).unwrap();
 
-    let mut key = StoreKey::default();
-    let mut value = StoreValue::default();
+    let mut key = Vec::default();
+    let mut value = Vec::default();
 
     store.create(&write_session, &(), &key, &value).unwrap();
 
@@ -335,8 +335,8 @@ fn test_store_delete() {
     let write_permission = Permission::Write;
     let write_session = store.session(&(), &write_permission).unwrap();
 
-    let key = StoreKey::default();
-    let value = StoreValue::default();
+    let key = Vec::default();
+    let value = Vec::default();
 
     store.create(&write_session, &(), &key, &value).unwrap();
 
@@ -386,8 +386,8 @@ fn test_custom_size() {
         _ => panic!("invalid result"),
     }
 
-    let key = StoreKey::default();
-    let value = StoreValue::default();
+    let key = Vec::default();
+    let value = Vec::default();
 
     store.create(&write_session, &(), &key, &value).unwrap();
     size += key.size() + value.size();
@@ -493,8 +493,8 @@ fn test_custom_dump_items() {
         _ => panic!("invalid result"),
     }
 
-    let key = StoreKey::default();
-    let value = StoreValue::default();
+    let key = Vec::default();
+    let value = Vec::default();
 
     store.create(&write_session, &(), &key, &value).unwrap();
 
@@ -575,8 +575,8 @@ fn test_custom_dump_all() {
         _ => panic!("invalid result"),
     }
 
-    let key = StoreKey::default();
-    let value = StoreValue::default();
+    let key = Vec::default();
+    let value = Vec::default();
 
     store.create(&write_session, &(), &key, &value).unwrap();
 

@@ -353,7 +353,7 @@ impl<D, P> Evaluable for BlockGraph<D, P>
 impl<St, S, D, P, StP, StPC, StRC>
     Storable<St, S, D, BlockGraph<D, P>, StP, StPC, StRC>
     for BlockGraph<D, P>
-    where   St: Store<S, D, BlockGraph<D, P>, StP, StPC, StRC>,
+    where   St: Store<S, StP, StPC, StRC>,
             S: Datable + Serializable,
             D: Ord + Datable + ConstantSize + Serializable,
             P: Datable + Serializable,
@@ -367,7 +367,7 @@ impl<St, S, D, P, StP, StPC, StRC>
         Ok(self.id.clone())
     }
 
-    fn store_value(&self) -> Result<BlockGraph<D, P>> {
+    fn store_value(&self) -> Result<Self> {
         self.check()?;
 
         Ok(self.clone())

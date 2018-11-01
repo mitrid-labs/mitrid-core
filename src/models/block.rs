@@ -497,7 +497,7 @@ impl<D, A, IP, Pk, Sig, OP, TP, P, Pr> Evaluable for Block<D, A, IP, Pk, Sig, OP
 impl<St, S, D, A, IP, Pk, Sig, OP, TP, P, Pr, StP, StPC, StRC>
     Storable<St, S, D, Block<D, A, IP, Pk, Sig, OP, TP, P, Pr>, StP, StPC, StRC>
     for Block<D, A, IP, Pk, Sig, OP, TP, P, Pr>
-    where   St: Store<S, D, Block<D, A, IP, Pk, Sig, OP, TP, P, Pr>, StP, StPC, StRC>,
+    where   St: Store<S, StP, StPC, StRC>,
             S: Datable + Serializable,
             D: Ord + Datable + ConstantSize + Serializable,
             A: Numerical + Serializable,
@@ -518,7 +518,7 @@ impl<St, S, D, A, IP, Pk, Sig, OP, TP, P, Pr, StP, StPC, StRC>
         Ok(self.id.clone())
     }
 
-    fn store_value(&self) -> Result<Block<D, A, IP, Pk, Sig, OP, TP, P, Pr>> {
+    fn store_value(&self) -> Result<Self> {
         self.check()?;
 
         Ok(self.clone())

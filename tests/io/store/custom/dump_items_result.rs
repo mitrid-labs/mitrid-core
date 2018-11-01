@@ -2,12 +2,11 @@ use mitrid_core::base::Sizable;
 use mitrid_core::base::Checkable;
 use mitrid_core::base::Serializable;
 
-use fixtures::io::store::{StoreKey, StoreValue};
 use fixtures::io::store::custom::DumpItems;
 
 #[test]
 fn test_dump_items_new() {
-    let items = vec![(StoreKey::default(), StoreValue::default())];
+    let items = vec![(Vec::default(), Vec::default())];
     let result = DumpItems::new(&items);
 
     assert_eq!(result.count, result.items.len() as u64);
@@ -41,7 +40,7 @@ fn test_dump_items_check() {
     let res = result.check();
     assert!(res.is_err());
 
-    result.items.push((StoreKey::default(), StoreValue::default()));
+    result.items.push((Vec::default(), Vec::default()));
     let res = result.check();
     assert!(res.is_ok());
 }

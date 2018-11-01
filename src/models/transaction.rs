@@ -393,7 +393,7 @@ impl<D, A, IP, Pk, Sig, OP, P> Evaluable for Transaction<D, A, IP, Pk, Sig, OP, 
 impl<St, S, D, A, IP, Pk, Sig, OP, P, StP, StPC, StRC>
     Storable<St, S, D, Transaction<D, A, IP, Pk, Sig, OP, P>, StP, StPC, StRC>
     for Transaction<D, A, IP, Pk, Sig, OP, P>
-    where   St: Store<S, D, Transaction<D, A, IP, Pk, Sig, OP, P>, StP, StPC, StRC>,
+    where   St: Store<S, StP, StPC, StRC>,
             S: Datable + Serializable,
             D: Ord + Datable + ConstantSize + Serializable,
             A: Numerical + Serializable,
@@ -412,7 +412,7 @@ impl<St, S, D, A, IP, Pk, Sig, OP, P, StP, StPC, StRC>
         Ok(self.id.clone())
     }
 
-    fn store_value(&self) -> Result<Transaction<D, A, IP, Pk, Sig, OP, P>> {
+    fn store_value(&self) -> Result<Self> {
         self.check()?;
 
         Ok(self.clone())

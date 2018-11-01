@@ -420,7 +420,7 @@ impl<D, Sk, Pk, Sig, P> Evaluable for Wallet<D, Sk, Pk, Sig, P>
 impl<St, S, D, Sk, Pk, Sig, P, StP, StPC, StRC>
     Storable<St, S, D, Wallet<D, Sk, Pk, Sig, P>, StP, StPC, StRC>
     for Wallet<D, Sk, Pk, Sig, P>
-    where   St: Store<S, D, Wallet<D, Sk, Pk, Sig, P>, StP, StPC, StRC>,
+    where   St: Store<S, StP, StPC, StRC>,
             S: Datable + Serializable,
             D: Ord + Datable + ConstantSize + Serializable,
             Sk: Datable + ConstantSize + Serializable,
@@ -437,7 +437,7 @@ impl<St, S, D, Sk, Pk, Sig, P, StP, StPC, StRC>
         Ok(self.id.clone())
     }
 
-    fn store_value(&self) -> Result<Wallet<D, Sk, Pk, Sig, P>> {
+    fn store_value(&self) -> Result<Self> {
         self.check()?;
 
         Ok(self.clone())

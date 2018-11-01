@@ -353,7 +353,7 @@ impl<D, Pk, A, P> Evaluable for Output<D, Pk, A, P>
 impl<St, S, D, Pk, A, P, StP, StPC, StRC>
     Storable<St, S, D, Output<D, Pk, A, P>, StP, StPC, StRC>
     for Output<D, Pk, A, P>
-    where   St: Store<S, D, Output<D, Pk, A, P>, StP, StPC, StRC>,
+    where   St: Store<S, StP, StPC, StRC>,
             S: Datable + Serializable,
             D: Ord + Datable + ConstantSize + Serializable,
             Pk: Datable + ConstantSize + Serializable,
@@ -369,7 +369,7 @@ impl<St, S, D, Pk, A, P, StP, StPC, StRC>
         Ok(self.id.clone())
     }
 
-    fn store_value(&self) -> Result<Output<D, Pk, A, P>> {
+    fn store_value(&self) -> Result<Self> {
         self.check()?;
 
         Ok(self.clone())

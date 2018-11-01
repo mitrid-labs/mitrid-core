@@ -286,7 +286,7 @@ impl<D, A> Datable for Coin<D, A>
 impl<St, S, D, A, StP, StPC, StRC>
     Storable<St, S, D, Coin<D, A>, StP, StPC, StRC>
     for Coin<D, A>
-    where   St: Store<S, D, Coin<D, A>, StP, StPC, StRC>,
+    where   St: Store<S, StP, StPC, StRC>,
             S: Datable + Serializable,
             D: Ord + Datable + ConstantSize + Serializable,
             A: Numerical + Serializable,
@@ -300,7 +300,7 @@ impl<St, S, D, A, StP, StPC, StRC>
         Ok(self.id.clone())
     }
 
-    fn store_value(&self) -> Result<Coin<D, A>> {
+    fn store_value(&self) -> Result<Self> {
         self.check()?;
 
         Ok(self.clone())

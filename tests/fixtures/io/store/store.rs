@@ -11,15 +11,12 @@ use mitrid_core::io::Store as BasicStore;
 use fixtures::io::Session;
 use fixtures::io::store::custom::*;
 
-pub type StoreKey = Vec<u8>;
-pub type StoreValue = Vec<u8>;
-
 pub const SESSION_DURATION: u64 = 3600;
 
 #[derive(Debug, Default)]
 pub struct Store {
     sessions: Arc<Mutex<HashMap<u64, Session>>>,
-    items: Arc<Mutex<HashMap<StoreKey, StoreValue>>>,
+    items: Arc<Mutex<HashMap<Vec<u8>, Vec<u8>>>>,
 }
 
 #[allow(dead_code)]
@@ -66,7 +63,7 @@ impl Checkable for Store {
     }
 }
 
-impl BasicStore<(), StoreKey, StoreValue, (), CustomParams, CustomResult> for Store {
+impl BasicStore<(), (), CustomParams, CustomResult> for Store {
     fn session(&mut self, _params: &(), permission: &Permission) -> Result<Session> {
         permission.check()?;
 
@@ -87,8 +84,8 @@ impl BasicStore<(), StoreKey, StoreValue, (), CustomParams, CustomResult> for St
     fn count(&mut self,
             session: &Session,
             _params: &(),
-            from: &Option<StoreKey>,
-            to: &Option<StoreKey>)
+            from: &Option<Vec<u8>>,
+            to: &Option<Vec<u8>>)
         -> Result<u64>
     {
         session.check()?;
@@ -148,10 +145,10 @@ impl BasicStore<(), StoreKey, StoreValue, (), CustomParams, CustomResult> for St
     fn list(&mut self,
             session: &Session,
             _params: &(),
-            from: &Option<StoreKey>,
-            to: &Option<StoreKey>,
+            from: &Option<Vec<u8>>,
+            to: &Option<Vec<u8>>,
             count: &Option<u64>)
-        -> Result<Vec<StoreValue>>
+        -> Result<Vec<Vec<u8>>>
     {
         session.check()?;
 
@@ -233,7 +230,7 @@ impl BasicStore<(), StoreKey, StoreValue, (), CustomParams, CustomResult> for St
     fn lookup(&mut self,
               session: &Session,
               _params: &(),
-              key: &StoreKey)
+              key: &[u8])
         -> Result<bool>
     {
         session.check()?;
@@ -245,8 +242,6 @@ impl BasicStore<(), StoreKey, StoreValue, (), CustomParams, CustomResult> for St
         if session.permission > Permission::Read {
             return Err(String::from("invalid permission")).into();
         }
-
-        key.check()?;
 
         let sessions = &*self.sessions.lock().unwrap();
 
@@ -264,8 +259,8 @@ impl BasicStore<(), StoreKey, StoreValue, (), CustomParams, CustomResult> for St
     fn get(&mut self,
            session: &Session,
            _params: &(),
-           key: &StoreKey)
-        -> Result<StoreValue>
+           key: &[u8])
+        -> Result<Vec<u8>>
     {
         session.check()?;
 
@@ -276,8 +271,6 @@ impl BasicStore<(), StoreKey, StoreValue, (), CustomParams, CustomResult> for St
         if session.permission > Permission::Read {
             return Err(String::from("invalid permission")).into();
         }
-
-        key.check()?;
 
         let sessions = &*self.sessions.lock().unwrap();
 
@@ -297,8 +290,8 @@ impl BasicStore<(), StoreKey, StoreValue, (), CustomParams, CustomResult> for St
     fn create(&mut self,
               session: &Session,
               _params: &(),
-              key: &StoreKey,
-              value: &StoreValue)
+              key: &[u8],
+              value: &[u8])
         -> Result<()>
     {
         session.check()?;
@@ -310,9 +303,6 @@ impl BasicStore<(), StoreKey, StoreValue, (), CustomParams, CustomResult> for St
         if session.permission < Permission::Write {
             return Err(String::from("invalid permission")).into();
         }
-
-        key.check()?;
-        value.check()?;
 
         let sessions = &*self.sessions.lock().unwrap();
 
@@ -334,8 +324,8 @@ impl BasicStore<(), StoreKey, StoreValue, (), CustomParams, CustomResult> for St
     fn update(&mut self,
               session: &Session,
               _params: &(),
-              key: &StoreKey,
-              value: &StoreValue)
+              key: &[u8],
+              value: &[u8])
         -> Result<()>
     {
         session.check()?;
@@ -347,9 +337,6 @@ impl BasicStore<(), StoreKey, StoreValue, (), CustomParams, CustomResult> for St
         if session.permission < Permission::Write {
             return Err(String::from("invalid permission")).into();
         }
-
-        key.check()?;
-        value.check()?;
 
         let sessions = &*self.sessions.lock().unwrap();
 
@@ -371,8 +358,8 @@ impl BasicStore<(), StoreKey, StoreValue, (), CustomParams, CustomResult> for St
     fn upsert(&mut self,
               session: &Session,
               _params: &(),
-              key: &StoreKey,
-              value: &StoreValue)
+              key: &[u8],
+              value: &[u8])
         -> Result<()>
     {
         session.check()?;
@@ -384,9 +371,6 @@ impl BasicStore<(), StoreKey, StoreValue, (), CustomParams, CustomResult> for St
         if session.permission < Permission::Write {
             return Err(String::from("invalid permission")).into();
         }
-
-        key.check()?;
-        value.check()?;
 
         let sessions = &*self.sessions.lock().unwrap();
 
@@ -404,7 +388,7 @@ impl BasicStore<(), StoreKey, StoreValue, (), CustomParams, CustomResult> for St
     fn delete(&mut self,
               session: &Session,
               _params: &(),
-              key: &StoreKey)
+              key: &[u8])
         -> Result<()>
     {
         session.check()?;
@@ -416,8 +400,6 @@ impl BasicStore<(), StoreKey, StoreValue, (), CustomParams, CustomResult> for St
         if session.permission < Permission::Write {
             return Err(String::from("invalid permission")).into();
         }
-
-        key.check()?;
 
         let sessions = &*self.sessions.lock().unwrap();
 
