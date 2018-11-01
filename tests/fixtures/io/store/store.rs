@@ -4,7 +4,6 @@ use std::collections::HashMap;
 use mitrid_core::base::Result;
 use mitrid_core::base::Sizable;
 use mitrid_core::base::Checkable;
-use mitrid_core::base::Datable;
 use mitrid_core::utils::{Timestamp, TimestampDiff};
 use mitrid_core::io::Permission;
 use mitrid_core::io::Store as BasicStore;
@@ -17,7 +16,7 @@ pub type StoreValue = Vec<u8>;
 
 pub const SESSION_DURATION: u64 = 3600;
 
-#[derive(Clone, Debug, Default)]
+#[derive(Debug, Default)]
 pub struct Store {
     sessions: Arc<Mutex<HashMap<u64, Session>>>,
     items: Arc<Mutex<HashMap<StoreKey, StoreValue>>>,
@@ -29,32 +28,6 @@ impl Store {
         Store::default()
     }
 }
-
-impl PartialEq for Store {
-    fn eq(&self, other: &Store) -> bool {
-        if self.size() != other.size() {
-            return false;
-        }
-
-        let this_sessions = &*self.sessions.lock().unwrap();
-        let other_sessions = &*other.sessions.lock().unwrap();
-
-        if this_sessions != other_sessions {
-            return false;
-        }
-
-        let this_items = &*self.items.lock().unwrap();
-        let other_items = &*other.items.lock().unwrap();
-
-        if this_items != other_items {
-            return false;
-        }
-
-        true
-    }
-}
-
-impl Eq for Store {}
 
 impl Sizable for Store {
     fn size(&self) -> u64 {
@@ -93,8 +66,6 @@ impl Checkable for Store {
     }
 }
 
-impl Datable for Store {}
-
 impl BasicStore<(), StoreKey, StoreValue, (), CustomParams, CustomResult> for Store {
     fn session(&mut self, _params: &(), permission: &Permission) -> Result<Session> {
         permission.check()?;
@@ -114,8 +85,8 @@ impl BasicStore<(), StoreKey, StoreValue, (), CustomParams, CustomResult> for St
     }
     
     fn count(&mut self,
-            _params: &(),
             session: &Session,
+            _params: &(),
             from: &Option<StoreKey>,
             to: &Option<StoreKey>)
         -> Result<u64>
@@ -135,7 +106,7 @@ impl BasicStore<(), StoreKey, StoreValue, (), CustomParams, CustomResult> for St
 
         if let Some(from) = from {
             if let Some(to) = to {
-                if from > to {
+                if from >= to {
                     return Err(String::from("invalid range"));
                 } 
             }
@@ -163,20 +134,20 @@ impl BasicStore<(), StoreKey, StoreValue, (), CustomParams, CustomResult> for St
             }
 
             if let Some(to) = to {
-                if key < to {
-                    count += 1;
-                } else {
+                if key >= to {
                     break;
                 }
             }
+            
+            count += 1;
         }
 
         Ok(count)
     }
     
     fn list(&mut self,
-            _params: &(),
             session: &Session,
+            _params: &(),
             from: &Option<StoreKey>,
             to: &Option<StoreKey>,
             count: &Option<u64>)
@@ -194,12 +165,19 @@ impl BasicStore<(), StoreKey, StoreValue, (), CustomParams, CustomResult> for St
 
         from.check()?;
         to.check()?;
+        count.check()?;
 
         if let Some(from) = from {
             if let Some(to) = to {
-                if from > to {
+                if from >= to {
                     return Err(String::from("invalid range"));
                 } 
+            }
+        }
+
+        if let Some(count) = count {
+            if *count == 0 {
+                return Err(String::from("invalid count"));
             }
         }
 
@@ -240,21 +218,21 @@ impl BasicStore<(), StoreKey, StoreValue, (), CustomParams, CustomResult> for St
             }
 
             if let Some(to) = to {
-                if key < to {
-                    list.push(value.to_owned());
-                    cnt -= 1;
-                } else {
+                if key >= to {
                     break;
                 }
             }
+
+            list.push(value.to_owned());
+            cnt -= 1;
         }
 
         Ok(list)
     }
     
     fn lookup(&mut self,
-              _params: &(),
               session: &Session,
+              _params: &(),
               key: &StoreKey)
         -> Result<bool>
     {
@@ -284,8 +262,8 @@ impl BasicStore<(), StoreKey, StoreValue, (), CustomParams, CustomResult> for St
     }
     
     fn get(&mut self,
-           _params: &(),
            session: &Session,
+           _params: &(),
            key: &StoreKey)
         -> Result<StoreValue>
     {
@@ -317,8 +295,8 @@ impl BasicStore<(), StoreKey, StoreValue, (), CustomParams, CustomResult> for St
     }
     
     fn create(&mut self,
-              _params: &(),
               session: &Session,
+              _params: &(),
               key: &StoreKey,
               value: &StoreValue)
         -> Result<()>
@@ -334,6 +312,7 @@ impl BasicStore<(), StoreKey, StoreValue, (), CustomParams, CustomResult> for St
         }
 
         key.check()?;
+        value.check()?;
 
         let sessions = &*self.sessions.lock().unwrap();
 
@@ -353,8 +332,8 @@ impl BasicStore<(), StoreKey, StoreValue, (), CustomParams, CustomResult> for St
     }
     
     fn update(&mut self,
-              _params: &(),
               session: &Session,
+              _params: &(),
               key: &StoreKey,
               value: &StoreValue)
         -> Result<()>
@@ -370,6 +349,7 @@ impl BasicStore<(), StoreKey, StoreValue, (), CustomParams, CustomResult> for St
         }
 
         key.check()?;
+        value.check()?;
 
         let sessions = &*self.sessions.lock().unwrap();
 
@@ -389,8 +369,8 @@ impl BasicStore<(), StoreKey, StoreValue, (), CustomParams, CustomResult> for St
     }
     
     fn upsert(&mut self,
-              _params: &(),
               session: &Session,
+              _params: &(),
               key: &StoreKey,
               value: &StoreValue)
         -> Result<()>
@@ -406,6 +386,7 @@ impl BasicStore<(), StoreKey, StoreValue, (), CustomParams, CustomResult> for St
         }
 
         key.check()?;
+        value.check()?;
 
         let sessions = &*self.sessions.lock().unwrap();
 
@@ -421,8 +402,8 @@ impl BasicStore<(), StoreKey, StoreValue, (), CustomParams, CustomResult> for St
     }
     
     fn delete(&mut self,
-              _params: &(),
               session: &Session,
+              _params: &(),
               key: &StoreKey)
         -> Result<()>
     {
@@ -454,8 +435,8 @@ impl BasicStore<(), StoreKey, StoreValue, (), CustomParams, CustomResult> for St
     }
     
     fn custom(&mut self,
-              params: &CustomParams,
-              session: &Session)
+              session: &Session,
+              params: &CustomParams)
         -> Result<CustomResult>
     {
         params.check()?;

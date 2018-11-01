@@ -18,7 +18,7 @@ pub trait Store<S, K, V, P, PC, RC>
             P: Datable,
             PC: Datable + Serializable,
             RC: Datable + Serializable,
-            Self: 'static + Clone + Send + Sync + Checkable
+            Self: 'static + Send + Sync + Checkable
 {
     /// Retrieves a new `Session` from the store.
     fn session(&mut self, params: &P, permission: &Permission)
@@ -26,16 +26,16 @@ pub trait Store<S, K, V, P, PC, RC>
     
     /// Counts the store items starting from the `from` key until, not included, the `to` key.
     fn count(&mut self,
-                         params: &P,
-                         session: &Session<S>,
-                         from: &Option<K>,
-                         to: &Option<K>)
+             session: &Session<S>,
+             params: &P,
+             from: &Option<K>,
+             to: &Option<K>)
         -> Result<u64>;
     
     /// Lists the store items starting from the `from` key until, not included, the `to` key.
     fn list(&mut self,
-            params: &P,
             session: &Session<S>,
+            params: &P,
             from: &Option<K>,
             to: &Option<K>,
             count: &Option<u64>)
@@ -43,53 +43,53 @@ pub trait Store<S, K, V, P, PC, RC>
     
     /// Lookups an item from its key.
     fn lookup(&mut self,
-              params: &P,
               session: &Session<S>,
+              params: &P,
               key: &K)
         -> Result<bool>;
     
     /// Retrieves an item from its key. The item should already exist in the store before the operation.
     fn get(&mut self,
-           params: &P,
            session: &Session<S>,
+           params: &P,
            key: &K)
         -> Result<V>;
     
     /// Creates an item in the store. The item should not exist in the store before the operation.
     fn create(&mut self,
-              params: &P,
               session: &Session<S>,
+              params: &P,
               key: &K,
               value: &V)
         -> Result<()>;
     
     /// Updates an item in the store. The item should already exist in the store before the operation.
     fn update(&mut self,
-              params: &P,
               session: &Session<S>,
+              params: &P,
               key: &K,
               value: &V)
         -> Result<()>;
     
     /// Creates an item in the store if absent, update it if present.
     fn upsert(&mut self,
-              params: &P,
               session: &Session<S>,
+              params: &P,
               key: &K,
               value: &V)
         -> Result<()>;
     
     /// Deletes an item from the store. The item should already exist in the store before the operation.
     fn delete(&mut self,
-              params: &P,
               session: &Session<S>,
+              params: &P,
               key: &K)
         -> Result<()>;
     
     /// Custom operation in the store.
     fn custom(&mut self,
-              params: &PC,
-              session: &Session<S>)
+              session: &Session<S>,
+              params: &PC)
         -> Result<RC>;
 }
 
@@ -125,8 +125,8 @@ pub trait Storable<St, S, K, V, P, PC, RC>
     
     /// Counts the store items starting from the `from` key until, not included, the `to` key.
     fn store_count(store: &mut St,
-                   params: &P,
                    session: &Session<S>,
+                   params: &P,
                    from: &Option<K>,
                    to: &Option<K>)
         -> Result<u64>
@@ -147,13 +147,13 @@ pub trait Storable<St, S, K, V, P, PC, RC>
 
         to.check()?;
 
-        store.count(params, session, from, to)
+        store.count(session, params, from, to)
     }
     
     /// Lists the store items starting from the `from` key until, not included, the `to` key.
     fn store_list(store: &mut St,
-                  params: &P,
                   session: &Session<S>,
+                  params: &P,
                   from: &Option<K>,
                   to: &Option<K>,
                   count: &Option<u64>)
@@ -175,13 +175,13 @@ pub trait Storable<St, S, K, V, P, PC, RC>
 
         to.check()?;
 
-        store.list(params, session, from, to, count)
+        store.list(session, params, from, to, count)
     }
     
     /// Lookups an item from its key.
     fn store_lookup(store: &mut St,
-                    params: &P,
                     session: &Session<S>,
+                    params: &P,
                     key: &K)
         -> Result<bool>
     {
@@ -199,13 +199,13 @@ pub trait Storable<St, S, K, V, P, PC, RC>
 
         key.check()?;
 
-        store.lookup(params, session, key)
+        store.lookup(session, params, key)
     }
     
     /// Retrieves an item from its key. The item should already exist in the store before the operation.
     fn store_get(store: &mut St,
-                 params: &P,
                  session: &Session<S>,
+                 params: &P,
                  key: &K)
         -> Result<V>
     {
@@ -223,14 +223,14 @@ pub trait Storable<St, S, K, V, P, PC, RC>
 
         key.check()?;
 
-        store.get(params, session, key)
+        store.get(session, params, key)
     }
     
     /// Creates an item in the store. The item should not exist in the store before the operation.
     fn store_create(&self,
                     store: &mut St,
-                    params: &P,
-                    session: &Session<S>)
+                    session: &Session<S>,
+                    params: &P)
         -> Result<()>
     {
         params.check()?;
@@ -249,14 +249,14 @@ pub trait Storable<St, S, K, V, P, PC, RC>
 
         let value = self.store_value()?;
 
-        store.create(params, session, &key, &value)
+        store.create(session, params, &key, &value)
     }
     
     /// Updates the item in the store. The item should already exist in the store before the operation.
     fn store_update(&self,
                     store: &mut St,
-                    params: &P,
-                    session: &Session<S>)
+                    session: &Session<S>,
+                    params: &P,)
         -> Result<()>
     {
         params.check()?;
@@ -275,14 +275,14 @@ pub trait Storable<St, S, K, V, P, PC, RC>
 
         let value = self.store_value()?;
 
-        store.update(params, session, &key, &value)
+        store.update(session, params, &key, &value)
     }
     
     /// Creates the item in the store if absent, update it if present.
     fn store_upsert(&self,
                     store: &mut St,
-                    params: &P,
-                    session: &Session<S>)
+                    session: &Session<S>,
+                    params: &P)
         -> Result<()>
     {
         params.check()?;
@@ -301,14 +301,14 @@ pub trait Storable<St, S, K, V, P, PC, RC>
 
         let value = self.store_value()?;
         
-        store.upsert(params, session, &key, &value)
+        store.upsert(session, params, &key, &value)
     }
     
     /// Deletes the item from the store. The item should already exist in the store before the operation.
     fn store_delete(&self,
                     store: &mut St,
-                    params: &P,
-                    session: &Session<S>)
+                    session: &Session<S>,
+                    params: &P)
         -> Result<()>
     {
         params.check()?;
@@ -325,13 +325,13 @@ pub trait Storable<St, S, K, V, P, PC, RC>
 
         let key = self.store_key()?;
         
-        store.delete(params, session, &key)
+        store.delete(session, params, &key)
     }
 
     /// Custom operation in the store.
     fn store_custom(store: &mut St,
-                    params: &PC,
-                    session: &Session<S>)
+                    session: &Session<S>,
+                    params: &PC)
         -> Result<RC>
     {
         params.check()?;
@@ -342,6 +342,6 @@ pub trait Storable<St, S, K, V, P, PC, RC>
             return Err(String::from("expired session"));
         }
 
-        store.custom(params, session)
+        store.custom(session, params)
     }
 }
