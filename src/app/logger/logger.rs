@@ -7,15 +7,20 @@ use app::LogLevel;
 use app::LogFile;
 
 /// Trait implemented by types that can log to stdout/stderr.
-pub trait Logger {
+pub trait Logger
+    where   Self: 'static + Sized + Send + Sync
+{
     /// Returns the current log level.
-    fn log_level(&self) -> LogLevel;
-
-    /// Returns the current log file.
-    fn log_file(&self) -> LogFile;
+    fn log_level(&self) -> Result<LogLevel>;
 
     /// Sets the current log level.
     fn set_log_level(&mut self, log_level: &LogLevel) -> Result<()>;
+
+    /// Returns the current log file.
+    fn log_file(&self) -> Result<LogFile>;
+
+    /// Sets the current log file.
+    fn set_log_file(&mut self, log_file: &LogFile) -> Result<()>;
 
     /// Logs an error.
     fn log_error(&self, content: &str) -> Result<()>;
