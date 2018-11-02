@@ -55,10 +55,7 @@ pub trait Manager<E, D, MnP, A, StP, SvP, ClP, CP, Ap, StaP, StaR, StoP, StoR, R
     /// Executes a command request.
     fn exec(&mut self, env: &E, config: &Config<D, MnP, A, StP, SvP, ClP, CP>, req: &Request<Ap, StaP, StoP, RP, EP>) {
         Self::init().unwrap();
-
-        let env_check = env.check();
-        self.log_result(&env_check);
-
+        
         let config_check = config.check();
         self.log_result(&config_check);
 

@@ -50,22 +50,24 @@ pub trait CLI<M, E, D, MnP, A, StP, SvP, ClP, CP, Ap, StaP, StaR, StoP, StoR, RP
     fn log_result<T: Sized>(&mut self, res: &Result<T>);
 
     /// Parses CLI args.
-    fn parse_args(&mut self, args: &HashMap<String, String>) -> Result<Request<Ap, StaP, StoP, RP, EP>>;
+    fn parse_vars_and_args(&mut self, vars: &HashMap<String, String>, args: &Vec<String>) -> Result<Request<Ap, StaP, StoP, RP, EP>>;
 
     /// Parses the CLI command.
     fn parse_cmd(&mut self) -> Result<Request<Ap, StaP, StoP, RP, EP>> {
+        let res_vars = self.env().vars();
+        self.log_result(&res_vars);
+
         let res_args = self.env().args();
         self.log_result(&res_args);
 
+        let vars = res_vars?;
         let args = res_args?;
-        self.parse_args(&args)
+        self.parse_vars_and_args(&vars, &args)
     }
     
     /// Runs the CLI.
     fn run(&mut self) {
         let env = self.env();
-        let env_check = env.check();
-        self.log_result(&env_check);
 
         let config = self.config();
         let config_check = config.check();
