@@ -30,7 +30,7 @@ impl OnError {
     }
 
     /// Fails on error.
-    pub fn new_error() -> OnError {
+    pub fn new_fail() -> OnError {
         OnError::Fail
     }
 
@@ -53,7 +53,11 @@ impl Default for OnError {
 
 impl Sizable for OnError {
     fn size(&self) -> u64 {
-        1
+        match self {
+            &OnError::Ignore | &OnError::Fail => 0u8.size(),
+            &OnError::RetryAndIgnore(times) => times.size(),
+            &OnError::RetryAndFail(times) => times.size(),
+        }
     }
 }
 
