@@ -60,16 +60,20 @@ impl Method {
 
     /// Checks a `Permission` against the `Method`.
     pub fn check_permission(&self, permission: &Permission) -> Result<()> {
+        if self == &Method::Session || self == &Method::Custom {
+            return Ok(());
+        }
+
         if permission >= &Permission::Write {
             if self < &Method::Create {
                 return Err(String::from("invalid permission"));
             }
         } else if permission == &Permission::Read {
-            if self >= &Method::Create {
+            if self == &Method::Ping || self >= &Method::Create {
                 return Err(String::from("invalid permission"));
             }
         } else if permission == &Permission::None {
-            if self != &Method::Ping || self != &Method::Custom {
+            if self != &Method::Ping {
                 return Err(String::from("invalid permission"));
             }
         }
