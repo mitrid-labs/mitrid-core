@@ -25,3 +25,4 @@ rand = "0.3.22"
 
 [dev-dependencies]
 sodiumoxide = "^0.1"
+tempfile = "^3"

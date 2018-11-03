@@ -28,9 +28,9 @@ pub enum LogFile {
 impl LogFile {
     /// Parses a `LogFile` from a `&str`.
     pub fn parse(s: &str) -> LogFile {
-        match s.to_lowercase().as_str() {
-            "stdout" => LogFile::StdOut,
-            "stderr" => LogFile::StdErr,
+        match s {
+            "stdout" | "STDOUT" => LogFile::StdOut,
+            "stderr" | "STDERR" => LogFile::StdErr,
             path => LogFile::Path(path.into()),
         }
     }

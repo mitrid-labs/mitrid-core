@@ -30,13 +30,14 @@ impl Logger {
 
     fn write_file<P: AsRef<Path>>(&self, path: &P, content: &str) -> Result<()> {
         OpenOptions::new()
-            .write(true)
             .create(true)
+            .append(true)
             .open(path)
             .or_else(|e| {
                 Err(format!("{}", e))
             })
             .and_then(|mut file| {
+                let content = format!("{}\n", content);
                 file.write_all(content.as_bytes())
                     .map_err(|e| format!("{:?}", e))
             })
@@ -78,9 +79,7 @@ impl BasicLogger for Logger {
         let msg = format!("error: {}", content);
         let log_level = self.log_level()?;
 
-        if log_level != LogLevel::Error &&
-            log_level != LogLevel::All
-        {
+        if log_level < LogLevel::Error {
             return Ok(())
         }
 
@@ -101,9 +100,7 @@ impl BasicLogger for Logger {
         let msg = format!("warning: {}", content);
         let log_level = self.log_level()?;
 
-        if log_level != LogLevel::Warn &&
-            log_level != LogLevel::All
-        {
+        if log_level < LogLevel::Warn {
             return Ok(())
         }
 
@@ -124,9 +121,7 @@ impl BasicLogger for Logger {
         let msg = format!("info: {}", content);
         let log_level = self.log_level()?;
 
-        if log_level != LogLevel::Info &&
-            log_level != LogLevel::All
-        {
+        if log_level < LogLevel::Info {
             return Ok(())
         }
 
@@ -147,9 +142,7 @@ impl BasicLogger for Logger {
         let msg = format!("debug: {}", content);
         let log_level = self.log_level()?;
 
-        if log_level != LogLevel::Debug &&
-            log_level != LogLevel::All
-        {
+        if log_level < LogLevel::Debug {
             return Ok(())
         }
 
@@ -170,9 +163,7 @@ impl BasicLogger for Logger {
         let msg = format!("trace: {}", content);
         let log_level = self.log_level()?;
 
-        if log_level != LogLevel::Trace &&
-            log_level != LogLevel::All
-        {
+        if log_level < LogLevel::Trace {
             return Ok(())
         }
 
