@@ -4,7 +4,6 @@
 
 use base::Result;
 use base::size::{ConstantSize, VariableSize};
-use base::numerical::Numerical;
 use base::Checkable;
 use base::Serializable;
 use base::Datable;
@@ -15,7 +14,7 @@ use io::network::message::Response;
 use io::network::server::Handler;
 
 /// Trait implemented by the server router.
-pub trait Router<St, StS, StK, StV, StP, StPC, StRC, S, RS, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C>
+pub trait Router<St, StS, StK, StV, StP, StPC, StRC, S, Ad, NP, D, MP>
     where   St: Store<StS, StP, StPC, StRC>,
             StS: Datable + Serializable,
             StK: Ord + Datable + Serializable,
@@ -27,27 +26,17 @@ pub trait Router<St, StS, StK, StV, StP, StPC, StRC, S, RS, Ad, NP, D, Pk, Sig, 
             StK: Ord + Datable + Serializable,
             StV: Datable + Serializable,
             S: Datable,
-            RS: Datable,
             Ad: Ord + Datable + VariableSize,
             NP: Datable,
             D: Ord + Datable + ConstantSize,
-            Pk: Datable + ConstantSize,
-            Sig: Datable + ConstantSize,
-            Pr: Datable,
-            Am: Numerical,
-            IP: Datable,
-            OP: Datable,
-            TP: Datable,
-            BP: Datable,
-            BGP: Datable,
-            C: Datable,
+            MP: Datable,
             Self: 'static + Clone + Send + Sync
 {
     /// Returns the middleware callbacks applied sequentially by the router. Each callback takes as parameters
     /// the results of the preceding one.
     fn middlewares<P: Datable>(&self, params: &P)
-        -> Result<Vec<Box<Fn(&P, &Request<S, RS, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C>)
-                        -> Result<(P, Request<S, RS, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C>)>>>> 
+        -> Result<Vec<Box<Fn(&P, &Request<S, Ad, NP, D, MP>)
+                        -> Result<(P, Request<S, Ad, NP, D, MP>)>>>> 
     {
             params.check()?;
 
@@ -59,9 +48,9 @@ pub trait Router<St, StS, StK, StV, StP, StPC, StRC, S, RS, Ad, NP, D, Pk, Sig, 
                    store: &mut St,
                    handler: &H,
                    params: &P,
-                   request: &Request<S, RS, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C>)
-        -> Result<Response<S, RS, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C>>
-        where   H: Handler<St, StS, StK, StV, StP, StPC, StRC, S, RS, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C>,
+                   request: &Request<S, Ad, NP, D, MP>)
+        -> Result<Response<S, Ad, NP, D, MP>>
+        where   H: Handler<St, StS, StK, StV, StP, StPC, StRC, S, Ad, NP, D, MP>,
                 P: Datable
     {
         params.check()?;

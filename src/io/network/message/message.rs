@@ -5,7 +5,6 @@
 use rand::random;
 
 use base::Result;
-use base::Numerical;
 use base::{Sizable, ConstantSize, VariableSize};
 use base::Checkable;
 use base::Serializable;
@@ -20,22 +19,12 @@ use io::Resource;
 
 /// Type used to represent a network message.
 #[derive(Clone, Eq, PartialEq, Ord, PartialOrd, Debug, Default, Hash, Serialize, Deserialize)]
-pub struct Message<S, RS, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C>
+pub struct Message<S, Ad, NP, D, P>
     where   S: Datable,
-            RS: Datable,
             Ad: Ord + Datable + VariableSize,
             NP: Datable,
             D: Ord + Datable + ConstantSize,
-            Pk: Datable + ConstantSize,
-            Sig: Datable + ConstantSize,
-            Pr: Datable,
-            Am: Numerical,
-            IP: Datable,
-            OP: Datable,
-            TP: Datable,
-            BP: Datable,
-            BGP: Datable,
-            C: Datable
+            P: Datable,
 {
     /// Message id (hash digest)
     pub id: D,
@@ -54,26 +43,17 @@ pub struct Message<S, RS, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C>
     /// Message method.
     pub method: Method,
     /// Message resource.
-    pub resource: Resource<RS, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C>,
+    pub resource: Resource,
+    /// Message payload.
+    pub payload: P,
 }
 
-impl<S, RS, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, MC>
-    Message<S, RS, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, MC>
+impl<S, Ad, NP, D, P> Message<S, Ad, NP, D, P>
     where   S: Datable,
-            RS: Datable,
             Ad: Ord + Datable + VariableSize,
             NP: Datable,
             D: Ord + Datable + ConstantSize,
-            Pk: Datable + ConstantSize,
-            Sig: Datable + ConstantSize,
-            Pr: Datable,
-            Am: Numerical,
-            IP: Datable,
-            OP: Datable,
-            TP: Datable,
-            BP: Datable,
-            BGP: Datable,
-            MC: Datable
+            P: Datable
 {
     /// Creates a new `Message`.
     pub fn new() -> Result<Self> {
@@ -142,10 +122,19 @@ impl<S, RS, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, MC>
     }
 
     /// Sets the `Message` resource.
-    pub fn resource(mut self, resource: &Resource<RS, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, MC>) -> Result<Self> {
+    pub fn resource(mut self, resource: &Resource) -> Result<Self> {
         resource.check()?;
 
         self.resource = resource.to_owned();
+
+        Ok(self)
+    }
+
+    /// Sets the `Message` payload.
+    pub fn payload(mut self, payload: &P) -> Result<Self> {
+        payload.check()?;
+
+        self.payload = payload.to_owned();
 
         Ok(self)
     }
@@ -168,7 +157,10 @@ impl<S, RS, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, MC>
     pub fn is_error(&self) -> Result<bool> {
         self.check()?;
 
-        self.resource.is_error()
+        match self.resource {
+            Resource::Error => Ok(true),
+            _ => Ok(false),
+        }
     }
 
     /// Hashes cryptographically the `Message`.
@@ -301,85 +293,41 @@ impl<S, RS, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, MC>
     }
 }
 
-impl<P, S, RS, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C> Hashable<P, D>
-    for Message<S, RS, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C>
-    where   P: Datable,
+impl<HP, S, Ad, NP, D, P> Hashable<HP, D> for Message<S, Ad, NP, D, P>
+    where   HP: Datable,
             S: Datable,
-            RS: Datable,
             Ad: Ord + Datable + VariableSize,
             NP: Datable,
             D: Ord + Datable + ConstantSize,
-            Pk: Datable + ConstantSize,
-            Sig: Datable + ConstantSize,
-            Pr: Datable,
-            Am: Numerical,
-            IP: Datable,
-            OP: Datable,
-            TP: Datable,
-            BP: Datable,
-            BGP: Datable,
-            C: Datable
+            P: Datable
 {}
 
-impl<CP, C, S, RS, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, MC> Committable<CP, C>
-    for Message<S, RS, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, MC>
+impl<CP, C, S, Ad, NP, D, P> Committable<CP, C> for Message<S, Ad, NP, D, P>
     where   CP: Datable,
             C: Datable + ConstantSize,
             S: Datable,
-            RS: Datable,
             Ad: Ord + Datable + VariableSize,
             NP: Datable,
             D: Ord + Datable + ConstantSize,
-            Pk: Datable + ConstantSize,
-            Sig: Datable + ConstantSize,
-            Pr: Datable,
-            Am: Numerical,
-            IP: Datable,
-            OP: Datable,
-            TP: Datable,
-            BP: Datable,
-            BGP: Datable,
-            MC: Datable
+            P: Datable
 {}
 
-impl<AP, T, S, RS, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C> Authenticatable<AP, T>
-    for Message<S, RS, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C>
+impl<AP, T, S, Ad, NP, D, P> Authenticatable<AP, T> for Message<S, Ad, NP, D, P>
     where   AP: Datable,
             T: Datable + ConstantSize,
             S: Datable,
-            RS: Datable,
             Ad: Ord + Datable + VariableSize,
             NP: Datable,
             D: Ord + Datable + ConstantSize,
-            Pk: Datable + ConstantSize,
-            Sig: Datable + ConstantSize,
-            Pr: Datable,
-            Am: Numerical,
-            IP: Datable,
-            OP: Datable,
-            TP: Datable,
-            BP: Datable,
-            BGP: Datable,
-            C: Datable
+            P: Datable
 {}
 
-impl<S, RS, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C> Sizable
-    for Message<S, RS, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C>
+impl<S, Ad, NP, D, P> Sizable for Message<S, Ad, NP, D, P>
     where   S: Datable,
-            RS: Datable,
             Ad: Ord + Datable + VariableSize,
             NP: Datable,
             D: Ord + Datable + ConstantSize,
-            Pk: Datable + ConstantSize,
-            Sig: Datable + ConstantSize,
-            Pr: Datable,
-            Am: Numerical,
-            IP: Datable,
-            OP: Datable,
-            TP: Datable,
-            BP: Datable,
-            BGP: Datable,
-            C: Datable
+            P: Datable
 {
     fn size(&self) -> u64 {
         self.id.size() +
@@ -389,27 +337,18 @@ impl<S, RS, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C> Sizable
             self.sender.size() +
             self.receivers_len.size() +
             self.receivers.size() +
-            self.resource.size()
+            self.method.size() +
+            self.resource.size() +
+            self.payload.size()
     }
 }
 
-impl<S, RS, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C> Checkable
-    for Message<S, RS, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C>
+impl<S, Ad, NP, D, P> Checkable for Message<S, Ad, NP, D, P>
     where   S: Datable,
-            RS: Datable,
             Ad: Ord + Datable + VariableSize,
             NP: Datable,
             D: Ord + Datable + ConstantSize,
-            Pk: Datable + ConstantSize,
-            Sig: Datable + ConstantSize,
-            Pr: Datable,
-            Am: Numerical,
-            IP: Datable,
-            OP: Datable,
-            TP: Datable,
-            BP: Datable,
-            BGP: Datable,
-            C: Datable
+            P: Datable
 {
     fn check(&self) -> Result<()> {
         self.id.check()?;
@@ -437,68 +376,38 @@ impl<S, RS, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C> Checkable
         self.resource.check()?;
         self.resource.check_method(&self.method)?;
 
+        self.payload.check()?;
+
         Ok(())
     }
 }
 
-impl<S, RS, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C> Serializable
-    for Message<S, RS, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C>
+impl<S, Ad, NP, D, P> Serializable for Message<S, Ad, NP, D, P>
     where   S: Datable + Serializable,
-            RS: Datable + Serializable,
             Ad: Ord + Datable + VariableSize + Serializable,
             NP: Datable + Serializable,
             D: Ord + Datable + ConstantSize + Serializable,
-            Pk: Datable + ConstantSize + Serializable,
-            Sig: Datable + ConstantSize + Serializable,
-            Pr: Datable + Serializable,
-            Am: Numerical + Serializable,
-            IP: Datable + Serializable,
-            OP: Datable + Serializable,
-            TP: Datable + Serializable,
-            BP: Datable + Serializable,
-            BGP: Datable + Serializable,
-            C: Datable + Serializable
+            P: Datable + Serializable
 {}
 
-impl<S, RS, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C> Datable
-    for Message<S, RS, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C>
+impl<S, Ad, NP, D, P> Datable for Message<S, Ad, NP, D, P>
     where   S: Datable,
-            RS: Datable,
             Ad: Ord + Datable + VariableSize,
             NP: Datable,
             D: Ord + Datable + ConstantSize,
-            Pk: Datable + ConstantSize,
-            Sig: Datable + ConstantSize,
-            Pr: Datable,
-            Am: Numerical,
-            IP: Datable,
-            OP: Datable,
-            TP: Datable,
-            BP: Datable,
-            BGP: Datable,
-            C: Datable
+            P: Datable
 {}
 
-impl<St, S, MS, RS, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C, StP, StPC, StRC>
-    Storable<St, S, D, Message<MS, RS, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C>, StP, StPC, StRC>
-    for Message<MS, RS, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C>
+impl<St, S, MS, Ad, NP, D, P, StP, StPC, StRC>
+    Storable<St, S, D, Message<MS, Ad, NP, D, P>, StP, StPC, StRC>
+    for Message<MS, Ad, NP, D, P>
     where   St: Store<S, StP, StPC, StRC>,
             S: Datable + Serializable,
             MS: Datable + Serializable,
-            RS: Datable + Serializable,
             Ad: Ord + Datable + VariableSize + Serializable,
             NP: Datable + Serializable,
             D: Ord + Datable + ConstantSize + Serializable,
-            Pk: Datable + ConstantSize + Serializable,
-            Sig: Datable + ConstantSize + Serializable,
-            Pr: Datable + Serializable,
-            Am: Numerical + Serializable,
-            IP: Datable + Serializable,
-            OP: Datable + Serializable,
-            TP: Datable + Serializable,
-            BP: Datable + Serializable,
-            BGP: Datable + Serializable,
-            C: Datable + Serializable,
+            P: Datable + Serializable,
             StP: Datable,
             StPC: Datable + Serializable,
             StRC: Datable + Serializable

@@ -3,7 +3,6 @@
 //! `client` is the module providing the trait implemented by network clients.
 
 use base::Result;
-use base::numerical::Numerical;
 use base::size::{ConstantSize, VariableSize};
 use base::Checkable;
 use base::Datable;
@@ -14,36 +13,26 @@ use io::network::message::Response;
 use io::network::client::OnError;
 
 /// Trait implemented by network clients.
-pub trait Client<CT, S, RS, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C>
+pub trait Client<CT, S, Ad, NP, D, MP>
     where   CT: ClientTransport<Ad>,
             S: Datable + Serializable,
-            RS: Datable + Serializable,
             Ad: Ord + Datable + VariableSize + Serializable,
             NP: Datable + Serializable,
             D: Ord + Datable + ConstantSize + Serializable,
-            Pk: Datable + ConstantSize + Serializable,
-            Sig: Datable + ConstantSize + Serializable,
-            Pr: Datable + Serializable,
-            Am: Numerical + Serializable,
-            IP: Datable + Serializable,
-            OP: Datable + Serializable,
-            TP: Datable + Serializable,
-            BP: Datable + Serializable,
-            BGP: Datable + Serializable,
-            C: Datable + Serializable,
+            MP: Datable + Serializable,
             Self: Clone + Sized + Sync
 {
     /// Builds a list to `Request` messages to send in sequence.
     fn build<P: Datable>(&self, params: &P, addresses: &Vec<Ad>)
-        -> Result<Vec<Request<S, RS, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C>>>;
+        -> Result<Vec<Request<S, Ad, NP, D, MP>>>;
 
     /// Client behaviour when `OnError` is set to Ignore.
     fn send_ignore_on_error<SP, RP>(&self,
                                     transport: &mut CT,
                                     send_params: &SP,
                                     recv_params: &RP,
-                                    requests: &Vec<Request<S, RS, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C>>,
-                                    responses: &mut Vec<Response<S, RS, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C>>)
+                                    requests: &Vec<Request<S, Ad, NP, D, MP>>,
+                                    responses: &mut Vec<Response<S, Ad, NP, D, MP>>)
         -> Result<()>
         where   SP: Datable,
                 RP: Datable
@@ -74,8 +63,8 @@ pub trait Client<CT, S, RS, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C>
                                   transport: &mut CT,
                                   send_params: &SP,
                                   recv_params: &RP,
-                                  requests: &Vec<Request<S, RS, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C>>,
-                                  responses: &mut Vec<Response<S, RS, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C>>)
+                                  requests: &Vec<Request<S, Ad, NP, D, MP>>,
+                                  responses: &mut Vec<Response<S, Ad, NP, D, MP>>)
         -> Result<()>
         where   SP: Datable,
                 RP: Datable
@@ -110,8 +99,8 @@ pub trait Client<CT, S, RS, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C>
                                      send_params: &SP,
                                      recv_params: &RP,
                                      times: u64,
-                                     requests: &Vec<Request<S, RS, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C>>,
-                                     responses: &mut Vec<Response<S, RS, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C>>)
+                                     requests: &Vec<Request<S, Ad, NP, D, MP>>,
+                                     responses: &mut Vec<Response<S, Ad, NP, D, MP>>)
         -> Result<()>
         where   SP: Datable,
                 RP: Datable
@@ -162,8 +151,8 @@ pub trait Client<CT, S, RS, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C>
                                    send_params: &SP,
                                    recv_params: &RP,
                                    times: u64,
-                                   requests: &Vec<Request<S, RS, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C>>,
-                                   responses: &mut Vec<Response<S, RS, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C>>)
+                                   requests: &Vec<Request<S, Ad, NP, D, MP>>,
+                                   responses: &mut Vec<Response<S, Ad, NP, D, MP>>)
         -> Result<()>
         where   SP: Datable,
                 RP: Datable
@@ -220,7 +209,7 @@ pub trait Client<CT, S, RS, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C>
                                recv_params: &RP,
                                disconnect_params: &DP,
                                on_error: OnError)
-        -> Result<Vec<Response<S, RS, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C>>>
+        -> Result<Vec<Response<S, Ad, NP, D, MP>>>
         where   P: Datable,
                 CP: Datable,
                 SP: Datable,

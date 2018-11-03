@@ -7,7 +7,6 @@ use std::sync::{Arc, Mutex};
 
 use base::Result;
 use base::size::{ConstantSize, VariableSize};
-use base::numerical::Numerical;
 use base::Checkable;
 use base::Serializable;
 use base::Datable;
@@ -18,7 +17,7 @@ use io::network::server::Router;
 use io::network::message::Request;
 
 /// Trait implemented by network servers.
-pub trait Server<St, StS, StK, StV, StP, StPC, StRC, ST, CT, H, R, S, RS, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C>
+pub trait Server<St, StS, StK, StV, StP, StPC, StRC, ST, CT, H, R, S, Ad, NP, D, MP>
     where   St: Store<StS, StP, StPC, StRC>,
             StS: Datable + Serializable,
             StK: Ord + Datable + Serializable,
@@ -28,23 +27,13 @@ pub trait Server<St, StS, StK, StV, StP, StPC, StRC, ST, CT, H, R, S, RS, Ad, NP
             StRC: Datable + Serializable,
             ST: ServerTransport<Ad, CT>,
             CT: ClientTransport<Ad>,
-            H: Handler<St, StS, StK, StV, StP, StPC, StRC, S, RS, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C>,
-            R: Router<St, StS, StK, StV, StP, StPC, StRC, S, RS, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C>,
+            H: Handler<St, StS, StK, StV, StP, StPC, StRC, S, Ad, NP, D, MP>,
+            R: Router<St, StS, StK, StV, StP, StPC, StRC, S, Ad, NP, D, MP>,
             S: Datable + Serializable,
-            RS: Datable + Serializable,
             Ad: Ord + Datable + VariableSize + Serializable,
             NP: Datable + Serializable,
             D: Ord + Datable + ConstantSize + Serializable,
-            Pk: Datable + ConstantSize + Serializable,
-            Sig: Datable + ConstantSize + Serializable,
-            Pr: Datable + Serializable,
-            Am: Numerical + Serializable,
-            IP: Datable + Serializable,
-            OP: Datable + Serializable,
-            TP: Datable + Serializable,
-            BP: Datable + Serializable,
-            BGP: Datable + Serializable,
-            C: Datable + Serializable
+            MP: Datable + Serializable
 {
     /// Serves incoming requests.
     fn serve<P, LP, RcvP, SP, RP>(params: &P,

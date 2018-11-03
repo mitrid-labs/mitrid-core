@@ -3,7 +3,6 @@
 //! `request` is the module providing the type representing network request messages.
 
 use base::Result;
-use base::Numerical;
 use base::{Sizable, ConstantSize, VariableSize};
 use base::Checkable;
 use base::Serializable;
@@ -15,51 +14,30 @@ use io::network::message::Message;
 
 /// Type representing a network request message.
 #[derive(Clone, Eq, PartialEq, Ord, PartialOrd, Debug, Default, Hash, Serialize, Deserialize)]
-pub struct Request<S, RS, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C>
+pub struct Request<S, Ad, NP, D, P>
     where   S: Datable,
-            RS: Datable,
             Ad: Ord + Datable + VariableSize,
             NP: Datable,
             D: Ord + Datable + ConstantSize,
-            Pk: Datable + ConstantSize,
-            Sig: Datable + ConstantSize,
-            Pr: Datable,
-            Am: Numerical,
-            IP: Datable,
-            OP: Datable,
-            TP: Datable,
-            BP: Datable,
-            BGP: Datable,
-            C: Datable
+            P: Datable,
 {
     /// Request inner message
-    pub message: Message<S, RS, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C>,
+    pub message: Message<S, Ad, NP, D, P>,
 }
 
-impl<S, RS, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C>
-    Request<S, RS, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C>
+impl<S, Ad, NP, D, P> Request<S, Ad, NP, D, P>
     where   S: Datable,
-            RS: Datable,
             Ad: Ord + Datable + VariableSize,
             NP: Datable,
             D: Ord + Datable + ConstantSize,
-            Pk: Datable + ConstantSize,
-            Sig: Datable + ConstantSize,
-            Pr: Datable,
-            Am: Numerical,
-            IP: Datable,
-            OP: Datable,
-            TP: Datable,
-            BP: Datable,
-            BGP: Datable,
-            C: Datable
+            P: Datable,
 {
     /// Creates a new `Request`.
-    pub fn new(msg: &Message<S, RS, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C>) -> Result<Self> {
+    pub fn new(msg: &Message<S, Ad, NP, D, P>) -> Result<Self> {
         msg.check()?;
 
         match msg.resource {
-            Resource::Error(_) => {
+            Resource::Error => {
                 Err(String::from("invalid resource"))
             },
             _ => {
@@ -75,57 +53,40 @@ impl<S, RS, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C>
     }
 
     /// Returns the `Request` resource.
-    pub fn resource(&self) -> Resource<RS, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C> {
+    pub fn resource(&self) -> Resource {
         self.message.resource.clone()
+    }
+
+    /// Returns the `Request` payload.
+    pub fn payload(&self) -> P {
+        self.message.payload.clone()
     }
 }
 
-impl<S, RS, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C> Sizable
-    for Request<S, RS, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C>
+impl<S, Ad, NP, D, P> Sizable for Request<S, Ad, NP, D, P>
     where   S: Datable,
-            RS: Datable,
             Ad: Ord + Datable + VariableSize,
             NP: Datable,
             D: Ord + Datable + ConstantSize,
-            Pk: Datable + ConstantSize,
-            Sig: Datable + ConstantSize,
-            Pr: Datable,
-            Am: Numerical,
-            IP: Datable,
-            OP: Datable,
-            TP: Datable,
-            BP: Datable,
-            BGP: Datable,
-            C: Datable
+            P: Datable,
 {
     fn size(&self) -> u64 {
         self.message.size()
     }
 }
 
-impl<S, RS, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C> Checkable
-    for Request<S, RS, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C>
+impl<S, Ad, NP, D, P> Checkable for Request<S, Ad, NP, D, P>
     where   S: Datable,
-            RS: Datable,
             Ad: Ord + Datable + VariableSize,
             NP: Datable,
             D: Ord + Datable + ConstantSize,
-            Pk: Datable + ConstantSize,
-            Sig: Datable + ConstantSize,
-            Pr: Datable,
-            Am: Numerical,
-            IP: Datable,
-            OP: Datable,
-            TP: Datable,
-            BP: Datable,
-            BGP: Datable,
-            C: Datable
+            P: Datable,
 {
     fn check(&self) -> Result<()> {
         self.message.check()?;
 
         match self.resource() {
-            Resource::Error(_) => {
+            Resource::Error => {
                 Err(String::from("invalid resource"))
             },
             _ => Ok(()),
@@ -133,64 +94,32 @@ impl<S, RS, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C> Checkable
     }
 }
 
-impl<S, RS, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C> Serializable
-    for Request<S, RS, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C>
+impl<S, Ad, NP, D, P> Serializable for Request<S, Ad, NP, D, P>
     where   S: Datable + Serializable,
-            RS: Datable + Serializable,
             Ad: Ord + Datable + VariableSize + Serializable,
             NP: Datable + Serializable,
             D: Ord + Datable + ConstantSize + Serializable,
-            Pk: Datable + ConstantSize + Serializable,
-            Sig: Datable + ConstantSize + Serializable,
-            Pr: Datable + Serializable,
-            Am: Numerical + Serializable,
-            IP: Datable + Serializable,
-            OP: Datable + Serializable,
-            TP: Datable + Serializable,
-            BP: Datable + Serializable,
-            BGP: Datable + Serializable,
-            C: Datable + Serializable
+            P: Datable + Serializable,
 {}
 
-impl<S, RS, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C> Datable
-    for Request<S, RS, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C>
+impl<S, Ad, NP, D, P> Datable for Request<S, Ad, NP, D, P>
     where   S: Datable,
-            RS: Datable,
             Ad: Ord + Datable + VariableSize,
             NP: Datable,
             D: Ord + Datable + ConstantSize,
-            Pk: Datable + ConstantSize,
-            Sig: Datable + ConstantSize,
-            Pr: Datable,
-            Am: Numerical,
-            IP: Datable,
-            OP: Datable,
-            TP: Datable,
-            BP: Datable,
-            BGP: Datable,
-            C: Datable
+            P: Datable,
 {}
 
-impl<St, S, MS, RS, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C, StP, StPC, StRC>
-    Storable<St, S, D, Request<MS, RS, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C>, StP, StPC, StRC>
-    for Request<MS, RS, Ad, NP, D, Pk, Sig, Pr, Am, IP, OP, TP, BP, BGP, C>
+impl<St, S, MS, Ad, NP, D, P, StP, StPC, StRC>
+    Storable<St, S, D, Request<MS, Ad, NP, D, P>, StP, StPC, StRC>
+    for Request<MS, Ad, NP, D, P>
     where   St: Store<S, StP, StPC, StRC>,
             S: Datable + Serializable,
             MS: Datable + Serializable,
-            RS: Datable + Serializable,
             Ad: Ord + Datable + VariableSize + Serializable,
             NP: Datable + Serializable,
             D: Ord + Datable + ConstantSize + Serializable,
-            Pk: Datable + ConstantSize + Serializable,
-            Sig: Datable + ConstantSize + Serializable,
-            Pr: Datable + Serializable,
-            Am: Numerical + Serializable,
-            IP: Datable + Serializable,
-            OP: Datable + Serializable,
-            TP: Datable + Serializable,
-            BP: Datable + Serializable,
-            BGP: Datable + Serializable,
-            C: Datable + Serializable,
+            P: Datable + Serializable,
             StP: Datable,
             StPC: Datable + Serializable,
             StRC: Datable + Serializable
