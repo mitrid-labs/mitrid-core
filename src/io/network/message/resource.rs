@@ -21,36 +21,20 @@ pub enum Resource {
     Session,
     /// Node data.
     Node,
-    /// Nodes data
-    Nodes,
     /// Coin data.
     Coin,
-    /// Coins data.
-    Coins,
     /// Input data.
     Input,
-    /// Inputs data.
-    Inputs,
     /// Output data.
     Output,
-    /// Outputs data.
-    Outputs,
     /// Transaction data.
     Transaction,
-    /// Transactions data.
-    Transactions,
     /// Blocknode data.
     BlockNode,
-    /// Blocknodes data.
-    BlockNodes,
     /// Block data.
     Block,
-    /// Blocks data.
-    Blocks,
     /// Blockgraph data.
     BlockGraph,
-    /// Blockgraphs data.
-    BlockGraphs,
     /// Custom data.
     Custom,
     /// Error data.
@@ -64,21 +48,13 @@ impl Resource {
             "none" => Ok(Resource::None),
             "session" => Ok(Resource::Session),
             "node" => Ok(Resource::Node),
-            "nodes" => Ok(Resource::Nodes),
             "coin" => Ok(Resource::Coin),
-            "coins" => Ok(Resource::Coins),
             "input" => Ok(Resource::Input),
-            "inputs" => Ok(Resource::Inputs),
             "output" => Ok(Resource::Output),
-            "outputs" => Ok(Resource::Outputs),
             "transaction" => Ok(Resource::Transaction),
-            "transactions" => Ok(Resource::Transactions),
             "blocknode" => Ok(Resource::BlockNode),
-            "blocknodes" => Ok(Resource::BlockNodes),
             "block" => Ok(Resource::Block),
-            "blocks" => Ok(Resource::Blocks),
             "blockgraph" => Ok(Resource::BlockGraph),
-            "blockgraphs" => Ok(Resource::BlockGraphs),
             "custom" => Ok(Resource::Custom),
             "error" => Ok(Resource::Error),
             _ => Err("unknown resource".into())
@@ -87,6 +63,10 @@ impl Resource {
 
     /// Checks a `Method` against the `Resource`.
     pub fn check_method(&self, method: &Method) -> Result<()> {
+        if self == &Resource::Error {
+            return Ok(());
+        }
+
         match *method as u8 {
             0 => {
                 if self != &Resource::None {
@@ -138,21 +118,13 @@ impl fmt::Display for Resource {
             Resource::None => write!(f, "none"),
             Resource::Session => write!(f, "session"),
             Resource::Node => write!(f, "node"),
-            Resource::Nodes => write!(f, "nodes"),
             Resource::Coin => write!(f, "coin"),
-            Resource::Coins => write!(f, "coins"),
             Resource::Input => write!(f, "input"),
-            Resource::Inputs => write!(f, "inputs"),
             Resource::Output => write!(f, "output"),
-            Resource::Outputs => write!(f, "outputs"),
             Resource::Transaction => write!(f, "transaction"),
-            Resource::Transactions => write!(f, "transactions"),
             Resource::BlockNode => write!(f, "blocknode"),
-            Resource::BlockNodes => write!(f, "blocknodes"),
             Resource::Block => write!(f, "block"),
-            Resource::Blocks => write!(f, "blocks"),
             Resource::BlockGraph => write!(f, "blockgraph"),
-            Resource::BlockGraphs => write!(f, "blockgraphs"),
             Resource::Custom => write!(f, "custom"),
             Resource::Error => write!(f, "error"),
         }

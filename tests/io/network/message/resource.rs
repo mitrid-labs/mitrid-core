@@ -1,5 +1,6 @@
 use mitrid_core::base::Sizable;
 use mitrid_core::base::Serializable;
+use mitrid_core::io::network::Method;
 use mitrid_core::io::network::Resource;
 
 #[test]
@@ -7,21 +8,13 @@ fn test_resource_new_parse() {
     let valid_resource_strs = vec!["none",
                                    "session",
                                    "node",
-                                   "nodes",
                                    "coin",
-                                   "coins",
                                    "input",
-                                   "inputs",
                                    "output",
-                                   "outputs",
                                    "transaction",
-                                   "transactions",
                                    "blocknode",
-                                   "blocknodes",
                                    "block",
-                                   "blocks",
                                    "blockgraph",
-                                   "blockgraphs",
                                    "custom",
                                    "error"];
 
@@ -37,28 +30,92 @@ fn test_resource_new_parse() {
 }
 
 #[test]
-fn test_resource_check_resource() {}
+fn test_resource_check_method() {
+    let resource_strs = vec!["none",
+                             "session",
+                             "node",
+                             "coin",
+                             "input",
+                             "output",
+                             "transaction",
+                             "blocknode",
+                             "block",
+                             "blockgraph",
+                             "custom",
+                             "error"];
+
+    for resource_str in resource_strs.iter() {
+        let resource = Resource::parse(resource_str).unwrap();
+
+        let method_strs = vec!["ping",
+                               "session",
+                               "count",
+                               "list",
+                               "lookup",
+                               "get",
+                               "create",
+                               "update",
+                               "upsert",
+                               "delete",
+                               "custom"];
+
+        for method_str in method_strs.iter() {
+            let method = Method::parse(method_str).unwrap();
+
+            let res = resource.check_method(&method);
+
+            if method == Method::Ping {
+                if resource == Resource::None || resource == Resource::Error {
+                    assert!(res.is_ok());
+                } else {
+                    assert!(res.is_err());
+                }
+            }
+
+            if method == Method::Session {
+                if resource == Resource::Session || resource == Resource::Error {
+                    assert!(res.is_ok());
+                } else {
+                    assert!(res.is_err());
+                }
+            }
+
+            if method >= Method::Count &&
+                method < Method::Custom
+            {
+                if (resource >= Resource::Node &&
+                    resource < Resource::Custom) ||
+                    resource == Resource::Error
+                {
+                    assert!(res.is_ok());
+                } else {
+                    assert!(res.is_err());
+                }
+            }
+
+            if method == Method::Custom {
+                if resource == Resource::Custom || resource == Resource::Error {
+                    assert!(res.is_ok());
+                } else {
+                    assert!(res.is_err());
+                }
+            }
+        }
+    }
+}
 
 #[test]
 fn test_resource_display() {
     let resource_strs = vec!["none",
                              "session",
                              "node",
-                             "nodes",
                              "coin",
-                             "coins",
                              "input",
-                             "inputs",
                              "output",
-                             "outputs",
                              "transaction",
-                             "transactions",
                              "blocknode",
-                             "blocknodes",
                              "block",
-                             "blocks",
                              "blockgraph",
-                             "blockgraphs",
                              "custom",
                              "error"];
 
