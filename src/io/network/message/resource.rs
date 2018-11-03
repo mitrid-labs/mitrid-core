@@ -12,7 +12,7 @@ use base::Datable;
 use io::Method;
 
 /// Type representing the data of a network message.
-#[derive(Clone, Eq, PartialEq, Ord, PartialOrd, Debug, Hash, Serialize, Deserialize)]
+#[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Debug, Hash, Serialize, Deserialize)]
 #[repr(u8)]
 pub enum Resource {
     /// No data.
@@ -76,7 +76,7 @@ impl Resource {
             "blocknode" => Ok(Resource::BlockNode),
             "blocknodes" => Ok(Resource::BlockNodes),
             "block" => Ok(Resource::Block),
-            "blocks" => Ok(Resource::Block),
+            "blocks" => Ok(Resource::Blocks),
             "blockgraph" => Ok(Resource::BlockGraph),
             "blockgraphs" => Ok(Resource::BlockGraphs),
             "custom" => Ok(Resource::Custom),

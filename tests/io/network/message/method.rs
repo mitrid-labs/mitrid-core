@@ -1,7 +1,7 @@
 use mitrid_core::base::Sizable;
 use mitrid_core::base::Serializable;
 use mitrid_core::io::Permission;
-use mitrid_core::io::network::method::Method;
+use mitrid_core::io::network::Method;
 
 #[test]
 fn test_method_parse() {
