@@ -7,15 +7,16 @@ use std::collections::HashMap;
 
 use base::Result;
 use base::{ConstantSize, VariableSize};
-use base::Checkable;
 use base::Datable;
 use app::command::Request;
 use app::{Env, Config, Logger, Manager};
 
 /// Trait implemented by CLI types.
-pub trait CLI<M, E, D, MnP, A, StP, SvP, ClP, CP, Ap, StaP, StaR, StoP, StoR, RP, RR, EP, ER>
-    where   M: Manager<E, D, MnP, A, StP, SvP, ClP, CP, Ap, StaP, StaR, StoP, StoR, RP, RR, EP, ER>,
+pub trait CLI<M, E, C, L, D, MnP, A, StP, SvP, ClP, CP, Ap, StaP, StaR, StoP, StoR, RP, RR, EP, ER>
+    where   M: Manager<E, C, D, MnP, A, StP, SvP, ClP, CP, Ap, StaP, StaR, StoP, StoR, RP, RR, EP, ER>,
             E: Env,
+            C: Config<D, MnP, A, StP, SvP, ClP, CP>,
+            L: Logger,
             D: Datable + ConstantSize,
             MnP: Datable,
             A: Datable + VariableSize,
@@ -31,14 +32,16 @@ pub trait CLI<M, E, D, MnP, A, StP, SvP, ClP, CP, Ap, StaP, StaR, StoP, StoR, RP
             RP: Datable,
             RR: Datable,
             EP: Datable,
-            ER: Datable,
-            Self: Sized + Env + Logger
+            ER: Datable
 {
     /// Returns the CLI environment.
     fn env(&self) -> E;
 
     /// Returns the CLI configurations.
-    fn config(&self) -> Config<D, MnP, A, StP, SvP, ClP, CP>;
+    fn config(&self) -> C;
+
+    /// Returns the CLI logger.
+    fn logger(&self) -> L;
 
     /// Creates a `Manager`.
     fn create_manager(&mut self, manager_params: &MnP) -> Result<()>;
@@ -81,7 +84,7 @@ pub trait CLI<M, E, D, MnP, A, StP, SvP, ClP, CP, Ap, StaP, StaR, StoP, StoR, RP
         if let Some(mut manager) = self.manager() {
             manager.exec(&env, &config, &req)
         } else {
-            let res = self.create_manager(&config.manager_params);
+            let res = self.create_manager(&config.manager_params());
             self.log_result(&res);
             res.unwrap();
 

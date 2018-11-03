@@ -4,15 +4,15 @@
 
 use base::Result;
 use base::{ConstantSize, VariableSize};
-use base::Checkable;
 use base::Datable;
 use app::command::{Request, Response};
 use app::{RequestSender, ResponseReceiver};
 use app::{Env, Config, Logger};
 
 /// Trait implemented by Mitrid application managers.
-pub trait Manager<E, D, MnP, A, StP, SvP, ClP, CP, Ap, StaP, StaR, StoP, StoR, RP, RR, EP, ER>
+pub trait Manager<E, C, D, MnP, A, StP, SvP, ClP, CP, Ap, StaP, StaR, StoP, StoR, RP, RR, EP, ER>
     where   E: Env,
+            C: Config<D, MnP, A, StP, SvP, ClP, CP>,
             D: Datable + ConstantSize,
             MnP: Datable,
             A: Datable + VariableSize,
@@ -35,7 +35,7 @@ pub trait Manager<E, D, MnP, A, StP, SvP, ClP, CP, Ap, StaP, StaR, StoP, StoR, R
     fn init() -> Result<()>;
 
     /// Creates an `App`.
-    fn create_app(&mut self, env: &E, config: &Config<D, MnP, A, StP, SvP, ClP, CP>, app: &Ap) -> Result<()>;
+    fn create_app(&mut self, env: &E, config: &C, app: &Ap) -> Result<()>;
 
     /// Lookups for an `App`.
     fn lookup_app(&self, app: &Ap) -> Result<bool>;
@@ -53,7 +53,7 @@ pub trait Manager<E, D, MnP, A, StP, SvP, ClP, CP, Ap, StaP, StaR, StoP, StoR, R
     fn log_response(&self, req: &Response<Ap, StaR, StoR, RR, ER>);
 
     /// Executes a command request.
-    fn exec(&mut self, env: &E, config: &Config<D, MnP, A, StP, SvP, ClP, CP>, req: &Request<Ap, StaP, StoP, RP, EP>) {
+    fn exec(&mut self, env: &E, config: &C, req: &Request<Ap, StaP, StoP, RP, EP>) {
         Self::init().unwrap();
         
         let config_check = config.check();
