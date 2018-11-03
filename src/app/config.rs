@@ -64,7 +64,7 @@ pub trait Config<D, MnP, A, StP, SvP, ClP, CP>
     fn custom_params(&self) -> CP;
 
     /// Reads a `Config` from a json file.
-    fn read_from_json_file<P: 'static + Send + AsRef<Path>>(path: P) -> Result<Self> {
+    fn read_json_file<P: 'static + Send + AsRef<Path>>(path: &P) -> Result<Self> {
         File::open(path)
             .or_else(|e| {
                 Err(format!("{}", e))
@@ -83,7 +83,7 @@ pub trait Config<D, MnP, A, StP, SvP, ClP, CP>
     }
 
     /// Writes the `Config` to a json file.
-    fn write_json_file<P: 'static +  Send + AsRef<Path>>(&self, path: P) -> Result<()> {
+    fn write_json_file<P: 'static +  Send + AsRef<Path>>(&self, path: &P) -> Result<()> {
         self.check()?;
 
         OpenOptions::new()
@@ -101,7 +101,7 @@ pub trait Config<D, MnP, A, StP, SvP, ClP, CP>
     }
 
     /// Reads a `Config` from a binary file.
-    fn read_from_binary_file<P: 'static + Send + AsRef<Path>>(path: P) -> Result<Self> {
+    fn read_binary_file<P: 'static + Send + AsRef<Path>>(path: &P) -> Result<Self> {
         File::open(path)
             .or_else(|e| {
                 Err(format!("{}", e))
@@ -120,7 +120,7 @@ pub trait Config<D, MnP, A, StP, SvP, ClP, CP>
     }
     
     /// Writes the `Config` to a binary file.
-    fn write_binary_file<P: 'static + Send + AsRef<Path>>(&self, path: P) -> Result<()> {
+    fn write_binary_file<P: 'static + Send + AsRef<Path>>(&self, path: &P) -> Result<()> {
         self.check()?;
 
         OpenOptions::new()
@@ -138,7 +138,7 @@ pub trait Config<D, MnP, A, StP, SvP, ClP, CP>
     }
 
     /// Reads a `Config` from a hex file.
-    fn read_from_hex_file<P: 'static + Send + AsRef<Path>>(path: P) -> Result<Self> {
+    fn read_hex_file<P: 'static + Send + AsRef<Path>>(path: &P) -> Result<Self> {
         File::open(path)
             .or_else(|e| {
                 Err(format!("{}", e))
@@ -157,7 +157,7 @@ pub trait Config<D, MnP, A, StP, SvP, ClP, CP>
     }
     
     /// Writes the `Config` to a hex file.
-    fn write_hex_file<P: 'static +  Send + AsRef<Path>>(&self, path: P) -> Result<()> {
+    fn write_hex_file<P: 'static +  Send + AsRef<Path>>(&self, path: &P) -> Result<()> {
         self.check()?;
 
         OpenOptions::new()
