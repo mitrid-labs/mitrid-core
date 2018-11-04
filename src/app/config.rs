@@ -12,7 +12,7 @@ use base::{ConstantSize, VariableSize};
 use base::Serializable;
 use base::Datable;
 use utils::Version;
-use utils::Stage;
+use base::Stage;
 
 pub trait Config<D, MnP, A, StP, SvP, ClP, CP>
     where   D: Datable + ConstantSize,

@@ -8,7 +8,7 @@ use base::Datable;
 use base::Serializable;
 use base::{Sizable, VariableSize};
 use base::Evaluable;
-use utils::Meta;
+use base::Meta;
 use io::{Store, Storable};
 
 /// Type representing a node in the distributed ledger network.

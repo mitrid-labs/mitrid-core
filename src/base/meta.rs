@@ -9,7 +9,7 @@ use base::Datable;
 use base::Serializable;
 use utils::Version;
 use utils::Timestamp;
-use utils::Stage;
+use base::Stage;
 
 /// Type used to convey the distributed ledger models metadata.
 #[derive(Clone, PartialEq, Eq, PartialOrd, Ord, Debug, Default, Hash, Serialize, Deserialize)]

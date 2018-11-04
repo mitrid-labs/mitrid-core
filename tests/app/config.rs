@@ -2,7 +2,8 @@ use tempfile::tempdir;
 use mitrid_core::base::Sizable;
 use mitrid_core::base::Checkable;
 use mitrid_core::base::Serializable;
-use mitrid_core::utils::{Version, Stage};
+use mitrid_core::utils::Version;
+use mitrid_core::base::Stage;
 use mitrid_core::app::Config as BasicConfig;
 
 use std::fs::{self, File};

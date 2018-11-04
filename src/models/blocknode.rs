@@ -8,7 +8,7 @@ use base::Checkable;
 use base::Datable;
 use base::Serializable;
 use base::{Sizable, ConstantSize};
-use utils::Meta;
+use base::Meta;
 use crypto::{Hashable, Committable, Authenticatable};
 use io::{Store, Storable};
 

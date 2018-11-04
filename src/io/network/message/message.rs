@@ -9,7 +9,7 @@ use base::{Sizable, ConstantSize, VariableSize};
 use base::Checkable;
 use base::Serializable;
 use base::Datable;
-use utils::Meta;
+use base::Meta;
 use crypto::{Hashable, Committable, Authenticatable};
 use io::Session;
 use io::Node;

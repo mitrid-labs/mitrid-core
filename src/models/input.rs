@@ -10,7 +10,7 @@ use base::Serializable;
 use base::{Sizable, ConstantSize};
 use base::Numerical;
 use base::Evaluable;
-use utils::Meta;
+use base::Meta;
 use crypto::{Hashable, Signable, Committable, Authenticatable};
 use io::{Store, Storable};
 use models::Coin;

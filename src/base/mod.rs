@@ -25,6 +25,12 @@ pub mod numerical;
 /// Trait to be implemented by types that can be evaluated (computed).
 pub mod eval;
 
+/// Type used to define the distributed ledger stage.
+pub mod stage;
+
+/// Type used to convey the distributed ledger metadata.
+pub mod meta;
+
 pub use self::result::Result;
 pub use self::check::Checkable;
 pub use self::data::Datable;
@@ -32,3 +38,5 @@ pub use self::serialize::Serializable;
 pub use self::numerical::Numerical;
 pub use self::size::{Sizable, VariableSize, ConstantSize};
 pub use self::eval::Evaluable;
+pub use self::stage::Stage;
+pub use self::meta::Meta;

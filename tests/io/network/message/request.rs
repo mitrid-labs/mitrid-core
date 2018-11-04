@@ -1,7 +1,7 @@
 use mitrid_core::base::Checkable;
 use mitrid_core::base::Sizable;
 use mitrid_core::base::Serializable;
-use mitrid_core::utils::Meta;
+use mitrid_core::base::Meta;
 use mitrid_core::io::network::Method;
 use mitrid_core::io::network::Resource;
 use mitrid_core::io::Storable;

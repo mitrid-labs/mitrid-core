@@ -1,6 +1,6 @@
 use mitrid_core::base::Sizable;
 use mitrid_core::base::Serializable;
-use mitrid_core::utils::Stage;
+use mitrid_core::base::Stage;
 
 #[test]
 fn test_stage_parse() {
