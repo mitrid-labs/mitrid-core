@@ -6,4 +6,4 @@ pub mod message;
 pub use self::address::Address;
 pub use self::node::Node;
 pub use self::transport::*;
-pub use self::message::Message;
+pub use self::message::*;

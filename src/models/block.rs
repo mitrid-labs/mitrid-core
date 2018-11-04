@@ -494,6 +494,8 @@ impl<D, A, IP, Pk, Sig, OP, TP, P, Pr> Evaluable for Block<D, A, IP, Pk, Sig, OP
             Pr: Datable
 {}
 
+pub const BLOCK_STORE_PREFIX: u64 = 5;
+
 impl<St, S, D, A, IP, Pk, Sig, OP, TP, P, Pr, StP, StPC, StRC>
     Storable<St, S, D, Block<D, A, IP, Pk, Sig, OP, TP, P, Pr>, StP, StPC, StRC>
     for Block<D, A, IP, Pk, Sig, OP, TP, P, Pr>
@@ -512,6 +514,10 @@ impl<St, S, D, A, IP, Pk, Sig, OP, TP, P, Pr, StP, StPC, StRC>
             StPC: Datable + Serializable,
             StRC: Datable + Serializable
 {
+    fn store_prefix() -> u64 {
+        BLOCK_STORE_PREFIX
+    }
+
     fn store_key(&self) -> Result<D> {
         self.id.check()?;
 

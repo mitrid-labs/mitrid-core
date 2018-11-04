@@ -350,6 +350,8 @@ impl<D, Pk, A, P> Evaluable for Output<D, Pk, A, P>
             P: Datable
 {}
 
+pub const OUTPUT_STORE_PREFIX: u64 = 2;
+
 impl<St, S, D, Pk, A, P, StP, StPC, StRC>
     Storable<St, S, D, Output<D, Pk, A, P>, StP, StPC, StRC>
     for Output<D, Pk, A, P>
@@ -363,6 +365,10 @@ impl<St, S, D, Pk, A, P, StP, StPC, StRC>
             StPC: Datable + Serializable,
             StRC: Datable + Serializable
 {
+    fn store_prefix() -> u64 {
+        OUTPUT_STORE_PREFIX
+    }
+
     fn store_key(&self) -> Result<D> {
         self.id.check()?;
 

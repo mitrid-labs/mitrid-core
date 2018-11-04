@@ -110,6 +110,8 @@ impl<A, P> Evaluable for Node<A, P>
             P: Datable
 {}
 
+pub const NODE_STORE_PREFIX: u64 = 8;
+
 impl<St, S, A, P, StP, StPC, StRC>
     Storable<St, S, A, Node<A, P>, StP, StPC, StRC>
     for Node<A, P>
@@ -121,6 +123,10 @@ impl<St, S, A, P, StP, StPC, StRC>
             StPC: Datable + Serializable,
             StRC: Datable + Serializable
 {
+    fn store_prefix() -> u64 {
+        NODE_STORE_PREFIX
+    }
+
     fn store_key(&self) -> Result<A> {
         self.address.check()?;
 

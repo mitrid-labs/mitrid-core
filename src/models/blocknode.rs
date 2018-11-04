@@ -268,6 +268,8 @@ impl<D> Datable for BlockNode<D>
     where   D: Ord + Datable + ConstantSize
 {}
 
+pub const BLOCKNODE_STORE_PREFIX: u64 = 4;
+
 impl<St, S, D, StP, StPC, StRC>
     Storable<St, S, D, BlockNode<D>, StP, StPC, StRC>
     for BlockNode<D>
@@ -278,6 +280,10 @@ impl<St, S, D, StP, StPC, StRC>
             StPC: Datable + Serializable,
             StRC: Datable + Serializable
 {
+    fn store_prefix() -> u64 {
+        BLOCKNODE_STORE_PREFIX
+    }
+
     fn store_key(&self) -> Result<D> {
         self.id.check()?;
 

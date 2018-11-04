@@ -3,6 +3,8 @@
 //! `store` is the module providing the traits implemented by stores and by types that
 //! can be stored in and retrieved from a store.
 
+use std::mem;
+
 use base::Result;
 use base::Checkable;
 use base::Datable;
@@ -102,6 +104,9 @@ pub trait Storable<St, S, K, V, P, PC, RC>
             RC: Datable + Serializable,
             Self: Datable + Serializable
 {
+    /// Returns the store prefix of the implementor.
+    fn store_prefix() -> u64;
+
     /// Returns the store key of the implementor.
     fn store_key(&self) -> Result<K>;
 
@@ -138,13 +143,25 @@ pub trait Storable<St, S, K, V, P, PC, RC>
         }
 
         let store_from = if let Some(k) = from {
-           Some(k.to_bytes()?)
+            let mut from_key = Vec::new();
+
+            let prefix: [u8; 8] = unsafe { mem::transmute(Self::store_prefix()) };
+            from_key.extend_from_slice(&prefix[..]);
+            from_key.extend(&k.to_bytes()?);
+
+            Some(from_key)
         } else {
             None
         };
 
         let store_to = if let Some(k) = to {
-           Some(k.to_bytes()?)
+            let mut to_key = Vec::new();
+
+            let prefix: [u8; 8] = unsafe { mem::transmute(Self::store_prefix()) };
+            to_key.extend_from_slice(&prefix[..]);
+            to_key.extend(&k.to_bytes()?);
+
+            Some(to_key)
         } else {
             None
         };
@@ -184,13 +201,25 @@ pub trait Storable<St, S, K, V, P, PC, RC>
         }
 
         let store_from = if let Some(k) = from {
-           Some(k.to_bytes()?)
+            let mut from_key = Vec::new();
+
+            let prefix: [u8; 8] = unsafe { mem::transmute(Self::store_prefix()) };
+            from_key.extend_from_slice(&prefix[..]);
+            from_key.extend(&k.to_bytes()?);
+
+            Some(from_key)
         } else {
             None
         };
 
         let store_to = if let Some(k) = to {
-           Some(k.to_bytes()?)
+            let mut to_key = Vec::new();
+
+            let prefix: [u8; 8] = unsafe { mem::transmute(Self::store_prefix()) };
+            to_key.extend_from_slice(&prefix[..]);
+            to_key.extend(&k.to_bytes()?);
+
+            Some(to_key)
         } else {
             None
         };
@@ -218,7 +247,11 @@ pub trait Storable<St, S, K, V, P, PC, RC>
 
         key.check()?;
 
-        let store_key = key.to_bytes()?;
+        let mut store_key = Vec::new();
+
+        let prefix: [u8; 8] = unsafe { mem::transmute(Self::store_prefix()) };
+        store_key.extend_from_slice(&prefix[..]);
+        store_key.extend(&key.to_bytes()?);
 
         store.lookup(&session, params, &store_key)
     }
@@ -236,8 +269,12 @@ pub trait Storable<St, S, K, V, P, PC, RC>
         let session = store.session(&params, &permission)?;
 
         key.check()?;
+        
+        let mut store_key = Vec::new();
 
-        let store_key = key.to_bytes()?;
+        let prefix: [u8; 8] = unsafe { mem::transmute(Self::store_prefix()) };
+        store_key.extend_from_slice(&prefix[..]);
+        store_key.extend(&key.to_bytes()?);
 
         let value = store.get(&session, params, &store_key)?;
         Self::from_store_value(&value)
@@ -258,8 +295,12 @@ pub trait Storable<St, S, K, V, P, PC, RC>
         let key = self.store_key()?;
 
         let value = self.store_value()?;
+        
+        let mut store_key = Vec::new();
 
-        let store_key = key.to_bytes()?;
+        let prefix: [u8; 8] = unsafe { mem::transmute(Self::store_prefix()) };
+        store_key.extend_from_slice(&prefix[..]);
+        store_key.extend(&key.to_bytes()?);
 
         let store_value = value.to_bytes()?;
 
@@ -281,8 +322,12 @@ pub trait Storable<St, S, K, V, P, PC, RC>
         let key = self.store_key()?;
 
         let value = self.store_value()?;
+        
+        let mut store_key = Vec::new();
 
-        let store_key = key.to_bytes()?;
+        let prefix: [u8; 8] = unsafe { mem::transmute(Self::store_prefix()) };
+        store_key.extend_from_slice(&prefix[..]);
+        store_key.extend(&key.to_bytes()?);
 
         let store_value = value.to_bytes()?;
 
@@ -304,8 +349,12 @@ pub trait Storable<St, S, K, V, P, PC, RC>
         let key = self.store_key()?;
 
         let value = self.store_value()?;
+        
+        let mut store_key = Vec::new();
 
-        let store_key = key.to_bytes()?;
+        let prefix: [u8; 8] = unsafe { mem::transmute(Self::store_prefix()) };
+        store_key.extend_from_slice(&prefix[..]);
+        store_key.extend(&key.to_bytes()?);
 
         let store_value = value.to_bytes()?;
         
@@ -325,8 +374,12 @@ pub trait Storable<St, S, K, V, P, PC, RC>
         let session = store.session(&params, &permission)?;
 
         let key = self.store_key()?;
+        
+        let mut store_key = Vec::new();
 
-        let store_key = key.to_bytes()?; 
+        let prefix: [u8; 8] = unsafe { mem::transmute(Self::store_prefix()) };
+        store_key.extend_from_slice(&prefix[..]);
+        store_key.extend(&key.to_bytes()?);
         
         store.delete(&session, params, &store_key)
     }

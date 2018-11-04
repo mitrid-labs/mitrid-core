@@ -283,6 +283,8 @@ impl<D, A> Datable for Coin<D, A>
             A: Numerical
 {}
 
+pub const COIN_STORE_PREFIX: u64 = 0;
+
 impl<St, S, D, A, StP, StPC, StRC>
     Storable<St, S, D, Coin<D, A>, StP, StPC, StRC>
     for Coin<D, A>
@@ -294,6 +296,10 @@ impl<St, S, D, A, StP, StPC, StRC>
             StPC: Datable + Serializable,
             StRC: Datable + Serializable
 {
+    fn store_prefix() -> u64 {
+        COIN_STORE_PREFIX
+    }
+
     fn store_key(&self) -> Result<D> {
         self.id.check()?;
 

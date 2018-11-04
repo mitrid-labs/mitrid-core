@@ -427,6 +427,8 @@ impl<D, A, P, Pk, Sig> Evaluable for Input<D, A, P, Pk, Sig>
             Sig: Datable + ConstantSize
 {}
 
+pub const INPUT_STORE_PREFIX: u64 = 1;
+
 impl<St, S, D, A, P, Pk, Sig, StP, StPC, StRC>
     Storable<St, S, D, Input<D, A, P, Pk, Sig>, StP, StPC, StRC>
     for Input<D, A, P, Pk, Sig>
@@ -441,6 +443,10 @@ impl<St, S, D, A, P, Pk, Sig, StP, StPC, StRC>
             StPC: Datable + Serializable,
             StRC: Datable + Serializable
 {
+    fn store_prefix() -> u64 {
+        INPUT_STORE_PREFIX
+    }
+
     fn store_key(&self) -> Result<D> {
         self.id.check()?;
 

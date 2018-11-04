@@ -12,7 +12,6 @@ use base::Datable;
 use crypto::{Hashable, Committable, Authenticatable};
 use models::meta::Meta;
 use io::Session;
-use io::store::{Store, Storable};
 use io::Node;
 use io::Method;
 use io::Resource;
@@ -411,30 +410,3 @@ impl<S, Ad, NP, D, P> Datable for Message<S, Ad, NP, D, P>
             D: Ord + Datable + ConstantSize,
             P: Datable
 {}
-
-impl<St, S, MS, Ad, NP, D, P, StP, StPC, StRC>
-    Storable<St, S, D, Message<MS, Ad, NP, D, P>, StP, StPC, StRC>
-    for Message<MS, Ad, NP, D, P>
-    where   St: Store<S, StP, StPC, StRC>,
-            S: Datable + Serializable,
-            MS: Datable + Serializable,
-            Ad: Ord + Datable + VariableSize + Serializable,
-            NP: Datable + Serializable,
-            D: Ord + Datable + ConstantSize + Serializable,
-            P: Datable + Serializable,
-            StP: Datable,
-            StPC: Datable + Serializable,
-            StRC: Datable + Serializable
-{
-    fn store_key(&self) -> Result<D> {
-        self.id.check()?;
-
-        Ok(self.id.clone())
-    }
-
-    fn store_value(&self) -> Result<Self> {
-        self.check()?;
-
-        Ok(self.clone())
-    }
-}

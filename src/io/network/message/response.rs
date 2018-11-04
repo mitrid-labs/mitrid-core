@@ -101,6 +101,8 @@ impl<S, Ad, NP, D, P> Datable for Response<S, Ad, NP, D, P>
             P: Datable,
 {}
 
+pub const RESPONSE_STORE_PREFIX: u64 = 10;
+
 impl<St, S, MS, Ad, NP, D, P, StP, StPC, StRC>
     Storable<St, S, D, Response<MS, Ad, NP, D, P>, StP, StPC, StRC>
     for Response<MS, Ad, NP, D, P>
@@ -115,6 +117,10 @@ impl<St, S, MS, Ad, NP, D, P, StP, StPC, StRC>
             StPC: Datable + Serializable,
             StRC: Datable + Serializable
 {
+    fn store_prefix() -> u64 {
+        RESPONSE_STORE_PREFIX
+    }
+
     fn store_key(&self) -> Result<D> {
         self.message.id.check()?;
 

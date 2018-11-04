@@ -350,6 +350,8 @@ impl<D, P> Evaluable for BlockGraph<D, P>
             P: Datable
 {}
 
+pub const BLOCKGRAPH_STORE_PREFIX: u64 = 6;
+
 impl<St, S, D, P, StP, StPC, StRC>
     Storable<St, S, D, BlockGraph<D, P>, StP, StPC, StRC>
     for BlockGraph<D, P>
@@ -361,6 +363,10 @@ impl<St, S, D, P, StP, StPC, StRC>
             StPC: Datable + Serializable,
             StRC: Datable + Serializable
 {
+    fn store_prefix() -> u64 {
+        BLOCKGRAPH_STORE_PREFIX
+    }
+
     fn store_key(&self) -> Result<D> {
         self.id.check()?;
 

@@ -390,6 +390,8 @@ impl<D, A, IP, Pk, Sig, OP, P> Evaluable for Transaction<D, A, IP, Pk, Sig, OP, 
             P: Datable
 {}
 
+pub const TRANSACTION_STORE_PREFIX: u64 = 3;
+
 impl<St, S, D, A, IP, Pk, Sig, OP, P, StP, StPC, StRC>
     Storable<St, S, D, Transaction<D, A, IP, Pk, Sig, OP, P>, StP, StPC, StRC>
     for Transaction<D, A, IP, Pk, Sig, OP, P>
@@ -406,6 +408,10 @@ impl<St, S, D, A, IP, Pk, Sig, OP, P, StP, StPC, StRC>
             StPC: Datable + Serializable,
             StRC: Datable + Serializable
 {
+    fn store_prefix() -> u64 {
+        TRANSACTION_STORE_PREFIX
+    }
+
     fn store_key(&self) -> Result<D> {
         self.id.check()?;
 

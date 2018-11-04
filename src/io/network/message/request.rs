@@ -110,6 +110,8 @@ impl<S, Ad, NP, D, P> Datable for Request<S, Ad, NP, D, P>
             P: Datable,
 {}
 
+pub const REQUEST_STORE_PREFIX: u64 = 9;
+
 impl<St, S, MS, Ad, NP, D, P, StP, StPC, StRC>
     Storable<St, S, D, Request<MS, Ad, NP, D, P>, StP, StPC, StRC>
     for Request<MS, Ad, NP, D, P>
@@ -124,6 +126,10 @@ impl<St, S, MS, Ad, NP, D, P, StP, StPC, StRC>
             StPC: Datable + Serializable,
             StRC: Datable + Serializable
 {
+    fn store_prefix() -> u64 {
+        REQUEST_STORE_PREFIX
+    }
+
     fn store_key(&self) -> Result<D> {
         self.message.id.check()?;
 

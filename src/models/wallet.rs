@@ -417,6 +417,8 @@ impl<D, Sk, Pk, Sig, P> Evaluable for Wallet<D, Sk, Pk, Sig, P>
             P: Datable
 {}
 
+pub const WALLET_STORE_PREFIX: u64 = 7;
+
 impl<St, S, D, Sk, Pk, Sig, P, StP, StPC, StRC>
     Storable<St, S, D, Wallet<D, Sk, Pk, Sig, P>, StP, StPC, StRC>
     for Wallet<D, Sk, Pk, Sig, P>
@@ -431,6 +433,10 @@ impl<St, S, D, Sk, Pk, Sig, P, StP, StPC, StRC>
             StPC: Datable + Serializable,
             StRC: Datable + Serializable
 {
+    fn store_prefix() -> u64 {
+        WALLET_STORE_PREFIX
+    }
+
     fn store_key(&self) -> Result<D> {
         self.id.check()?;
 
