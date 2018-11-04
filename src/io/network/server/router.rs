@@ -66,13 +66,13 @@ pub trait Router<St, StS, StK, StV, StP, StPC, StRC, S, Ad, NP, D, MP>
             middle_res = cb(store, &middle_res.0, &middle_res.1)?;
         }
 
-        match request.method() {
+        match request.message.method {
             Method::Ping => {
                 let response = handler.handle_ping(store, &middle_res.0, &middle_res.1)?;
 
                 response.check()?;
 
-                if response.method() != Method::Ping {
+                if response.message.method != Method::Ping {
                     return Err(String::from("invalid method"));
                 }
 
@@ -83,7 +83,7 @@ pub trait Router<St, StS, StK, StV, StP, StPC, StRC, S, Ad, NP, D, MP>
 
                 response.check()?;
 
-                if response.method() != Method::Session {
+                if response.message.method != Method::Session {
                     return Err(String::from("invalid method"));
                 }
 
@@ -94,7 +94,7 @@ pub trait Router<St, StS, StK, StV, StP, StPC, StRC, S, Ad, NP, D, MP>
 
                 response.check()?;
 
-                if response.method() != Method::Count {
+                if response.message.method != Method::Count {
                     return Err(String::from("invalid method"));
                 }
 
@@ -105,7 +105,7 @@ pub trait Router<St, StS, StK, StV, StP, StPC, StRC, S, Ad, NP, D, MP>
 
                 response.check()?;
 
-                if response.method() != Method::List {
+                if response.message.method != Method::List {
                     return Err(String::from("invalid method"));
                 }
 
@@ -116,7 +116,7 @@ pub trait Router<St, StS, StK, StV, StP, StPC, StRC, S, Ad, NP, D, MP>
 
                 response.check()?;
 
-                if response.method() != Method::Lookup {
+                if response.message.method != Method::Lookup {
                     return Err(String::from("invalid method"));
                 }
 
@@ -127,7 +127,7 @@ pub trait Router<St, StS, StK, StV, StP, StPC, StRC, S, Ad, NP, D, MP>
 
                 response.check()?;
 
-                if response.method() != Method::Get {
+                if response.message.method != Method::Get {
                     return Err(String::from("invalid method"));
                 }
 
@@ -138,7 +138,7 @@ pub trait Router<St, StS, StK, StV, StP, StPC, StRC, S, Ad, NP, D, MP>
 
                 response.check()?;
 
-                if response.method() != Method::Create {
+                if response.message.method != Method::Create {
                     return Err(String::from("invalid method"));
                 }
 
@@ -149,7 +149,7 @@ pub trait Router<St, StS, StK, StV, StP, StPC, StRC, S, Ad, NP, D, MP>
 
                 response.check()?;
 
-                if response.method() != Method::Update {
+                if response.message.method != Method::Update {
                     return Err(String::from("invalid method"));
                 }
 
@@ -160,7 +160,7 @@ pub trait Router<St, StS, StK, StV, StP, StPC, StRC, S, Ad, NP, D, MP>
 
                 response.check()?;
 
-                if response.method() != Method::Upsert {
+                if response.message.method != Method::Upsert {
                     return Err(String::from("invalid method"));
                 }
 
@@ -171,7 +171,7 @@ pub trait Router<St, StS, StK, StV, StP, StPC, StRC, S, Ad, NP, D, MP>
 
                 response.check()?;
 
-                if response.method() != Method::Delete {
+                if response.message.method != Method::Delete {
                     return Err(String::from("invalid method"));
                 }
 
@@ -182,7 +182,7 @@ pub trait Router<St, StS, StK, StV, StP, StPC, StRC, S, Ad, NP, D, MP>
 
                 response.check()?;
 
-                if response.method() != Method::Custom {
+                if response.message.method != Method::Custom {
                     return Err(String::from("invalid method"));
                 }
 

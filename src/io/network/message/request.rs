@@ -8,7 +8,6 @@ use base::Checkable;
 use base::Serializable;
 use base::Datable;
 use io::store::{Store, Storable};
-use io::network::message::Method;
 use io::network::message::Resource;
 use io::network::message::Message;
 
@@ -46,21 +45,6 @@ impl<S, Ad, NP, D, P> Request<S, Ad, NP, D, P>
             },
         }
     }
-
-    /// Returns the `Request` method.
-    pub fn method(&self) -> Method {
-        self.message.method.clone()
-    }
-
-    /// Returns the `Request` resource.
-    pub fn resource(&self) -> Resource {
-        self.message.resource.clone()
-    }
-
-    /// Returns the `Request` payload.
-    pub fn payload(&self) -> P {
-        self.message.payload.clone()
-    }
 }
 
 impl<S, Ad, NP, D, P> Sizable for Request<S, Ad, NP, D, P>
@@ -85,7 +69,7 @@ impl<S, Ad, NP, D, P> Checkable for Request<S, Ad, NP, D, P>
     fn check(&self) -> Result<()> {
         self.message.check()?;
 
-        match self.resource() {
+        match self.message.resource {
             Resource::Error => {
                 Err(String::from("invalid resource"))
             },

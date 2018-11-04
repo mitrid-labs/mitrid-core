@@ -7,7 +7,6 @@ use mitrid_core::models::Meta;
 use mitrid_core::io::Permission;
 use mitrid_core::io::network::Method;
 use mitrid_core::io::network::Resource;
-//use mitrid_core::io::Storable;
 
 use fixtures::base::Payload;
 use fixtures::crypto::SHA512HMAC;
@@ -15,7 +14,6 @@ use fixtures::io::Session;
 use fixtures::io::Address;
 use fixtures::io::Node;
 use fixtures::io::network::message::*;
-//use fixtures::io::store::*;
 
 #[test]
 fn test_message_meta() {

@@ -81,7 +81,7 @@ pub trait Client<CT, S, Ad, NP, D, MP>
             for ser_res in transport.recv(recv_params)? {
                 let res = Response::from_bytes(&ser_res)?;
                 res.check()?;
-                if res.is_error() {
+                if res.message.is_error() {
                     return Err(String::from("error response"));
                 }
                 ress.push(res);
@@ -125,7 +125,7 @@ pub trait Client<CT, S, Ad, NP, D, MP>
                     let res = Response::from_bytes(&ser_res)?;
                     res.check()?;
                     
-                    if res.is_error() {
+                    if res.message.is_error() {
                         if t == 1 {
                             ress.push(res);
                         } else {
@@ -177,7 +177,7 @@ pub trait Client<CT, S, Ad, NP, D, MP>
                     let res = Response::from_bytes(&ser_res)?;
                     res.check()?;
                     
-                    if res.is_error() {
+                    if res.message.is_error() {
                         if t == 1 {
                             if step != requests.len() -1 {
                                 return Err(String::from("error response"));

@@ -8,8 +8,6 @@ use base::Checkable;
 use base::Serializable;
 use base::Datable;
 use io::store::{Store, Storable};
-use io::network::message::Method;
-use io::network::message::Resource;
 use io::network::message::Message;
 
 /// Type representing a network response message.
@@ -38,26 +36,6 @@ impl<S, Ad, NP, D, P> Response<S, Ad, NP, D, P>
 
         let res = Response { message: msg.to_owned() };
         Ok(res)
-    }
-
-    /// Returns the `Response` method.
-    pub fn method(&self) -> Method {
-        self.message.method.clone()
-    }
-
-    /// Returns the `Response` resource.
-    pub fn resource(&self) -> Resource {
-        self.message.resource.clone()
-    }
-
-    /// Returns the `Response` payload.
-    pub fn payload(&self) -> P {
-        self.message.payload.clone()
-    }
-
-    /// Returns if the `Response` is an error response.
-    pub fn is_error(&self) -> bool {
-        self.message.is_error()
     }
 }
 
