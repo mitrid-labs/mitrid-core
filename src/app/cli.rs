@@ -12,8 +12,8 @@ use app::command::Request;
 use app::{Env, Config, Logger, Manager};
 
 /// Trait implemented by CLI types.
-pub trait CLI<M, E, C, L, D, MnP, A, StP, SvP, ClP, CP, P, R>
-    where   M: Manager<E, C, D, MnP, A, StP, SvP, ClP, CP, P, R>,
+pub trait CLI<M, E, C, L, D, MnP, A, StP, SvP, ClP, CP, AAd, AP, AR>
+    where   M: Manager<E, C, D, MnP, A, StP, SvP, ClP, CP, AAd, AP, AR>,
             E: Env,
             C: Config<D, MnP, A, StP, SvP, ClP, CP>,
             L: Logger,
@@ -24,8 +24,9 @@ pub trait CLI<M, E, C, L, D, MnP, A, StP, SvP, ClP, CP, P, R>
             SvP: Datable,
             ClP: Datable,
             CP: Datable,
-            P: Datable,
-            R: Datable
+            AAd: Ord + Datable,
+            AP: Datable,
+            AR: Datable
 {
     /// Returns the CLI environment.
     fn env(&self) -> E;
@@ -46,10 +47,10 @@ pub trait CLI<M, E, C, L, D, MnP, A, StP, SvP, ClP, CP, P, R>
     fn log_result<T: Sized>(&mut self, res: &Result<T>);
 
     /// Parses CLI args.
-    fn parse_vars_and_args(&mut self, vars: &HashMap<String, String>, args: &Vec<String>) -> Result<Request<A, P>>;
+    fn parse_vars_and_args(&mut self, vars: &HashMap<String, String>, args: &Vec<String>) -> Result<Request<AAd, AP>>;
 
     /// Parses the CLI command.
-    fn parse_cmd(&mut self) -> Result<Request<A, P>> {
+    fn parse_cmd(&mut self) -> Result<Request<AAd, AP>> {
         let res_vars = self.env().vars();
         self.log_result(&res_vars);
 

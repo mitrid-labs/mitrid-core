@@ -5,7 +5,6 @@
 use std::sync::mpsc::{Sender, Receiver, channel};
 
 use base::Datable;
-use base::VariableSize;
 use app::Request;
 use app::Response;
 
@@ -15,7 +14,7 @@ pub type RequestReceiver<A, P> = Receiver<Request<A, P>>;
 /// Type used to represent an application `Request` channels.
 #[derive(Debug)]
 pub struct RequestChannel<A, P>
-    where   A: Ord + Datable + VariableSize,
+    where   A: Ord + Datable,
             P: Datable,
 {
     /// Request channel sender.
@@ -25,7 +24,7 @@ pub struct RequestChannel<A, P>
 }
 
 impl<A, P> RequestChannel<A, P>
-    where   A: Ord + Datable + VariableSize,
+    where   A: Ord + Datable,
             P: Datable,
 {
     /// Creates a new `RequestChannel`.
@@ -45,7 +44,7 @@ pub type ResponseReceiver<A, R> = Receiver<Response<A, R>>;
 /// Type used to represent an application `Response` channel.
 #[derive(Debug)]
 pub struct ResponseChannel<A, R>
-    where   A: Ord + Datable + VariableSize,
+    where   A: Ord + Datable,
             R: Datable,
 {
     /// Response channel sender.
@@ -55,7 +54,7 @@ pub struct ResponseChannel<A, R>
 }
 
 impl<A, R> ResponseChannel<A, R>
-    where   A: Ord + Datable + VariableSize,
+    where   A: Ord + Datable,
             R: Datable,
 {
     /// Creates a new `ResponseChannel`.
@@ -72,7 +71,7 @@ impl<A, R> ResponseChannel<A, R>
 /// Type used to represent an application `Request` and `Response` channels.
 #[derive(Debug)]
 pub struct Channels<A, P, R>
-    where   A: Ord + Datable + VariableSize,
+    where   A: Ord + Datable,
             P: Datable,
             R: Datable,
 {
@@ -83,7 +82,7 @@ pub struct Channels<A, P, R>
 }
 
 impl<A, P, R> Channels<A, P, R>
-    where   A: Ord + Datable + VariableSize,
+    where   A: Ord + Datable,
             P: Datable,
             R: Datable,
 {

@@ -3,7 +3,7 @@
 //! `request` is the module providing the type representing a Mitrid application command request.
 
 use base::Result;
-use base::{Sizable, VariableSize};
+use base::Sizable;
 use base::Checkable;
 use base::Serializable;
 use base::Datable;
@@ -12,7 +12,7 @@ use base::Meta;
 /// Type used to represent an application command request.
 #[derive(Clone, Eq, PartialEq, Ord, PartialOrd, Debug, Default, Hash, Serialize, Deserialize)]
 pub struct Request<A, P>
-    where   A: Ord + Datable + VariableSize,
+    where   A: Ord + Datable,
             P: Datable,
 {
     /// App address.
@@ -24,13 +24,12 @@ pub struct Request<A, P>
 }
 
 impl<A, P> Request<A, P>
-    where   A: Ord + Datable + VariableSize,
+    where   A: Ord + Datable,
             P: Datable,
 {
     /// Creates a new none `Request`.
     pub fn new(address: &A, meta: &Meta, params: &P) -> Result<Self> {
         address.check()?;
-        address.check_size()?;
         meta.check()?;
         params.check()?;
 
@@ -49,7 +48,7 @@ impl<A, P> Request<A, P>
 }
 
 impl<A, P> Sizable for Request<A, P>
-    where   A: Ord + Datable + VariableSize,
+    where   A: Ord + Datable,
             P: Datable,
 {
     fn size(&self) -> u64 {
@@ -60,12 +59,11 @@ impl<A, P> Sizable for Request<A, P>
 }
 
 impl<A, P> Checkable for Request<A, P>
-    where   A: Ord + Datable + VariableSize,
+    where   A: Ord + Datable,
             P: Datable,
 {
     fn check(&self) -> Result<()> {
         self.address.check()?;
-        self.address.check_size()?;
         self.meta.check()?;
         self.params.check()?;
 
@@ -78,11 +76,11 @@ impl<A, P> Checkable for Request<A, P>
 }
 
 impl<A, P> Serializable for Request<A, P>
-    where   A: Ord + Datable + VariableSize + Serializable,
+    where   A: Ord + Datable  + Serializable,
             P: Datable + Serializable,
 {}
 
 impl<A, P> Datable for Request<A, P>
-    where   A: Ord + Datable + VariableSize,
+    where   A: Ord + Datable,
             P: Datable,
 {}

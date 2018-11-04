@@ -3,7 +3,7 @@
 //! `response` is the module providing the type representing an application command response.
 
 use base::Result;
-use base::{Sizable, VariableSize};
+use base::Sizable;
 use base::Checkable;
 use base::Serializable;
 use base::Datable;
@@ -12,7 +12,7 @@ use base::Meta;
 /// Type used to represent an application command response.
 #[derive(Clone, Eq, PartialEq, Ord, PartialOrd, Debug, Default, Hash, Serialize, Deserialize)]
 pub struct Response<A, R>
-    where   A: Ord + Datable + VariableSize,
+    where   A: Ord + Datable,
             R: Datable,
 {
     /// App address.
@@ -26,13 +26,12 @@ pub struct Response<A, R>
 }
 
 impl<A, R> Response<A, R>
-    where   A: Ord + Datable + VariableSize,
+    where   A: Ord + Datable,
             R: Datable
 {
     /// Creates a new none `Response`.
-    pub fn new(address: &A, meta: &Meta, result: &Option<R>, error: Option<String>) -> Result<Self> {
+    pub fn new(address: &A, meta: &Meta, result: &Option<R>, error: &Option<String>) -> Result<Self> {
         address.check()?;
-        address.check_size()?;
         meta.check()?;
         result.check()?;
         error.check()?;
@@ -57,7 +56,7 @@ impl<A, R> Response<A, R>
 }
 
 impl<A, R> Sizable for Response<A, R>
-    where   A: Ord + Datable + VariableSize,
+    where   A: Ord + Datable,
             R: Datable,
 {
     fn size(&self) -> u64 {
@@ -68,12 +67,11 @@ impl<A, R> Sizable for Response<A, R>
 }
 
 impl<A, R> Checkable for Response<A, R>
-    where   A: Ord + Datable + VariableSize,
+    where   A: Ord + Datable,
             R: Datable,
 {
     fn check(&self) -> Result<()> {
         self.address.check()?;
-        self.address.check_size()?;
         self.meta.check()?;
         self.result.check()?;
         self.error.check()?;
@@ -91,11 +89,11 @@ impl<A, R> Checkable for Response<A, R>
 }
 
 impl<A, R> Serializable for Response<A, R>
-    where   A: Ord + Datable + VariableSize + Serializable,
+    where   A: Ord + Datable  + Serializable,
             R: Datable + Serializable,
 {}
 
 impl<A, R> Datable for Response<A, R>
-    where   A: Ord + Datable + VariableSize,
+    where   A: Ord + Datable,
             R: Datable,
 {}

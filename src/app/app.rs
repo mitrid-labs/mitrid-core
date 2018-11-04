@@ -3,7 +3,6 @@
 //! `app` is the module providing the trait implemented by Mitrid applications.
 
 use base::Result;
-use base::VariableSize;
 use base::data::Datable;
 use app::{Request, Response};
 use app::{RequestChannel, ResponseSender};
@@ -11,7 +10,7 @@ use app::Logger;
 
 /// Trait implemented by Mitrid application types.
 pub trait App<A, P, R>
-    where   A: Ord + Datable + VariableSize,
+    where   A: Ord + Datable,
             P: Datable,
             R: Datable,
             Self: 'static + Sized + Send + Sync + Logger

@@ -10,43 +10,44 @@ use app::{RequestSender, ResponseReceiver};
 use app::{Env, Config, Logger};
 
 /// Trait implemented by Mitrid application managers.
-pub trait Manager<E, C, D, MnP, A, StP, SvP, ClP, CP, P, R>
+pub trait Manager<E, C, D, MnP, Ad, StP, SvP, ClP, CP, AAd, AP, AR>
     where   E: Env,
-            C: Config<D, MnP, A, StP, SvP, ClP, CP>,
+            C: Config<D, MnP, Ad, StP, SvP, ClP, CP>,
             D: Datable + ConstantSize,
             MnP: Datable,
-            A: Ord + Datable + VariableSize,
+            Ad: Ord + Datable + VariableSize,
             StP: Datable,
             SvP: Datable,
             ClP: Datable,
             CP: Datable,
-            P: Datable,
-            R: Datable,
+            AAd: Ord + Datable,
+            AP: Datable,
+            AR: Datable,
             Self: Sized + Logger
 {
     /// Inits the `Manager`.
     fn init() -> Result<()>;
 
     /// Creates an `App`.
-    fn create_app(&mut self, env: &E, config: &C, app: &A) -> Result<()>;
+    fn create_app(&mut self, env: &E, config: &C, app: &AAd) -> Result<()>;
 
     /// Lookups for an `App`.
-    fn lookup_app(&self, app: &A) -> Result<bool>;
+    fn lookup_app(&self, app: &AAd) -> Result<bool>;
 
     /// Gets an `App` `RequestSender`.
-    fn app_request_sender(&self, app: &A) -> Result<RequestSender<A, P>>;
+    fn app_request_sender(&self, app: &AAd) -> Result<RequestSender<AAd, AP>>;
 
     /// Gets an `App` `ResponseReceiver`.
-    fn app_response_receiver(&self, app: &A) -> Result<ResponseReceiver<A, R>>;
+    fn app_response_receiver(&self, app: &AAd) -> Result<ResponseReceiver<AAd, AR>>;
 
     /// Logs a `Result`.
     fn log_result<T: Sized>(&self, res: &Result<T>);
 
     /// Logs a command response.
-    fn log_response(&self, req: &Response<A, R>);
+    fn log_response(&self, req: &Response<AAd, AR>);
 
     /// Executes a command request.
-    fn exec(&mut self, env: &E, config: &C, req: &Request<A, P>) {
+    fn exec(&mut self, env: &E, config: &C, req: &Request<AAd, AP>) {
         Self::init().unwrap();
         
         let config_check = config.check();
