@@ -218,6 +218,19 @@ pub trait Client<CT, S, Ad, NP, D, MP>
     {
         params.check()?;
 
+        addresses.check()?;
+        for ref address in addresses {
+            address.check_size()?;
+        }
+
+        connect_params.check()?;
+        send_params.check()?;
+        send_params.check()?;
+        recv_params.check()?;
+        disconnect_params.check()?;
+        
+        on_error.check()?;
+
         let requests = self.build(params, addresses)?;
 
         let mut transport = CT::connect(connect_params, &addresses)?;

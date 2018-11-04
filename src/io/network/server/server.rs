@@ -56,12 +56,14 @@ pub trait Server<St, StS, StK, StV, StP, StPC, StRC, ST, CT, H, R, S, Ad, NP, D,
         params.check()?;
 
         listen_params.check()?;
-        
         recv_params.check()?;
-        
         send_params.check()?;
+        route_params.check()?;
         
         addresses.check()?;
+        for ref address in addresses {
+            address.check_size()?;
+        }
 
         let mut transport = ST::listen(listen_params, addresses)?;
 
