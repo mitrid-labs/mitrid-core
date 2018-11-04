@@ -27,7 +27,7 @@ fn test_session_is_expired() {
     assert!(res.is_ok());
     assert!(res.unwrap());
 
-    session.expire_at *= 2;
+    session.expires_at *= 2;
 
     let res = session.is_expired();
     assert!(res.is_ok());
@@ -56,7 +56,7 @@ fn test_session_size() {
 
     let session_size = session.id.size() +
                         session.permission.size() +
-                        session.expire_at.size() +
+                        session.expires_at.size() +
                         session.payload.size();
 
     assert_eq!(session.size(), session_size);

@@ -20,7 +20,7 @@ pub struct Session<P>
     /// Permission guaranteed by the session.
     pub permission: Permission,
     /// Expiration time of the session.
-    pub expire_at: Timestamp,
+    pub expires_at: Timestamp,
     /// Payload of the session.
     pub payload: P,
 }
@@ -29,14 +29,14 @@ impl<P> Session<P>
     where   P: Datable
 {
     /// Creates a new `Session` from its components.
-    pub fn new(id: u64, permission: &Permission, expire_at: &Timestamp, payload: &P) -> Result<Self> {
+    pub fn new(id: u64, permission: &Permission, expires_at: &Timestamp, payload: &P) -> Result<Self> {
         permission.check()?;
         payload.check()?;
         
         let session = Session {
             id: id,
             permission: permission.to_owned(),
-            expire_at: expire_at.to_owned(),
+            expires_at: expires_at.to_owned(),
             payload: payload.to_owned(),
         };
 
@@ -46,7 +46,7 @@ impl<P> Session<P>
     /// Returns if the `Session` has already expired.
     pub fn is_expired(&self) -> Result<bool> {
         let now = Timestamp::now()?;
-        Ok(self.expire_at <= now)
+        Ok(self.expires_at <= now)
     }
 }
 
@@ -65,7 +65,7 @@ impl<P> Sizable for Session<P>
     fn size(&self) -> u64 {
         self.id.size() +
             self.permission.size() +
-            self.expire_at.size() +
+            self.expires_at.size() +
             self.payload.size()
     }
 }       

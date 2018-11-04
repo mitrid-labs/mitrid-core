@@ -56,14 +56,14 @@ impl<S, Ad, NP, D, P> Message<S, Ad, NP, D, P>
             P: Datable
 {
     /// Creates a new `Message`.
-    pub fn new() -> Result<Self> {
+    pub fn new() -> Self {
 
         let mut msg = Message::default();
         
         msg.nonce = random();
         msg.update_size();
 
-        Ok(msg)
+        msg
     }
 
     /// Updates the `Message` size.
@@ -99,9 +99,19 @@ impl<S, Ad, NP, D, P> Message<S, Ad, NP, D, P>
         self.session.is_expired()
     }
 
+    /// Sets the `Message` sender.
+    pub fn sender(mut self, sender: &Node<Ad, NP>) -> Result<Self> {
+        sender.check()?;
+
+        self.sender = sender.clone();
+
+        self.update_size();
+
+        Ok(self)
+    }
+
     /// Sets the `Message` set of receivers and its lenght.
-    pub fn receivers(mut self, recvs: &Vec<Node<Ad, NP>>,) -> Result<Self>
-    {
+    pub fn receivers(mut self, recvs: &Vec<Node<Ad, NP>>,) -> Result<Self> {
         recvs.check()?;
 
         self.receivers_len = recvs.len() as u64;
@@ -118,6 +128,8 @@ impl<S, Ad, NP, D, P> Message<S, Ad, NP, D, P>
 
         self.method = method.to_owned();
 
+        self.update_size();
+
         Ok(self)
     }
 
@@ -127,7 +139,17 @@ impl<S, Ad, NP, D, P> Message<S, Ad, NP, D, P>
 
         self.resource = resource.to_owned();
 
+        self.update_size();
+
         Ok(self)
+    }
+
+    /// Returns if the `Message` is an error message.
+    pub fn is_error(&self) -> bool {
+        match self.resource {
+            Resource::Error => true,
+            _ => false,
+        }
     }
 
     /// Sets the `Message` payload.
@@ -135,6 +157,8 @@ impl<S, Ad, NP, D, P> Message<S, Ad, NP, D, P>
         payload.check()?;
 
         self.payload = payload.to_owned();
+
+        self.update_size();
 
         Ok(self)
     }
@@ -144,23 +168,13 @@ impl<S, Ad, NP, D, P> Message<S, Ad, NP, D, P>
     {
         params.check()?;
 
-        self.update_size();
-
         self.id = self.digest(params, cb)?;
+
+        self.update_size();
 
         self.check()?;
 
         Ok(self)
-    }
-
-    /// Returns if the `Message` is an error message.
-    pub fn is_error(&self) -> Result<bool> {
-        self.check()?;
-
-        match self.resource {
-            Resource::Error => Ok(true),
-            _ => Ok(false),
-        }
     }
 
     /// Hashes cryptographically the `Message`.

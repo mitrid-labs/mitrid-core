@@ -56,7 +56,7 @@ impl<S, Ad, NP, D, P> Response<S, Ad, NP, D, P>
     }
 
     /// Returns if the `Response` is an error response.
-    pub fn is_error(&self) -> Result<bool> {
+    pub fn is_error(&self) -> bool {
         self.message.is_error()
     }
 }
