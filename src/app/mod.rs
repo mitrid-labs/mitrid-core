@@ -6,7 +6,7 @@
 pub mod command;
 
 /// Types used to communicate with the applications.
-pub mod channels;
+pub mod channel;
 
 /// Types and traits used by the applications for logging.
 pub mod logger;
@@ -27,7 +27,7 @@ pub mod manager;
 pub mod cli;
 
 pub use self::command::{Request, Response};
-pub use self::channels::*;
+pub use self::channel::*;
 pub use self::logger::*;
 pub use self::app::App;
 pub use self::env::Env;

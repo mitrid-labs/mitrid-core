@@ -1,6 +1,6 @@
-//! # Channels
+//! # Channel
 //!
-//! `channels` is the module providing the types used to communicate with applications.
+//! `channel` is the module providing the types used to communicate with applications.
 
 use std::sync::mpsc::{Sender, Receiver, channel};
 
