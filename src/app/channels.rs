@@ -5,33 +5,28 @@
 use std::sync::mpsc::{Sender, Receiver, channel};
 
 use base::Datable;
+use base::VariableSize;
 use app::Request;
 use app::Response;
 
-pub type RequestSender<Ap, StaP, StoP, RP, EP> = Sender<Request<Ap, StaP, StoP, RP, EP>>;
-pub type RequestReceiver<Ap, StaP, StoP, RP, EP> = Receiver<Request<Ap, StaP, StoP, RP, EP>>;
+pub type RequestSender<A, P> = Sender<Request<A, P>>;
+pub type RequestReceiver<A, P> = Receiver<Request<A, P>>;
 
 /// Type used to represent an application `Request` channels.
 #[derive(Debug)]
-pub struct RequestChannel<Ap, StaP, StoP, RP, EP>
-    where   Ap: Datable,
-            StaP: Datable,
-            StoP: Datable,
-            RP: Datable,
-            EP: Datable,
+pub struct RequestChannel<A, P>
+    where   A: Ord + Datable + VariableSize,
+            P: Datable,
 {
     /// Request channel sender.
-    pub sender: RequestSender<Ap, StaP, StoP, RP, EP>,
+    pub sender: RequestSender<A, P>,
     /// Request channel receiver.
-    pub receiver: RequestReceiver<Ap, StaP, StoP, RP, EP>,
+    pub receiver: RequestReceiver<A, P>,
 }
 
-impl<Ap, StaP, StoP, RP, EP> RequestChannel<Ap, StaP, StoP, RP, EP>
-    where   Ap: Datable,
-            StaP: Datable,
-            StoP: Datable,
-            RP: Datable,
-            EP: Datable,
+impl<A, P> RequestChannel<A, P>
+    where   A: Ord + Datable + VariableSize,
+            P: Datable,
 {
     /// Creates a new `RequestChannel`.
     pub fn new() -> Self {
@@ -44,30 +39,24 @@ impl<Ap, StaP, StoP, RP, EP> RequestChannel<Ap, StaP, StoP, RP, EP>
     }
 }
 
-pub type ResponseSender<Ap, StaR, StoR, RR, ER> = Sender<Response<Ap, StaR, StoR, RR, ER>>;
-pub type ResponseReceiver<Ap, StaR, StoR, RR, ER> = Receiver<Response<Ap, StaR, StoR, RR, ER>>;
+pub type ResponseSender<A, R> = Sender<Response<A, R>>;
+pub type ResponseReceiver<A, R> = Receiver<Response<A, R>>;
 
 /// Type used to represent an application `Response` channel.
 #[derive(Debug)]
-pub struct ResponseChannel<Ap, StaR, StoR, RR, ER>
-    where   Ap: Datable,
-            StaR: Datable,
-            StoR: Datable,
-            RR: Datable,
-            ER: Datable,
+pub struct ResponseChannel<A, R>
+    where   A: Ord + Datable + VariableSize,
+            R: Datable,
 {
     /// Response channel sender.
-    pub sender: ResponseSender<Ap, StaR, StoR, RR, ER>,
+    pub sender: ResponseSender<A, R>,
     /// Response channel receiver.
-    pub receiver: ResponseReceiver<Ap, StaR, StoR, RR, ER>,
+    pub receiver: ResponseReceiver<A, R>,
 }
 
-impl<Ap, StaR, StoR, RR, ER> ResponseChannel<Ap, StaR, StoR, RR, ER>
-    where   Ap: Datable,
-            StaR: Datable,
-            StoR: Datable,
-            RR: Datable,
-            ER: Datable,
+impl<A, R> ResponseChannel<A, R>
+    where   A: Ord + Datable + VariableSize,
+            R: Datable,
 {
     /// Creates a new `ResponseChannel`.
     pub fn new() -> Self {
@@ -82,33 +71,21 @@ impl<Ap, StaR, StoR, RR, ER> ResponseChannel<Ap, StaR, StoR, RR, ER>
 
 /// Type used to represent an application `Request` and `Response` channels.
 #[derive(Debug)]
-pub struct Channels<Ap, StaP, StaR, StoP, StoR, RP, RR, EP, ER>
-    where   Ap: Datable,
-            StaP: Datable,
-            StaR: Datable,
-            StoP: Datable,
-            StoR: Datable,
-            RP: Datable,
-            RR: Datable,
-            EP: Datable,
-            ER: Datable
+pub struct Channels<A, P, R>
+    where   A: Ord + Datable + VariableSize,
+            P: Datable,
+            R: Datable,
 {
     /// Request channel.
-    pub request: RequestChannel<Ap, StaP, StoP, RP, EP>,
+    pub request: RequestChannel<A, P>,
     /// Response channel.
-    pub response: ResponseChannel<Ap, StaR, StoR, RR, ER>,
+    pub response: ResponseChannel<A, R>,
 }
 
-impl<Ap, StaP, StaR, StoP, StoR, RP, RR, EP, ER> Channels<Ap, StaP, StaR, StoP, StoR, RP, RR, EP, ER>
-    where   Ap: Datable,
-            StaP: Datable,
-            StaR: Datable,
-            StoP: Datable,
-            StoR: Datable,
-            RP: Datable,
-            RR: Datable,
-            EP: Datable,
-            ER: Datable
+impl<A, P, R> Channels<A, P, R>
+    where   A: Ord + Datable + VariableSize,
+            P: Datable,
+            R: Datable,
 {
     /// Creates a new `Channels`.
     pub fn new() -> Self {

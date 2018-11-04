@@ -3,33 +3,31 @@
 //! `app` is the module providing the trait implemented by Mitrid applications.
 
 use base::Result;
+use base::VariableSize;
 use base::data::Datable;
 use app::{Request, Response};
 use app::{RequestChannel, ResponseSender};
 use app::Logger;
 
 /// Trait implemented by Mitrid application types.
-pub trait App<Ap, StaP, StaR, StoP, StoR, RP, RR, EP, ER>
-    where   Ap: Datable,
-            StaP: Datable,
-            StaR: Datable,
-            StoP: Datable,
-            StoR: Datable,
-            RP: Datable,
-            RR: Datable,
-            EP: Datable,
-            ER: Datable,
+pub trait App<A, P, R>
+    where   A: Ord + Datable + VariableSize,
+            P: Datable,
+            R: Datable,
             Self: 'static + Sized + Send + Sync + Logger
 {
+    /// Returns the `App` address.
+    fn address(&self) -> A;
+
     /// Returns the `App` `RequestChannel`.
-    fn request_channel(&self) -> RequestChannel<Ap, StaP, StoP, RP, EP>;
+    fn request_channel(&self) -> RequestChannel<A, P>;
 
     /// Returns the `App` `ResponseSender`.
-    fn response_sender(&self) -> ResponseSender<Ap, StaR, StoR, RR, ER>;
+    fn response_sender(&self) -> ResponseSender<A, R>;
 
     /// Executes a command in the `App`.
-    fn exec(&mut self, req: &Request<Ap, StaP, StoP, RP, EP>)
-        -> Result<Response<Ap, StaR, StoR, RR, ER>>;
+    fn exec(&mut self, req: &Request<A, P>)
+        -> Result<Response<A, R>>;
 
     /// Logs a result.
     fn log_result<T: Sized>(&self, res: &Result<T>);
