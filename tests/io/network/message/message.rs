@@ -3,7 +3,7 @@ use mitrid_core::base::Sizable;
 use mitrid_core::base::Serializable;
 use mitrid_core::utils::Version;
 use mitrid_core::utils::Timestamp;
-use mitrid_core::models::Meta;
+use mitrid_core::utils::Meta;
 use mitrid_core::io::Permission;
 use mitrid_core::io::network::Method;
 use mitrid_core::io::network::Resource;

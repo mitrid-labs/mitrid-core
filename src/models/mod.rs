@@ -3,9 +3,6 @@
 //! `models` is the module providing the types used throughout the framework to implement
 //! block-based authenticated data structures and distributed ledgers.
 
-/// Type used to convey the distributed ledger metadata.
-pub mod meta;
-
 /// Type used to represent a past `Transaction` `Output`.
 pub mod coin;
 
@@ -31,7 +28,6 @@ pub mod blockgraph;
 /// Type used to represent a wallet (account) in the protocol.
 pub mod wallet;
 
-pub use self::meta::Meta;
 pub use self::coin::Coin;
 pub use self::input::Input;
 pub use self::output::Output;

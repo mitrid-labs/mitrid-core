@@ -1,4 +1,3 @@
-mod meta;
 mod coin;
 mod input;
 mod output;

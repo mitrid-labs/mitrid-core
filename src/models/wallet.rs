@@ -8,9 +8,9 @@ use base::Datable;
 use base::Serializable;
 use base::{Sizable, ConstantSize};
 use base::Evaluable;
+use utils::Meta;
 use crypto::{Hashable, Signable, Committable, Authenticatable};
 use io::{Store, Storable};
-use models::Meta;
 
 /// Type used to represent a wallet (account) in the distributed ledger.
 #[derive(Clone, PartialEq, Eq, PartialOrd, Ord, Debug, Default, Hash, Serialize, Deserialize)]

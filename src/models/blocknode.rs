@@ -8,9 +8,9 @@ use base::Checkable;
 use base::Datable;
 use base::Serializable;
 use base::{Sizable, ConstantSize};
+use utils::Meta;
 use crypto::{Hashable, Committable, Authenticatable};
 use io::{Store, Storable};
-use models::Meta;
 
 /// Type used to represent a node in the `BlockNode` and that references a `Block`.
 #[derive(Clone, PartialEq, Eq, PartialOrd, Ord, Debug, Default, Hash, Serialize, Deserialize)]

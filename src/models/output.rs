@@ -9,9 +9,9 @@ use base::Serializable;
 use base::{Sizable, ConstantSize};
 use base::Numerical;
 use base::Evaluable;
+use utils::Meta;
 use crypto::{Hashable, Committable, Authenticatable};
 use io::{Store, Storable};
-use models::Meta;
 
 /// Type representing the output of a `Transaction`.
 #[derive(Clone, PartialEq, Eq, PartialOrd, Ord, Debug, Default, Hash, Serialize, Deserialize)]

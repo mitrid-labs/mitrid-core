@@ -7,7 +7,7 @@ use base::{Sizable, VariableSize};
 use base::Checkable;
 use base::Serializable;
 use base::Datable;
-use models::Meta;
+use utils::Meta;
 
 /// Type used to represent an application command response.
 #[derive(Clone, Eq, PartialEq, Ord, PartialOrd, Debug, Default, Hash, Serialize, Deserialize)]

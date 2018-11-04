@@ -12,9 +12,9 @@ use base::Datable;
 use base::Serializable;
 use base::{Sizable, ConstantSize};
 use base::Evaluable;
+use utils::Meta;
 use crypto::{Hashable, Committable, Authenticatable};
 use io::{Store, Storable};
-use models::Meta;
 use models::BlockNode;
 
 /// Type representing a graph of `BlockNodes`. It just expose the graph frontier, from which

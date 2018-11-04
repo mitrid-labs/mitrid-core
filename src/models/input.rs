@@ -10,9 +10,9 @@ use base::Serializable;
 use base::{Sizable, ConstantSize};
 use base::Numerical;
 use base::Evaluable;
+use utils::Meta;
 use crypto::{Hashable, Signable, Committable, Authenticatable};
 use io::{Store, Storable};
-use models::Meta;
 use models::Coin;
 
 /// Type used to bind one or more `Input`s to a `Transaction` as one of its inputs.

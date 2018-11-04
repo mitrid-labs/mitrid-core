@@ -11,9 +11,9 @@ use base::Serializable;
 use base::{Sizable, ConstantSize};
 use base::Numerical;
 use base::Evaluable;
+use utils::Meta;
 use crypto::{Hashable, Provable, Committable, Authenticatable};
 use io::{Store, Storable};
-use models::Meta;
 use models::Transaction;
 use models::BlockNode;
 

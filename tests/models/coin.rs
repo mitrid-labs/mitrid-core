@@ -1,5 +1,5 @@
 use mitrid_core::utils::Version;
-use mitrid_core::models::Meta;
+use mitrid_core::utils::Meta;
 use mitrid_core::base::Checkable;
 use mitrid_core::base::Sizable;
 use mitrid_core::base::Serializable;

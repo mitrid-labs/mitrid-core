@@ -14,6 +14,10 @@ pub mod version;
 /// Type used to define the distributed ledger stage.
 pub mod stage;
 
+/// Type used to convey the distributed ledger metadata.
+pub mod meta;
+
 pub use self::timestamp::{Timestamp, TimestampDiff};
 pub use self::version::Version;
 pub use self::stage::Stage;
+pub use self::meta::Meta;

@@ -8,8 +8,8 @@ use base::Datable;
 use base::Serializable;
 use base::{Sizable, VariableSize};
 use base::Evaluable;
+use utils::Meta;
 use io::{Store, Storable};
-use models::Meta;
 
 /// Type representing a node in the distributed ledger network.
 #[derive(Clone, PartialEq, Eq, PartialOrd, Ord, Debug, Default, Hash, Serialize, Deserialize)]
