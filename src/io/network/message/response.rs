@@ -17,7 +17,7 @@ pub struct Response<S, Ad, NP, D, P>
             Ad: Ord + Datable + VariableSize,
             NP: Datable,
             D: Ord + Datable + ConstantSize,
-            P: Datable,
+            P: Datable
 {
     /// Response inner message
     pub message: Message<S, Ad, NP, D, P>,
@@ -28,7 +28,7 @@ impl<S, Ad, NP, D, P> Response<S, Ad, NP, D, P>
             Ad: Ord + Datable + VariableSize,
             NP: Datable,
             D: Ord + Datable + ConstantSize,
-            P: Datable,
+            P: Datable
 {
     /// Creates a new `Response`.
     pub fn new(msg: &Message<S, Ad, NP, D, P>) -> Result<Self> {
@@ -44,7 +44,7 @@ impl<S, Ad, NP, D, P> Sizable for Response<S, Ad, NP, D, P>
             Ad: Ord + Datable + VariableSize,
             NP: Datable,
             D: Ord + Datable + ConstantSize,
-            P: Datable,
+            P: Datable
 {
     fn size(&self) -> u64 {
         self.message.size()
@@ -56,7 +56,7 @@ impl<S, Ad, NP, D, P> Checkable for Response<S, Ad, NP, D, P>
             Ad: Ord + Datable + VariableSize,
             NP: Datable,
             D: Ord + Datable + ConstantSize,
-            P: Datable,
+            P: Datable
 {
     fn check(&self) -> Result<()> {
         self.message.check()
@@ -68,7 +68,7 @@ impl<S, Ad, NP, D, P> Serializable for Response<S, Ad, NP, D, P>
             Ad: Ord + Datable + VariableSize + Serializable,
             NP: Datable + Serializable,
             D: Ord + Datable + ConstantSize + Serializable,
-            P: Datable + Serializable,
+            P: Datable + Serializable
 {}
 
 impl<S, Ad, NP, D, P> Datable for Response<S, Ad, NP, D, P>
@@ -76,23 +76,21 @@ impl<S, Ad, NP, D, P> Datable for Response<S, Ad, NP, D, P>
             Ad: Ord + Datable + VariableSize,
             NP: Datable,
             D: Ord + Datable + ConstantSize,
-            P: Datable,
+            P: Datable
 {}
 
 pub const RESPONSE_STORE_PREFIX: u64 = 10;
 
-impl<St, S, MS, Ad, NP, D, P, StPC, StRC>
-    Storable<St, S, D, Response<MS, Ad, NP, D, P>, StPC, StRC>
+impl<St, S, MS, Ad, NP, D, P>
+    Storable<St, S, D, Response<MS, Ad, NP, D, P>>
     for Response<MS, Ad, NP, D, P>
-    where   St: Store<S, StPC, StRC>,
+    where   St: Store<S>,
             S: Datable + Serializable,
             MS: Datable + Serializable,
             Ad: Ord + Datable + VariableSize + Serializable,
             NP: Datable + Serializable,
             D: Ord + Datable + ConstantSize + Serializable,
-            P: Datable + Serializable,
-            StPC: Datable + Serializable,
-            StRC: Datable + Serializable
+            P: Datable + Serializable
 {
     fn store_prefix() -> u64 {
         RESPONSE_STORE_PREFIX

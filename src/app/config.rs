@@ -11,7 +11,7 @@ use base::Result;
 use base::{ConstantSize, VariableSize};
 use base::Serializable;
 use base::Datable;
-use utils::Version;
+use util::Version;
 use base::Stage;
 
 pub trait Config<D, MnP, A, StP, SvP, ClP, CP>

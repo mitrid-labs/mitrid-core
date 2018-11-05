@@ -7,7 +7,7 @@ use base::Checkable;
 use base::Datable;
 use base::Serializable;
 use base::{Sizable, VariableSize};
-use base::Evaluable;
+use base::{Eval, EvalMut};
 use base::Meta;
 use io::{Store, Storable};
 
@@ -55,14 +55,34 @@ impl<A, P> Node<A, P>
     }
 
     /// Evals the `Node`.
-    pub fn eval<EP, R>(&self, params: &EP, cb: &Fn(&Self, &EP) -> Result<R>)
-        -> Result<R>
-        where   EP: Datable,
-                R: Datable
+    pub fn eval<Ev, EP, ER>(&self, params: &EP, evaluator: &Ev)
+        -> Result<ER>
+        where   Ev: Eval<Self, EP, ER>,
+                EP: Datable,
+                ER: Datable
     {
+        self.check()?;
         params.check()?;
 
-        self.eval_cb(params, cb)
+        evaluator.eval(self, params)
+    }
+
+    /// Evals mutably the `Node`.
+    pub fn eval_mut<EvM, EP, ER>(&mut self, params: &EP, evaluator: &mut EvM)
+        -> Result<ER>
+        where   EvM: EvalMut<Self, EP, ER>,
+                EP: Datable,
+                ER: Datable
+    {
+        self.check()?;
+        params.check()?;
+
+        let result = evaluator.eval_mut(self, params)?;
+        self.update_size();
+
+        self.check()?;
+
+        Ok(result)
     }
 }
 
@@ -105,22 +125,15 @@ impl<A, P> Datable for Node<A, P>
             P: Datable
 {}
 
-impl<A, P> Evaluable for Node<A, P>
-    where   A: Ord + Datable + VariableSize,
-            P: Datable
-{}
-
 pub const NODE_STORE_PREFIX: u64 = 8;
 
-impl<St, S, A, P, StPC, StRC>
-    Storable<St, S, A, Node<A, P>, StPC, StRC>
+impl<St, S, A, P>
+    Storable<St, S, A, Node<A, P>>
     for Node<A, P>
-    where   St: Store<S, StPC, StRC>,
+    where   St: Store<S>,
             S: Datable + Serializable,
             A: Ord + Datable + VariableSize + Serializable,
-            P: Datable + Serializable,
-            StPC: Datable + Serializable,
-            StRC: Datable + Serializable
+            P: Datable + Serializable
 {
     fn store_prefix() -> u64 {
         NODE_STORE_PREFIX

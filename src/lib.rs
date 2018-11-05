@@ -19,16 +19,16 @@ extern crate rand;
 pub mod base;
 
 /// Types and functionalities commonly used but not foundational.
-pub mod utils;
+pub mod util;
 
 /// Traits used to implement cryptographical operations.
 pub mod crypto;
 
-/// Types used to implement block-based authenticated data structures.
-pub mod models;
-
 /// Traits and types used to implement I/O operations.
 pub mod io;
+
+/// Types used to implement block-based authenticated data structures.
+pub mod model;
 
 /// Types and traits used to create and manage the framework applications.
 pub mod app;

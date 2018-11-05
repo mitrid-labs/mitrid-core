@@ -1,12 +1,12 @@
 use mitrid_core::base::Sizable;
 use mitrid_core::base::Checkable;
 use mitrid_core::base::Serializable;
-use mitrid_core::utils::Version;
+use mitrid_core::util::Version;
 use mitrid_core::base::Meta;
 
-use fixtures::base::Payload;
-use fixtures::app::command::Address;
-use fixtures::app::command::Request;
+use fixture::base::Payload;
+use fixture::app::command::Address;
+use fixture::app::command::Request;
 
 #[test]
 fn test_request_new() {

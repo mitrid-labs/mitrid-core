@@ -1,19 +1,29 @@
 //! # Eval
 //!
-//! `eval` is the module providing the trait implemented by types that can be evaluated (computed).
+//! `eval` is the module providing the traits implemented by types that can evaluate.
 
 use base::result::Result;
+use base::check::Checkable;
 use base::data::Datable;
 
-/// Trait implemented by types that can be evaluated.
-pub trait Evaluable
-    where   Self: Datable
+/// Trait implemented by types that can evaluate.
+pub trait Eval<T, P, R>
+    where   T: 'static + Sized + Send + Sync + Checkable,
+            P: Datable,
+            R: Datable
 {
-    /// Takes `Datable` params and a callback to evaluate the implementor.
-    fn eval_cb<P, R>(&self, params: &P, cb: &Fn(&Self, &P) -> Result<R>) -> Result<R>
-        where P: Datable,
-              R: Datable
-    {
-        cb(self, params)
-    }
+    /// Evaluates a `Datable` T given some parameters and returning a result.
+    fn eval(&self, data: &T, params: &P) -> Result<R>;
+
+}
+
+
+/// Trait implemented by types that can evaluate mutably.
+pub trait EvalMut<T, P, R>
+    where   T: 'static + Sized + Send + Sync + Checkable,
+            P: Datable,
+            R: Datable
+{
+    /// Evaluates mutably a `Datable` T given some parameters and returning a result.
+    fn eval_mut(&mut self, data: &mut T, params: &P) -> Result<R>;
 }

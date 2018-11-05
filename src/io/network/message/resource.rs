@@ -35,8 +35,14 @@ pub enum Resource {
     Block,
     /// Blockgraph data.
     BlockGraph,
-    /// Custom data.
-    Custom,
+    /// Eval params.
+    EvalParams,
+    /// Eval result.
+    EvalResult,
+    /// Mutable eval params.
+    EvalMutParams,
+    /// Mutable eval result.
+    EvalMutResult,
     /// Error data.
     Error,
 }
@@ -55,7 +61,10 @@ impl Resource {
             "blocknode" => Ok(Resource::BlockNode),
             "block" => Ok(Resource::Block),
             "blockgraph" => Ok(Resource::BlockGraph),
-            "custom" => Ok(Resource::Custom),
+            "evalparams" => Ok(Resource::EvalParams),
+            "evalresult" => Ok(Resource::EvalResult),
+            "evalmutparams" => Ok(Resource::EvalMutParams),
+            "evalmutresult" => Ok(Resource::EvalMutResult),
             "error" => Ok(Resource::Error),
             _ => Err("unknown resource".into())
         }
@@ -82,16 +91,21 @@ impl Resource {
                 }
             },
             2...9 => {
-                match self {
-                    &Resource::None | &Resource::Session | &Resource::Custom => {
-                        return Err(String::from("invalid method"));
-                    },
-                    _ => {},
+                if self <= &Resource::Session || self >= &Resource::EvalParams {
+                    return Err(String::from("invalid method"));
                 }
             },
             10 => {
                 match self {
-                    &Resource::Custom => {},
+                    &Resource::EvalParams | &Resource::EvalResult => {},
+                    _ => {
+                        return Err(String::from("invalid method"));
+                    },
+                }
+            },
+            11 => {
+                match self {
+                    &Resource::EvalMutParams | &Resource::EvalMutResult => {},
                     _ => {
                         return Err(String::from("invalid method"));
                     },
@@ -125,7 +139,10 @@ impl fmt::Display for Resource {
             Resource::BlockNode => write!(f, "blocknode"),
             Resource::Block => write!(f, "block"),
             Resource::BlockGraph => write!(f, "blockgraph"),
-            Resource::Custom => write!(f, "custom"),
+            Resource::EvalParams => write!(f, "evalparams"),
+            Resource::EvalResult => write!(f, "evalresult"),
+            Resource::EvalMutParams => write!(f, "evalmutparams"),
+            Resource::EvalMutResult => write!(f, "evalmutresult"),
             Resource::Error => write!(f, "error"),
         }
     }

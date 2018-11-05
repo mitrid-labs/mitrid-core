@@ -4,7 +4,7 @@ use mitrid_core::app::{LogLevel, LogFile};
 
 use std::fs::{self, File};
 
-use fixtures::app::Logger;
+use fixture::app::Logger;
 
 #[test]
 fn test_logger_new() {

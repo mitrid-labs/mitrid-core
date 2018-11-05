@@ -15,7 +15,10 @@ fn test_resource_new_parse() {
                                    "blocknode",
                                    "block",
                                    "blockgraph",
-                                   "custom",
+                                   "evalparams",
+                                   "evalresult",
+                                   "evalmutparams",
+                                   "evalmutresult",
                                    "error"];
 
     let invalid_resource_str = "wallet";
@@ -41,7 +44,10 @@ fn test_resource_check_method() {
                              "blocknode",
                              "block",
                              "blockgraph",
-                             "custom",
+                             "evalparams",
+                             "evalresult",
+                             "evalmutparams",
+                             "evalmutresult",
                              "error"];
 
     for resource_str in resource_strs.iter() {
@@ -57,7 +63,7 @@ fn test_resource_check_method() {
                                "update",
                                "upsert",
                                "delete",
-                               "custom"];
+                               "eval"];
 
         for method_str in method_strs.iter() {
             let method = Method::parse(method_str).unwrap();
@@ -81,10 +87,10 @@ fn test_resource_check_method() {
             }
 
             if method >= Method::Count &&
-                method < Method::Custom
+                method < Method::Eval
             {
                 if (resource >= Resource::Node &&
-                    resource < Resource::Custom) ||
+                    resource < Resource::EvalParams) ||
                     resource == Resource::Error
                 {
                     assert!(res.is_ok());
@@ -93,8 +99,22 @@ fn test_resource_check_method() {
                 }
             }
 
-            if method == Method::Custom {
-                if resource == Resource::Custom || resource == Resource::Error {
+            if method == Method::Eval {
+                if resource == Resource::EvalParams ||
+                    resource == Resource::EvalResult ||
+                    resource == Resource::Error
+                {
+                    assert!(res.is_ok());
+                } else {
+                    assert!(res.is_err());
+                }
+            }
+
+            if method == Method::EvalMut {
+                if resource == Resource::EvalMutParams ||
+                    resource == Resource::EvalMutResult ||
+                    resource == Resource::Error
+                {
                     assert!(res.is_ok());
                 } else {
                     assert!(res.is_err());
@@ -116,7 +136,10 @@ fn test_resource_display() {
                              "blocknode",
                              "block",
                              "blockgraph",
-                             "custom",
+                             "evalparams",
+                             "evalresult",
+                             "evalmutparams",
+                             "evalmutresult",
                              "error"];
 
     for resource_str in resource_strs.iter() {

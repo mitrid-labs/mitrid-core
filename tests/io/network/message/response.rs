@@ -1,20 +1,20 @@
 use mitrid_core::base::Checkable;
 use mitrid_core::base::Sizable;
 use mitrid_core::base::Serializable;
-use mitrid_core::utils::Version;
+use mitrid_core::util::Version;
 use mitrid_core::base::Meta;
 use mitrid_core::io::network::Method;
 use mitrid_core::io::network::Resource;
 use mitrid_core::io::Storable;
 
-use fixtures::base::Payload;
-use fixtures::crypto::Digest;
-use fixtures::io::Session;
-use fixtures::io::Address;
-use fixtures::io::Node;
-use fixtures::io::network::{Message, message_digest_cb};
-use fixtures::io::network::Response;
-use fixtures::io::store::*;
+use fixture::base::Payload;
+use fixture::crypto::{Digest, Hasher};
+use fixture::io::Session;
+use fixture::io::Address;
+use fixture::io::Node;
+use fixture::io::Message;
+use fixture::io::Response;
+use fixture::io::store::*;
 
 #[test]
 fn test_response_new() {
@@ -23,6 +23,8 @@ fn test_response_new() {
     let payload = Payload::new("payload");
     
     let node = Node::new(&valid_meta, &address, &payload).unwrap();
+
+    let mut hasher = Hasher{};
 
     let mut message = Message::new()
                         .meta(&valid_meta)
@@ -39,7 +41,7 @@ fn test_response_new() {
                         .unwrap()
                         .payload(&Payload::default())
                         .unwrap()
-                        .finalize(&(), &message_digest_cb)
+                        .finalize(&mut hasher)
                         .unwrap();
 
     let res = Response::new(&message);
@@ -69,6 +71,8 @@ fn test_response_size() {
     let resource = Resource::default();
     let payload = Payload::default();
 
+    let mut hasher = Hasher{};
+
     let message = Message::new()
                     .meta(&meta)
                     .unwrap()
@@ -84,7 +88,7 @@ fn test_response_size() {
                     .unwrap()
                     .payload(&payload)
                     .unwrap()
-                    .finalize(&(), &message_digest_cb)
+                    .finalize(&mut hasher)
                     .unwrap();
 
     let response = Response::new(&message).unwrap();
@@ -107,6 +111,8 @@ fn test_response_check() {
     let resource = Resource::default();
     let payload = Payload::default();
 
+    let mut hasher = Hasher{};
+
     let message = Message::new()
                     .meta(&meta)
                     .unwrap()
@@ -122,7 +128,7 @@ fn test_response_check() {
                     .unwrap()
                     .payload(&payload)
                     .unwrap()
-                    .finalize(&(), &message_digest_cb)
+                    .finalize(&mut hasher)
                     .unwrap();
 
     let mut response = Response::new(&message).unwrap();
@@ -205,6 +211,8 @@ fn test_response_store() {
     let resource = Resource::default();
     let payload = Payload::default();
 
+    let mut hasher = Hasher{};
+
     let message = Message::new()
                     .meta(&meta)
                     .unwrap()
@@ -220,7 +228,7 @@ fn test_response_store() {
                     .unwrap()
                     .payload(&payload)
                     .unwrap()
-                    .finalize(&(), &message_digest_cb)
+                    .finalize(&mut hasher)
                     .unwrap();
 
     let response = Response::new(&message).unwrap();
@@ -267,13 +275,13 @@ fn test_response_store() {
     let mut from = Some(response.message.id.clone());
     let mut to = Some(response.message.id.clone());
 
-    let res = Response::store_count(&mut store, &from, &to);
+    let res = Response::store_count(&mut store, from.clone(), to.clone());
     assert!(res.is_err());
 
     from = None;
     to = None;
 
-    let res = Response::store_count(&mut store, &from, &to);
+    let res = Response::store_count(&mut store, from.clone(), to.clone());
     assert!(res.is_ok());
 
     let count = res.unwrap();
@@ -281,7 +289,7 @@ fn test_response_store() {
 
     from = Some(response.message.id.clone());
 
-    let res = Response::store_count(&mut store, &from, &to);
+    let res = Response::store_count(&mut store, from.clone(), to.clone());
     assert!(res.is_ok());
 
     let count = res.unwrap();
@@ -290,7 +298,7 @@ fn test_response_store() {
     from = None;
     to = Some(response.message.id.clone());
 
-    let res = Response::store_count(&mut store, &from, &to);
+    let res = Response::store_count(&mut store, from.clone(), to.clone());
     assert!(res.is_ok());
 
     let count = res.unwrap();
@@ -300,19 +308,19 @@ fn test_response_store() {
     let mut to = Some(response.message.id.clone());
     let mut count = None;
 
-    let res = Response::store_list(&mut store, &from, &to, &count);
+    let res = Response::store_list(&mut store, from.clone(), to.clone(), count.clone());
     assert!(res.is_err());
 
     count = Some(0);
 
-    let res = Response::store_list(&mut store, &from, &to, &count);
+    let res = Response::store_list(&mut store, from.clone(), to.clone(), count.clone());
     assert!(res.is_err());
 
     from = None;
     to = None;
     count = None;
 
-    let res = Response::store_list(&mut store, &from, &to, &count);
+    let res = Response::store_list(&mut store, from.clone(), to.clone(), count.clone());
     assert!(res.is_ok());
 
     let list = res.unwrap();
@@ -320,7 +328,7 @@ fn test_response_store() {
 
     from = Some(response.message.id.clone());
 
-    let res = Response::store_list(&mut store, &from, &to, &count);
+    let res = Response::store_list(&mut store, from.clone(), to.clone(), count.clone());
     assert!(res.is_ok());
 
     let list = res.unwrap();
@@ -329,7 +337,7 @@ fn test_response_store() {
     from = None;
     to = Some(response.message.id.clone());
 
-    let res = Response::store_list(&mut store, &from, &to, &count);
+    let res = Response::store_list(&mut store, from.clone(), to.clone(), count.clone());
     assert!(res.is_ok());
 
     let list = res.unwrap();
@@ -351,7 +359,7 @@ fn test_response_store() {
     from = None;
     to = None;
 
-    let res = Response::store_count(&mut store, &to, &from);
+    let res = Response::store_count(&mut store, to.clone(), from.clone());
     assert!(res.is_ok());
 
     let count = res.unwrap();
@@ -359,7 +367,7 @@ fn test_response_store() {
 
     let count = None;
 
-    let res = Response::store_list(&mut store, &to, &from, &count);
+    let res = Response::store_list(&mut store, to.clone(), from.clone(), count.clone());
     assert!(res.is_ok());
 
     let list = res.unwrap();
@@ -368,7 +376,7 @@ fn test_response_store() {
     let res = response.store_upsert(&mut store);
     assert!(res.is_ok());
 
-    let res = Response::store_count(&mut store, &to, &from);
+    let res = Response::store_count(&mut store, to.clone(), from.clone());
     assert!(res.is_ok());
 
     let count = res.unwrap();
@@ -376,7 +384,7 @@ fn test_response_store() {
 
     let count = None;
 
-    let res = Response::store_list(&mut store, &to, &from, &count);
+    let res = Response::store_list(&mut store, to, from, count);
     assert!(res.is_ok());
 
     let list = res.unwrap();

@@ -1,10 +1,10 @@
 use mitrid_core::base::Checkable;
 use mitrid_core::base::Sizable;
 use mitrid_core::base::Serializable;
-use mitrid_core::utils::Timestamp;
+use mitrid_core::util::Timestamp;
 use mitrid_core::io::Permission;
 
-use fixtures::io::Session;
+use fixture::io::Session;
 
 #[test]
 fn test_session_new() {

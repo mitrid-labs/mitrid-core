@@ -15,7 +15,8 @@ fn test_method_parse() {
                                  "update",
                                  "upsert",
                                  "delete",
-                                 "custom"];
+                                 "eval",
+                                 "evalmut"];
 
     let invalid_method_str = "put";
 
@@ -40,7 +41,8 @@ fn test_method_display() {
                            "update",
                            "upsert",
                            "delete",
-                           "custom"];
+                           "eval",
+                           "evalmut"];
 
     for method_str in method_strs.iter() {
         let method = Method::parse(method_str).unwrap();
@@ -54,9 +56,9 @@ fn test_method_check_permission() {
     let read_permission = Permission::Read;
     let write_permission = Permission::Write;
 
-    let none_method_strs = vec!["ping", "session", "custom"];
-    let read_method_strs = vec!["session", "count", "list", "lookup", "list"];
-    let write_method_strs = vec!["create", "update", "upsert", "delete", "custom"];
+    let none_method_strs = vec!["ping", "session"];
+    let read_method_strs = vec!["session", "count", "list", "lookup", "list", "eval"];
+    let write_method_strs = vec!["session", "create", "update", "upsert", "delete", "evalmut"];
 
     for method_str in none_method_strs.iter() {
         let method = Method::parse(method_str).unwrap();
@@ -65,14 +67,14 @@ fn test_method_check_permission() {
         assert!(res.is_ok());
 
         let res = method.check_permission(&read_permission);
-        if method_str != &"session" && method_str != &"custom" {
+        if method_str != &"session" {
             assert!(res.is_err());
         } else {
             assert!(res.is_ok());
         }
 
         let res = method.check_permission(&write_permission);
-        if method_str != &"session" && method_str != &"custom" {
+        if method_str != &"session" {
             assert!(res.is_err());
         } else {
             assert!(res.is_ok());
@@ -86,14 +88,14 @@ fn test_method_check_permission() {
         assert!(res.is_ok());
 
         let res = method.check_permission(&write_permission);
-        if method_str != &"session" && method_str != &"custom" {
+        if method_str != &"session" {
             assert!(res.is_err());
         } else {
             assert!(res.is_ok());
         }
 
         let res = method.check_permission(&none_permission);
-        if method_str != &"session" && method_str != &"custom" {
+        if method_str != &"session" {
             assert!(res.is_err());
         } else {
             assert!(res.is_ok());
@@ -107,14 +109,14 @@ fn test_method_check_permission() {
         assert!(res.is_ok());
 
         let res = method.check_permission(&none_permission);
-        if method_str != &"session" && method_str != &"custom" {
+        if method_str != &"session" {
             assert!(res.is_err());
         } else {
             assert!(res.is_ok());
         }
 
         let res = method.check_permission(&read_permission);
-        if method_str != &"session" && method_str != &"custom" {
+        if method_str != &"session" {
             assert!(res.is_err());
         } else {
             assert!(res.is_ok());

@@ -10,24 +10,21 @@ use base::size::{ConstantSize, VariableSize};
 use base::Checkable;
 use base::Serializable;
 use base::Datable;
+use base::{Eval, EvalMut};
 use io::store::Store;
 use io::network::transport::{ClientTransport, ServerTransport};
 use io::network::server::Handler;
 use io::network::server::Router;
-use io::network::message::Request;
+use io::network::message::{Request, Response};
 
 /// Trait implemented by network servers.
-pub trait Server<St, StS, StK, StV, StP, StPC, StRC, ST, CT, H, R, S, Ad, NP, D, MP>
-    where   St: Store<StS, StPC, StRC>,
+pub trait Server<St, StS, ST, CT, H, R, S, Ad, NP, D, MP>
+    where   St: Store<StS>,
             StS: Datable + Serializable,
-            StK: Ord + Datable + Serializable,
-            StV: Datable + Serializable,
-            StPC: Datable + Serializable,
-            StRC: Datable + Serializable,
             ST: ServerTransport<Ad, CT>,
             CT: ClientTransport<Ad>,
-            H: Handler<St, StS, StK, StV, StP, StPC, StRC, S, Ad, NP, D, MP>,
-            R: Router<St, StS, StK, StV, StP, StPC, StRC, S, Ad, NP, D, MP>,
+            H: Handler<St, StS, S, Ad, NP, D, MP>,
+            R: Router<St, StS, S, Ad, NP, D, MP, H>,
             S: Datable + Serializable,
             Ad: Ord + Datable + VariableSize + Serializable,
             NP: Datable + Serializable,
@@ -35,66 +32,59 @@ pub trait Server<St, StS, StK, StV, StP, StPC, StRC, ST, CT, H, R, S, Ad, NP, D,
             MP: Datable + Serializable
 {
     /// Serves incoming requests.
-    fn serve<P, LP, RcvP, SP, RP>(params: &P,
-                                  store: St,
-                                  listen_params: &LP,
-                                  recv_params: &RcvP,
-                                  send_params: &SP,
-                                  handler: H,
-                                  router: R,
-                                  route_params: RP,
-                                  addresses: &Vec<Ad>,
-                                  thread_limit: u64)
-        -> Result<()>
-        where   P: Datable,
-                LP: Datable,
-                RcvP: Datable,
-                SP: Datable,
-                RP: Datable
+    fn serve<Ev, EvM>(store: St,
+                      handler: H,
+                      router: R,
+                      addresses: &Vec<Ad>,
+                      thread_limit: u64,
+                      evaluator: Ev,
+                      evaluator_mut: EvM)
+                -> Result<()>
+        where   Ev: 'static + Send + Sync + Eval<St, Request<S, Ad, NP, D, MP>, Response<S, Ad, NP, D, MP>>,
+                EvM: 'static + Send + EvalMut<St, Request<S, Ad, NP, D, MP>, Response<S, Ad, NP, D, MP>>
     {
-        params.check()?;
-
-        listen_params.check()?;
-        recv_params.check()?;
-        send_params.check()?;
-        route_params.check()?;
-        
         addresses.check()?;
         for ref address in addresses {
             address.check_size()?;
         }
 
-        let mut transport = ST::listen(listen_params, addresses)?;
+        let mut transport = ST::listen(addresses)?;
 
         let threads_num = Arc::new(Mutex::new(0));
         let store = Arc::new(Mutex::new(store));
-        let handler = Arc::new(handler);
-        let router = Arc::new(router);
+        let handler = Arc::new(Mutex::new(handler));
+        let router = Arc::new(Mutex::new(router));
+        let evaluator = Arc::new(evaluator);
+        let evaluator_mut = Arc::new(Mutex::new(evaluator_mut));
 
         loop {
             while *threads_num.lock().unwrap() < thread_limit {
 
-                transport.accept(recv_params)
+                transport.accept()
                     .and_then(|(mut transport, _)| {
 
-                        for ser_req in transport.recv(recv_params)? {
+                        for ser_req in transport.recv()? {
                             let req = Request::from_bytes(ser_req.as_slice())?;
                             let mut transport = transport.clone();
                             let store = store.clone();
-                            let send_params = send_params.clone();
                             let handler = handler.clone(); 
                             let router = router.clone();
-                            let route_params = route_params.clone();
+                            let evaluator = evaluator.clone();
+                            let evaluator_mut = evaluator_mut.clone();
                             let threads_num = threads_num.clone();
                             
                             let _ = thread::spawn(move || {
                                 *threads_num.lock().unwrap() += 1;
 
+                                let router = &mut *router.lock().unwrap();
                                 let store = &mut *store.lock().unwrap();
+                                let handler = &mut *handler.lock().unwrap();
+                                let evaluator: &Ev = &*evaluator;
+                                let evaluator_mut: &mut EvM = &mut *evaluator_mut.lock().unwrap();
 
-                                router.route(store, &*handler, &route_params, &req)
+                                router.route(store, handler, &req, &*evaluator, evaluator_mut)
                                     .and_then(|res| {
-                                        transport.send(&send_params, &res.to_bytes().unwrap())
+                                        transport.send(&res.to_bytes().unwrap())
                                     })
                                     .or_else(|e| Err(format!("{:}", e)))
                             })

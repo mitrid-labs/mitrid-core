@@ -9,8 +9,9 @@ use base::{Sizable, ConstantSize, VariableSize};
 use base::Checkable;
 use base::Serializable;
 use base::Datable;
+use base::{Eval, EvalMut};
 use base::Meta;
-use crypto::{Hashable, Committable, Authenticatable};
+use crypto::Hash;
 use io::Session;
 use io::Node;
 use io::Method;
@@ -23,7 +24,7 @@ pub struct Message<S, Ad, NP, D, P>
             Ad: Ord + Datable + VariableSize,
             NP: Datable,
             D: Ord + Datable + ConstantSize,
-            P: Datable,
+            P: Datable
 {
     /// Message id (hash digest)
     pub id: D,
@@ -44,7 +45,7 @@ pub struct Message<S, Ad, NP, D, P>
     /// Message resource.
     pub resource: Resource,
     /// Message payload.
-    pub payload: P,
+    pub payload: P
 }
 
 impl<S, Ad, NP, D, P> Message<S, Ad, NP, D, P>
@@ -52,7 +53,8 @@ impl<S, Ad, NP, D, P> Message<S, Ad, NP, D, P>
             Ad: Ord + Datable + VariableSize,
             NP: Datable,
             D: Ord + Datable + ConstantSize,
-            P: Datable
+            P: Datable,
+            Self: Serializable
 {
     /// Creates a new `Message`.
     pub fn new() -> Self {
@@ -163,11 +165,9 @@ impl<S, Ad, NP, D, P> Message<S, Ad, NP, D, P>
     }
 
     /// Finalizes the `Message`, building its id and returning it's complete form.
-    pub fn finalize<HP: Datable>(mut self, params: &HP, cb: &Fn(&Self, &HP) -> Result<D>) -> Result<Self>
-    {
-        params.check()?;
-
-        self.id = self.digest(params, cb)?;
+    pub fn finalize<H: Hash<D>>(mut self, hasher: &mut H) -> Result<Self> {
+        let msg = self.to_bytes()?;
+        self.id = hasher.digest(&msg)?;
 
         self.update_size();
 
@@ -177,163 +177,72 @@ impl<S, Ad, NP, D, P> Message<S, Ad, NP, D, P>
     }
 
     /// Hashes cryptographically the `Message`.
-    pub fn digest<HP: Datable>(&self, params: &HP, cb: &Fn(&Self, &HP) -> Result<D>) -> Result<D>
-    {
-        params.check()?;
+    pub fn digest<H: Hash<D>>(&self, hasher: &mut H) -> Result<D> {
+        let mut message = self.clone();
+        message.id = D::default();
+        message.update_size();
 
-        let mut coin = self.clone();
-        coin.id = D::default();
-
-        coin.digest_cb(params, cb)
+        let msg = message.to_bytes()?;
+        hasher.digest(&msg)
     }
 
     /// Verifies the cryptographic digest against the `Message`'s digest.
-    pub fn verify_digest<HP: Datable>(&self,
-                                      params: &HP,
-                                      cb: &Fn(&Self, &HP, &D) -> Result<bool>)
-        -> Result<bool>
-    {
-        params.check()?;
-
+    pub fn verify_digest<H: Hash<D>>(&self, hasher: &mut H) -> Result<bool> {
         let digest = self.id.clone();
         digest.check()?;
 
-        let mut coin = self.clone();
-        coin.id = D::default();
-        coin.update_size();
+        let mut message = self.clone();
+        message.id = D::default();
+        message.update_size();
 
-        coin.verify_digest_cb(params, &digest, cb)
+        let msg = message.to_bytes()?;
+        hasher.verify(&msg, &digest)
     }
 
     /// Checks the cryptographic digest against the `Message`'s digest.
-    pub fn check_digest<HP: Datable>(&self,
-                                     params: &HP,
-                                     cb: &Fn(&Self, &HP, &D) -> Result<()>)
-        -> Result<()>
-    {
-        params.check()?;
-
+    pub fn check_digest<H: Hash<D>>(&self, hasher: &mut H) -> Result<()> {
         let digest = self.id.clone();
         digest.check()?;
 
-        let mut coin = self.clone();
-        coin.id = D::default();
-        coin.update_size();
+        let mut message = self.clone();
+        message.id = D::default();
+        message.update_size();
 
-        coin.check_digest_cb(params, &digest, cb)
+        let msg = message.to_bytes()?;
+        hasher.check(&msg, &digest)
     }
 
-    /// Commits cryptographically the `Message`.
-    pub fn commit<CP, C>(&self, params: &CP, cb: &Fn(&Self, &CP) -> Result<C>)
-        -> Result<C>
-        where   CP: Datable,
-                C: Datable + ConstantSize
+    /// Evals the `Message`.
+    pub fn eval<Ev, EP, ER>(&self, params: &EP, evaluator: &Ev)
+        -> Result<ER>
+        where   Ev: Eval<Self, EP, ER>,
+                EP: Datable,
+                ER: Datable
     {
+        self.check()?;
         params.check()?;
 
-        self.commit_cb(params, cb)
+        evaluator.eval(self, params)
     }
 
-    /// Verifies the cryptographic commitment against the `Message`'s commitment.
-    pub fn verify_commitment<CP, C>(&self,
-                                    params: &CP,
-                                    commitment: &C,
-                                    cb: &Fn(&Self, &CP, &C) -> Result<bool>)
-        -> Result<bool>
-        where   CP: Datable,
-                C: Datable + ConstantSize
+    /// Evals mutably the `Message`.
+    pub fn eval_mut<EvM, EP, ER>(&mut self, params: &EP, evaluator: &mut EvM)
+        -> Result<ER>
+        where   EvM: EvalMut<Self, EP, ER>,
+                EP: Datable,
+                ER: Datable
     {
-        params.check()?;
-        commitment.check()?;
-
-        self.verify_commitment_cb(params, commitment, cb)
-    }
-
-    /// Checks the cryptographic commitment against the `Message`'s commitment.
-    pub fn check_commitment<CP, C>(&self,
-                                   params: &CP,
-                                   commitment: &C,
-                                   cb: &Fn(&Self, &CP, &C) -> Result<()>)
-        -> Result<()>
-        where   CP: Datable,
-                C: Datable + ConstantSize
-    {
-        params.check()?;
-        commitment.check()?;
-
-        self.check_commitment_cb(params, commitment, cb)
-    }
-
-    /// Authenticates cryptographically the `Message`.
-    pub fn authenticate<AP, T>(&self, params: &AP, cb: &Fn(&Self, &AP) -> Result<T>)
-        -> Result<T>
-        where   AP: Datable,
-                T: Datable + ConstantSize
-    {
+        self.check()?;
         params.check()?;
 
-        self.authenticate_cb(params, cb)
-    }
+        let result = evaluator.eval_mut(self, params)?;
+        self.update_size();
 
-    /// Verifies the cryptographic authentication of the `Message` against a tag.
-    pub fn verify_tag<AP, T>(&self,
-                             params: &AP,
-                             tag: &T,
-                             cb: &Fn(&Self, &AP, &T) -> Result<bool>)
-        -> Result<bool>
-        where   AP: Datable,
-                T: Datable + ConstantSize
-    {
-        params.check()?;
-        tag.check()?;
+        self.check()?;
 
-        self.verify_tag_cb(params, tag, cb)
-    }
-
-    /// Checks the cryptographic authentication of the `Message` against a tag.
-    pub fn check_tag<AP, T>(&self,
-                            params: &AP,
-                            tag: &T,
-                            cb: &Fn(&Self, &AP, &T) -> Result<()>)
-        -> Result<()>
-        where   AP: Datable,
-                T: Datable + ConstantSize
-    {
-        params.check()?;
-        tag.check()?;
-
-        self.check_tag_cb(params, tag, cb)
+        Ok(result)
     }
 }
-
-impl<HP, S, Ad, NP, D, P> Hashable<HP, D> for Message<S, Ad, NP, D, P>
-    where   HP: Datable,
-            S: Datable,
-            Ad: Ord + Datable + VariableSize,
-            NP: Datable,
-            D: Ord + Datable + ConstantSize,
-            P: Datable
-{}
-
-impl<CP, C, S, Ad, NP, D, P> Committable<CP, C> for Message<S, Ad, NP, D, P>
-    where   CP: Datable,
-            C: Datable + ConstantSize,
-            S: Datable,
-            Ad: Ord + Datable + VariableSize,
-            NP: Datable,
-            D: Ord + Datable + ConstantSize,
-            P: Datable
-{}
-
-impl<AP, T, S, Ad, NP, D, P> Authenticatable<AP, T> for Message<S, Ad, NP, D, P>
-    where   AP: Datable,
-            T: Datable + ConstantSize,
-            S: Datable,
-            Ad: Ord + Datable + VariableSize,
-            NP: Datable,
-            D: Ord + Datable + ConstantSize,
-            P: Datable
-{}
 
 impl<S, Ad, NP, D, P> Sizable for Message<S, Ad, NP, D, P>
     where   S: Datable,

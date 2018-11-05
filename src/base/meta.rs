@@ -7,8 +7,8 @@ use base::Sizable;
 use base::Checkable;
 use base::Datable;
 use base::Serializable;
-use utils::Version;
-use utils::Timestamp;
+use util::Version;
+use util::Timestamp;
 use base::Stage;
 
 /// Type used to convey the distributed ledger models metadata.

@@ -7,7 +7,7 @@ use base::Checkable;
 use base::Serializable;
 use base::Sizable;
 use base::Datable;
-use utils::Timestamp;
+use util::Timestamp;
 use io::Permission;
 
 /// A type representing an I/O session.

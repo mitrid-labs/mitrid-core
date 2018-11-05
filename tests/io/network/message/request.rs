@@ -6,14 +6,14 @@ use mitrid_core::io::network::Method;
 use mitrid_core::io::network::Resource;
 use mitrid_core::io::Storable;
 
-use fixtures::base::Payload;
-use fixtures::crypto::Digest;
-use fixtures::io::Session;
-use fixtures::io::Address;
-use fixtures::io::Node;
-use fixtures::io::network::{Message, message_digest_cb};
-use fixtures::io::network::Request;
-use fixtures::io::store::*;
+use fixture::base::Payload;
+use fixture::crypto::{Digest, Hasher};
+use fixture::io::Session;
+use fixture::io::Address;
+use fixture::io::Node;
+use fixture::io::Message;
+use fixture::io::Request;
+use fixture::io::store::*;
 
 #[test]
 fn test_request_new() {
@@ -22,6 +22,8 @@ fn test_request_new() {
     let payload = Payload::new("payload");
     
     let node = Node::new(&valid_meta, &address, &payload).unwrap();
+
+    let mut hasher = Hasher{};
 
     let mut message = Message::new()
                         .meta(&valid_meta)
@@ -38,7 +40,7 @@ fn test_request_new() {
                         .unwrap()
                         .payload(&Payload::default())
                         .unwrap()
-                        .finalize(&(), &message_digest_cb)
+                        .finalize(&mut hasher)
                         .unwrap();
 
     let res = Request::new(&message);
@@ -62,6 +64,8 @@ fn test_request_size() {
     let resource = Resource::default();
     let payload = Payload::default();
 
+    let mut hasher = Hasher{};
+
     let message = Message::new()
                     .meta(&meta)
                     .unwrap()
@@ -77,7 +81,7 @@ fn test_request_size() {
                     .unwrap()
                     .payload(&payload)
                     .unwrap()
-                    .finalize(&(), &message_digest_cb)
+                    .finalize(&mut hasher)
                     .unwrap();
 
     let request = Request::new(&message).unwrap();
@@ -100,6 +104,8 @@ fn test_request_check() {
     let resource = Resource::default();
     let payload = Payload::default();
 
+    let mut hasher = Hasher{};
+
     let message = Message::new()
                     .meta(&meta)
                     .unwrap()
@@ -115,7 +121,7 @@ fn test_request_check() {
                     .unwrap()
                     .payload(&payload)
                     .unwrap()
-                    .finalize(&(), &message_digest_cb)
+                    .finalize(&mut hasher)
                     .unwrap();
 
     let mut request = Request::new(&message).unwrap();
@@ -192,6 +198,8 @@ fn test_request_store() {
     let resource = Resource::default();
     let payload = Payload::default();
 
+    let mut hasher = Hasher{};
+
     let message = Message::new()
                     .meta(&meta)
                     .unwrap()
@@ -207,7 +215,7 @@ fn test_request_store() {
                     .unwrap()
                     .payload(&payload)
                     .unwrap()
-                    .finalize(&(), &message_digest_cb)
+                    .finalize(&mut hasher)
                     .unwrap();
 
     let request = Request::new(&message).unwrap();
@@ -248,13 +256,13 @@ fn test_request_store() {
     let mut from = Some(request.message.id.clone());
     let mut to = Some(request.message.id.clone());
 
-    let res = Request::store_count(&mut store, &from, &to);
+    let res = Request::store_count(&mut store, from.clone(), to.clone());
     assert!(res.is_err());
 
     from = None;
     to = None;
 
-    let res = Request::store_count(&mut store, &from, &to);
+    let res = Request::store_count(&mut store, from.clone(), to.clone());
     assert!(res.is_ok());
 
     let count = res.unwrap();
@@ -262,7 +270,7 @@ fn test_request_store() {
 
     from = Some(request.message.id.clone());
 
-    let res = Request::store_count(&mut store, &from, &to);
+    let res = Request::store_count(&mut store, from.clone(), to.clone());
     assert!(res.is_ok());
 
     let count = res.unwrap();
@@ -271,7 +279,7 @@ fn test_request_store() {
     from = None;
     to = Some(request.message.id.clone());
 
-    let res = Request::store_count(&mut store, &from, &to);
+    let res = Request::store_count(&mut store, from.clone(), to.clone());
     assert!(res.is_ok());
 
     let count = res.unwrap();
@@ -281,19 +289,19 @@ fn test_request_store() {
     let mut to = Some(request.message.id.clone());
     let mut count = None;
 
-    let res = Request::store_list(&mut store, &from, &to, &count);
+    let res = Request::store_list(&mut store, from.clone(), to.clone(), count.clone());
     assert!(res.is_err());
 
     count = Some(0);
 
-    let res = Request::store_list(&mut store, &from, &to, &count);
+    let res = Request::store_list(&mut store, from.clone(), to.clone(), count.clone());
     assert!(res.is_err());
 
     from = None;
     to = None;
     count = None;
 
-    let res = Request::store_list(&mut store, &from, &to, &count);
+    let res = Request::store_list(&mut store, from.clone(), to.clone(), count.clone());
     assert!(res.is_ok());
 
     let list = res.unwrap();
@@ -301,7 +309,7 @@ fn test_request_store() {
 
     from = Some(request.message.id.clone());
 
-    let res = Request::store_list(&mut store, &from, &to, &count);
+    let res = Request::store_list(&mut store, from.clone(), to.clone(), count.clone());
     assert!(res.is_ok());
 
     let list = res.unwrap();
@@ -310,7 +318,7 @@ fn test_request_store() {
     from = None;
     to = Some(request.message.id.clone());
 
-    let res = Request::store_list(&mut store, &from, &to, &count);
+    let res = Request::store_list(&mut store, from.clone(), to.clone(), count.clone());
     assert!(res.is_ok());
 
     let list = res.unwrap();
@@ -332,7 +340,7 @@ fn test_request_store() {
     from = None;
     to = None;
 
-    let res = Request::store_count(&mut store, &to, &from);
+    let res = Request::store_count(&mut store, to.clone(), from.clone());
     assert!(res.is_ok());
 
     let count = res.unwrap();
@@ -340,7 +348,7 @@ fn test_request_store() {
 
     let count = None;
 
-    let res = Request::store_list(&mut store, &to, &from, &count);
+    let res = Request::store_list(&mut store, to.clone(), from.clone(), count.clone());
     assert!(res.is_ok());
 
     let list = res.unwrap();
@@ -349,7 +357,7 @@ fn test_request_store() {
     let res = request.store_upsert(&mut store);
     assert!(res.is_ok());
 
-    let res = Request::store_count(&mut store, &to, &from);
+    let res = Request::store_count(&mut store, to.clone(), from.clone());
     assert!(res.is_ok());
 
     let count = res.unwrap();
@@ -357,7 +365,7 @@ fn test_request_store() {
 
     let count = None;
 
-    let res = Request::store_list(&mut store, &to, &from, &count);
+    let res = Request::store_list(&mut store, to, from, count);
     assert!(res.is_ok());
 
     let list = res.unwrap();

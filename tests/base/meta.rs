@@ -1,4 +1,4 @@
-use mitrid_core::utils::Version;
+use mitrid_core::util::Version;
 use mitrid_core::base::Stage;
 use mitrid_core::base::Meta;
 use mitrid_core::base::Checkable;

@@ -1,7 +1,7 @@
 use std::net::{SocketAddr, IpAddr, Ipv4Addr, Ipv6Addr};
 use std::str::FromStr;
 
-use fixtures::io::{Address, address::DEFAULT_SOCKET};
+use fixture::io::{Address, address::DEFAULT_SOCKET};
 
 #[test]
 fn test_address_string() {

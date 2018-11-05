@@ -7,8 +7,8 @@ extern crate sodiumoxide;
 extern crate tempfile;
 
 mod base;
-mod utils;
-mod fixtures;
-mod models;
+mod util;
+mod fixture;
 mod io;
+mod model;
 mod app;

@@ -35,8 +35,10 @@ pub enum Method {
     Upsert,
     /// Delete a resource.
     Delete,
-    /// Custom action.
-    Custom,
+    /// Eval operation.
+    Eval,
+    /// Mutable eval operation.
+    EvalMut,
 }
 
 impl Method {
@@ -53,23 +55,24 @@ impl Method {
             "update" => Ok(Method::Update),
             "upsert" => Ok(Method::Upsert),
             "delete" => Ok(Method::Delete),
-            "custom" => Ok(Method::Custom),
+            "eval" => Ok(Method::Eval),
+            "evalmut" => Ok(Method::EvalMut),
             _ => Err("unknown method".into())
         }
     }
 
     /// Checks a `Permission` against the `Method`.
     pub fn check_permission(&self, permission: &Permission) -> Result<()> {
-        if self == &Method::Session || self == &Method::Custom {
+        if self == &Method::Session {
             return Ok(());
         }
 
         if permission >= &Permission::Write {
-            if self < &Method::Create {
+            if self < &Method::Create || self == &Method::Eval {
                 return Err(String::from("invalid permission"));
             }
-        } else if permission == &Permission::Read {
-            if self == &Method::Ping || self >= &Method::Create {
+        } else if permission > &Permission::None && permission < &Permission::Write {
+            if self == &Method::Ping || (self >= &Method::Create && self != &Method::Eval) {
                 return Err(String::from("invalid permission"));
             }
         } else if permission == &Permission::None {
@@ -95,7 +98,8 @@ impl fmt::Display for Method {
             Method::Update => write!(f, "update"),
             Method::Upsert => write!(f, "upsert"),
             Method::Delete => write!(f, "delete"),
-            Method::Custom => write!(f, "custom"),
+            Method::Eval => write!(f, "eval"),
+            Method::EvalMut => write!(f, "evalmut"),
         }
     }
 }

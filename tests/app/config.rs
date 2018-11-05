@@ -2,15 +2,15 @@ use tempfile::tempdir;
 use mitrid_core::base::Sizable;
 use mitrid_core::base::Checkable;
 use mitrid_core::base::Serializable;
-use mitrid_core::utils::Version;
+use mitrid_core::util::Version;
 use mitrid_core::base::Stage;
 use mitrid_core::app::Config as BasicConfig;
 
 use std::fs::{self, File};
 
-use fixtures::crypto::Digest;
-use fixtures::io::network::Address;
-use fixtures::app::Config;
+use fixture::crypto::Digest;
+use fixture::io::network::Address;
+use fixture::app::Config;
 
 #[test]
 fn test_config_new() {

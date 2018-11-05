@@ -2,7 +2,7 @@ use mitrid_core::app::Env as BasicEnv;
 
 use std::env as std_env;
 
-use fixtures::app::Env;
+use fixture::app::Env;
 
 #[test]
 fn test_env_vars() {

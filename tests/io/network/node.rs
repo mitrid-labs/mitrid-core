@@ -4,10 +4,10 @@ use mitrid_core::base::Sizable;
 use mitrid_core::base::Serializable;
 use mitrid_core::io::Storable;
 
-use fixtures::base::Payload;
-use fixtures::io::Address;
-use fixtures::io::Node;
-use fixtures::io::store::*;
+use fixture::base::Payload;
+use fixture::io::Address;
+use fixture::io::Node;
+use fixture::io::store::*;
 
 #[test]
 fn test_node_new() {
@@ -149,13 +149,13 @@ fn test_node_store() {
     let mut from = Some(node.address.clone());
     let mut to = Some(node.address.clone());
 
-    let res = Node::store_count(&mut store, &from, &to);
+    let res = Node::store_count(&mut store, from.clone(), to.clone());
     assert!(res.is_err());
 
     from = None;
     to = None;
 
-    let res = Node::store_count(&mut store, &from, &to);
+    let res = Node::store_count(&mut store, from.clone(), to.clone());
     assert!(res.is_ok());
 
     let count = res.unwrap();
@@ -163,7 +163,7 @@ fn test_node_store() {
 
     from = Some(node.address.clone());
 
-    let res = Node::store_count(&mut store, &from, &to);
+    let res = Node::store_count(&mut store, from.clone(), to.clone());
     assert!(res.is_ok());
 
     let count = res.unwrap();
@@ -172,7 +172,7 @@ fn test_node_store() {
     from = None;
     to = Some(node.address.clone());
 
-    let res = Node::store_count(&mut store, &from, &to);
+    let res = Node::store_count(&mut store, from.clone(), to.clone());
     assert!(res.is_ok());
 
     let count = res.unwrap();
@@ -182,19 +182,19 @@ fn test_node_store() {
     let mut to = Some(node.address.clone());
     let mut count = None;
 
-    let res = Node::store_list(&mut store, &from, &to, &count);
+    let res = Node::store_list(&mut store, from.clone(), to.clone(), count);
     assert!(res.is_err());
 
     count = Some(0);
 
-    let res = Node::store_list(&mut store, &from, &to, &count);
+    let res = Node::store_list(&mut store, from.clone(), to.clone(), count);
     assert!(res.is_err());
 
     from = None;
     to = None;
     count = None;
 
-    let res = Node::store_list(&mut store, &from, &to, &count);
+    let res = Node::store_list(&mut store, from.clone(), to.clone(), count);
     assert!(res.is_ok());
 
     let list = res.unwrap();
@@ -202,7 +202,7 @@ fn test_node_store() {
 
     from = Some(node.address.clone());
 
-    let res = Node::store_list(&mut store, &from, &to, &count);
+    let res = Node::store_list(&mut store, from.clone(), to.clone(), count);
     assert!(res.is_ok());
 
     let list = res.unwrap();
@@ -211,7 +211,7 @@ fn test_node_store() {
     from = None;
     to = Some(node.address.clone());
 
-    let res = Node::store_list(&mut store, &from, &to, &count);
+    let res = Node::store_list(&mut store, from.clone(), to.clone(), count);
     assert!(res.is_ok());
 
     let list = res.unwrap();
@@ -255,7 +255,7 @@ fn test_node_store() {
     from = None;
     to = None;
 
-    let res = Node::store_count(&mut store, &to, &from);
+    let res = Node::store_count(&mut store, to.clone(), from.clone());
     assert!(res.is_ok());
 
     let count = res.unwrap();
@@ -263,7 +263,7 @@ fn test_node_store() {
 
     let count = None;
 
-    let res = Node::store_list(&mut store, &to, &from, &count);
+    let res = Node::store_list(&mut store, to.clone(), from.clone(), count);
     assert!(res.is_ok());
 
     let list = res.unwrap();
@@ -272,7 +272,7 @@ fn test_node_store() {
     let res = node.store_upsert(&mut store);
     assert!(res.is_ok());
 
-    let res = Node::store_count(&mut store, &to, &from);
+    let res = Node::store_count(&mut store, to.clone(), from.clone());
     assert!(res.is_ok());
 
     let count = res.unwrap();
@@ -280,7 +280,7 @@ fn test_node_store() {
 
     let count = None;
 
-    let res = Node::store_list(&mut store, &to, &from, &count);
+    let res = Node::store_list(&mut store, to, from, count);
     assert!(res.is_ok());
 
     let list = res.unwrap();

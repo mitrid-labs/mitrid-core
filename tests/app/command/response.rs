@@ -3,9 +3,9 @@ use mitrid_core::base::Checkable;
 use mitrid_core::base::Serializable;
 use mitrid_core::base::Meta;
 
-use fixtures::base::Payload;
-use fixtures::app::command::Address;
-use fixtures::app::command::Response;
+use fixture::base::Payload;
+use fixture::app::command::Address;
+use fixture::app::command::Response;
 
 #[test]
 fn test_response_new() {
@@ -14,12 +14,12 @@ fn test_response_new() {
     let result = Some(Payload::default());
     let mut error = None;
 
-    let res = Response::new(&address, &meta, &result, &error);
+    let res = Response::new(&address, &meta, result.clone(), error);
     assert!(res.is_ok());
 
     error = Some(format!("an error"));
 
-    let res = Response::new(&address, &meta, &result, &error);
+    let res = Response::new(&address, &meta, result, error);
     assert!(res.is_err());
 }
 
@@ -30,7 +30,7 @@ fn test_response_size() {
     let result = Some(Payload::default());
     let error = None;
 
-    let response = Response::new(&address, &meta, &result, &error).unwrap();
+    let response = Response::new(&address, &meta, result, error).unwrap();
 
     let meta_size = response.meta.get_size();
     let response_size = response.size();
@@ -45,7 +45,7 @@ fn test_response_check() {
     let result = Some(Payload::default());
     let error = None;
 
-    let mut response = Response::new(&address, &meta, &result, &error).unwrap();
+    let mut response = Response::new(&address, &meta, result, error).unwrap();
 
     let res = response.check();
     assert!(res.is_ok());

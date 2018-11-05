@@ -30,7 +30,7 @@ impl<A, R> Response<A, R>
             R: Datable
 {
     /// Creates a new none `Response`.
-    pub fn new(address: &A, meta: &Meta, result: &Option<R>, error: &Option<String>) -> Result<Self> {
+    pub fn new(address: &A, meta: &Meta, result: Option<R>, error: Option<String>) -> Result<Self> {
         address.check()?;
         meta.check()?;
         result.check()?;

@@ -7,6 +7,7 @@ use base::size::{ConstantSize, VariableSize};
 use base::Checkable;
 use base::Serializable;
 use base::Datable;
+use base::{Eval, EvalMut};
 use io::store::Store;
 use io::network::message::Method;
 use io::network::message::Request;
@@ -14,60 +15,52 @@ use io::network::message::Response;
 use io::network::server::Handler;
 
 /// Trait implemented by the server router.
-pub trait Router<St, StS, StK, StV, StP, StPC, StRC, S, Ad, NP, D, MP>
-    where   St: Store<StS, StPC, StRC>,
+pub trait Router<St, StS, S, Ad, NP, D, MP, H>
+    where   St: Store<StS>,
             StS: Datable + Serializable,
-            StK: Ord + Datable + Serializable,
-            StV: Datable + Serializable,
-            StPC: Datable + Serializable,
-            StRC: Datable + Serializable,
-            StS: Datable + Serializable,
-            StK: Ord + Datable + Serializable,
-            StV: Datable + Serializable,
             S: Datable,
             Ad: Ord + Datable + VariableSize,
             NP: Datable,
             D: Ord + Datable + ConstantSize,
             MP: Datable,
-            Self: 'static + Clone + Send + Sync
+            H: Handler<St, StS, S, Ad, NP, D, MP>,
+            Self: 'static + Sized + Clone + Send + Sync
 {
     /// Returns the middleware callbacks applied sequentially by the router. Each callback takes as parameters
     /// the results of the preceding one.
-    fn middlewares<P: Datable>(&self, params: &P)
-        -> Result<Vec<Box<Fn(&P, &Request<S, Ad, NP, D, MP>)
-                        -> Result<(P, Request<S, Ad, NP, D, MP>)>>>> 
+    fn middlewares(&mut self)
+        -> Result<Vec<Box<FnMut(&mut Self, &Request<S, Ad, NP, D, MP>)
+                        -> Result<(Request<S, Ad, NP, D, MP>)>>>> 
     {
-            params.check()?;
-
             Ok(vec![])
     }
 
     /// Routes an incoming request to the right handler.
-    fn route<H, P>(&self,
-                   store: &mut St,
-                   handler: &H,
-                   params: &P,
-                   request: &Request<S, Ad, NP, D, MP>)
+    fn route<Ev, EvM>(&mut self,
+                     store: &mut St,
+                     handler: &mut H,
+                     request: &Request<S, Ad, NP, D, MP>,
+                     evaluator: &Ev,
+                     evaluator_mut: &mut EvM)
         -> Result<Response<S, Ad, NP, D, MP>>
-        where   H: Handler<St, StS, StK, StV, StP, StPC, StRC, S, Ad, NP, D, MP>,
-                P: Datable
+        where   Ev: Eval<St, Request<S, Ad, NP, D, MP>, Response<S, Ad, NP, D, MP>>,
+                EvM: EvalMut<St, Request<S, Ad, NP, D, MP>, Response<S, Ad, NP, D, MP>>
     {
-        params.check()?;
         request.check()?;
 
-        let mut middle_res = (params.to_owned(), request.to_owned());
+        let mut request = request.to_owned();
 
-        for cb in self.middlewares(&middle_res.0)? {
-            middle_res = cb(&middle_res.0, &middle_res.1)?;
+        for mut cb in self.middlewares()? {
+            request = cb(self, &mut request)?;
         }
 
-        for cb in handler.middlewares(store, &middle_res.0)? {
-            middle_res = cb(store, &middle_res.0, &middle_res.1)?;
+        for mut cb in handler.middlewares(store)? {
+            request = cb(handler, store, &mut request)?;
         }
 
         match request.message.method {
             Method::Ping => {
-                let response = handler.handle_ping(store, &middle_res.0, &middle_res.1)?;
+                let response = handler.handle_ping(store, &mut request)?;
 
                 response.check()?;
 
@@ -78,7 +71,7 @@ pub trait Router<St, StS, StK, StV, StP, StPC, StRC, S, Ad, NP, D, MP>
                 Ok(response)
             },
             Method::Session => {
-                let response = handler.handle_session(store, &middle_res.0, &middle_res.1)?;
+                let response = handler.handle_session(store, &mut request)?;
 
                 response.check()?;
 
@@ -89,7 +82,7 @@ pub trait Router<St, StS, StK, StV, StP, StPC, StRC, S, Ad, NP, D, MP>
                 Ok(response)
             },
             Method::Count => {
-                let response = handler.handle_count(store, &middle_res.0, &middle_res.1)?;
+                let response = handler.handle_count(store, &mut request)?;
 
                 response.check()?;
 
@@ -100,7 +93,7 @@ pub trait Router<St, StS, StK, StV, StP, StPC, StRC, S, Ad, NP, D, MP>
                 Ok(response)
             },
             Method::List => {
-                let response = handler.handle_list(store, &middle_res.0, &middle_res.1)?;
+                let response = handler.handle_list(store, &mut request)?;
 
                 response.check()?;
 
@@ -111,7 +104,7 @@ pub trait Router<St, StS, StK, StV, StP, StPC, StRC, S, Ad, NP, D, MP>
                 Ok(response)
             },
             Method::Lookup => {
-                let response = handler.handle_lookup(store, &middle_res.0, &middle_res.1)?;
+                let response = handler.handle_lookup(store, &mut request)?;
 
                 response.check()?;
 
@@ -122,7 +115,7 @@ pub trait Router<St, StS, StK, StV, StP, StPC, StRC, S, Ad, NP, D, MP>
                 Ok(response)
             },
             Method::Get => {
-                let response = handler.handle_get(store, &middle_res.0, &middle_res.1)?;
+                let response = handler.handle_get(store, &mut request)?;
 
                 response.check()?;
 
@@ -133,7 +126,7 @@ pub trait Router<St, StS, StK, StV, StP, StPC, StRC, S, Ad, NP, D, MP>
                 Ok(response)
             },
             Method::Create => {
-                let response = handler.handle_create(store, &middle_res.0, &middle_res.1)?;
+                let response = handler.handle_create(store, &mut request)?;
 
                 response.check()?;
 
@@ -144,7 +137,7 @@ pub trait Router<St, StS, StK, StV, StP, StPC, StRC, S, Ad, NP, D, MP>
                 Ok(response)
             },
             Method::Update => {
-                let response = handler.handle_update(store, &middle_res.0, &middle_res.1)?;
+                let response = handler.handle_update(store, &mut request)?;
 
                 response.check()?;
 
@@ -155,7 +148,7 @@ pub trait Router<St, StS, StK, StV, StP, StPC, StRC, S, Ad, NP, D, MP>
                 Ok(response)
             },
             Method::Upsert => {
-                let response = handler.handle_upsert(store, &middle_res.0, &middle_res.1)?;
+                let response = handler.handle_upsert(store, &mut request)?;
 
                 response.check()?;
 
@@ -166,7 +159,7 @@ pub trait Router<St, StS, StK, StV, StP, StPC, StRC, S, Ad, NP, D, MP>
                 Ok(response)
             },
             Method::Delete => {
-                let response = handler.handle_delete(store, &middle_res.0, &middle_res.1)?;
+                let response = handler.handle_delete(store, &mut request)?;
 
                 response.check()?;
 
@@ -176,17 +169,28 @@ pub trait Router<St, StS, StK, StV, StP, StPC, StRC, S, Ad, NP, D, MP>
 
                 Ok(response)
             },
-            Method::Custom => {
-                let response = handler.handle_custom(store, &middle_res.0, &middle_res.1)?;
+            Method::Eval => {
+                let response = handler.handle_eval(store, &mut request, evaluator)?;
 
                 response.check()?;
 
-                if response.message.method != Method::Custom {
+                if response.message.method != Method::Eval {
                     return Err(String::from("invalid method"));
                 }
 
                 Ok(response)
             },
+            Method::EvalMut => {
+                let response = handler.handle_eval_mut(store, &mut request, evaluator_mut)?;
+
+                response.check()?;
+
+                if response.message.method != Method::EvalMut {
+                    return Err(String::from("invalid method"));
+                }
+
+                Ok(response)
+            }
         }
     }
 }

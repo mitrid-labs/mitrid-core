@@ -3,7 +3,7 @@ use mitrid_core::base::Checkable;
 use mitrid_core::io::store::Store as BasicStore;
 use mitrid_core::io::Permission;
 
-use fixtures::io::store::*;
+use fixture::io::store::*;
 
 #[test]
 fn test_store_size() {
@@ -90,13 +90,13 @@ fn test_store_count() {
     let mut from = None;
     let mut to = None;
 
-    let res = store.count(&write_session, &from, &to);
+    let res = store.count(&write_session, from.clone(), to.clone());
     assert!(res.is_err());
 
     let read_permission = Permission::Read;
     let read_session = store.session(&read_permission).unwrap();
 
-    let res = store.count(&read_session, &from, &to);
+    let res = store.count(&read_session, from.clone(), to.clone());
     assert!(res.is_ok());
 
     let count = res.unwrap();
@@ -104,7 +104,7 @@ fn test_store_count() {
 
     from = Some(key.clone());
 
-    let res = store.count(&read_session, &from, &to);
+    let res = store.count(&read_session, from.clone(), to.clone());
     assert!(res.is_ok());
 
     let count = res.unwrap();
@@ -112,7 +112,7 @@ fn test_store_count() {
 
     to = Some(key.clone());
 
-    let res = store.count(&read_session, &from, &to);
+    let res = store.count(&read_session, from, to);
     assert!(res.is_err());
 }
 
@@ -132,13 +132,13 @@ fn test_store_list() {
     let mut to = None;
     let mut count = None;
 
-    let res = store.list(&write_session, &from, &to, &count);
+    let res = store.list(&write_session, from.clone(), to.clone(), count);
     assert!(res.is_err());
 
     let read_permission = Permission::Read;
     let read_session = store.session(&read_permission).unwrap();
 
-    let res = store.list(&read_session, &from, &to, &count);
+    let res = store.list(&read_session, from.clone(), to.clone(), count);
     assert!(res.is_ok());
 
     let values = vec![value];
@@ -148,7 +148,7 @@ fn test_store_list() {
 
     from = Some(key.clone());
 
-    let res = store.list(&read_session, &from, &to, &count);
+    let res = store.list(&read_session, from.clone(), to.clone(), count);
     assert!(res.is_ok());
 
     let list = res.unwrap();
@@ -156,14 +156,14 @@ fn test_store_list() {
 
     to = Some(key.clone());
 
-    let res = store.list(&read_session, &from, &to, &count);
+    let res = store.list(&read_session, from.clone(), to.clone(), count);
     assert!(res.is_err());
 
     from = None;
     to = None;
     count = Some(1);
 
-    let res = store.list(&read_session, &from, &to, &count);
+    let res = store.list(&read_session, from.clone(), to.clone(), count);
     println!("{:?}", &res);
     assert!(res.is_ok());
 
@@ -172,7 +172,7 @@ fn test_store_list() {
 
     count = Some(0);
 
-    let res = store.list(&read_session, &from, &to, &count);
+    let res = store.list(&read_session, from, to, count);
     assert!(res.is_err());
 }
 
@@ -357,8 +357,9 @@ fn test_store_delete() {
 }
 
 #[test]
-fn test_custom_size() {
+fn test_eval_size() {
     let mut store = Store::new();
+    let evaluator = StoreEvaluator{};
     let mut size = 0;
 
     let read_permission = Permission::Read;
@@ -369,18 +370,18 @@ fn test_custom_size() {
     let write_session = store.session(&write_permission).unwrap();
     size += write_session.id.size() + write_session.size();
 
-    let params = CustomParams::Size;
+    let params = StoreEvalParams::Size;
 
-    let res = store.custom(&write_session, &params);
+    let res = store.eval(&write_session, &params, &evaluator);
     assert!(res.is_err());
 
-    let res = store.custom(&read_session, &params);
+    let res = store.eval(&read_session, &params, &evaluator);
     assert!(res.is_ok());
 
     let result = res.unwrap();
 
     match result {
-        CustomResult::Size(size_result) => {
+        StoreEvalResult::Size(size_result) => {
             assert_eq!(size_result, size);
         },
         _ => panic!("invalid result"),
@@ -392,13 +393,13 @@ fn test_custom_size() {
     store.create(&write_session, &key, &value).unwrap();
     size += key.size() + value.size();
 
-    let res = store.custom(&read_session, &params);
+    let res = store.eval(&read_session, &params, &evaluator);
     assert!(res.is_ok());
 
     let result = res.unwrap();
 
     match result {
-        CustomResult::Size(size_result) => {
+        StoreEvalResult::Size(size_result) => {
             assert_eq!(size_result, size);
         },
         _ => panic!("invalid result"),
@@ -407,13 +408,13 @@ fn test_custom_size() {
     store.delete(&write_session, &key).unwrap();
     size -= key.size() + value.size();
 
-    let res = store.custom(&read_session, &params);
+    let res = store.eval(&read_session, &params, &evaluator);
     assert!(res.is_ok());
 
     let result = res.unwrap();
 
     match result {
-        CustomResult::Size(size_result) => {
+        StoreEvalResult::Size(size_result) => {
             assert_eq!(size_result, size);
         },
         _ => panic!("invalid result"),
@@ -421,21 +422,23 @@ fn test_custom_size() {
 }
 
 #[test]
-fn test_custom_dump_sessions() {
+fn test_eval_dump_sessions() {
     let mut store = Store::new();
+    let evaluator = StoreEvaluator{};
 
     let permission = Permission::default();
 
     let session_a = store.session(&permission).unwrap();
     let session_b = store.session(&permission).unwrap();
 
-    let params = CustomParams::Dump(DumpParams::Sessions);
-    let res = store.custom(&session_a, &params);
+    let params = StoreEvalParams::Dump(DumpParams::Sessions);
+
+    let res = store.eval(&session_a, &params, &evaluator);
     assert!(res.is_ok());
 
     let result_a = res.unwrap();
 
-    let res = store.custom(&session_b, &params);
+    let res = store.eval(&session_b, &params, &evaluator);
     assert!(res.is_ok());
     
     let result_b = res.unwrap();
@@ -443,7 +446,7 @@ fn test_custom_dump_sessions() {
     assert_eq!(result_a, result_b);
 
     match result_a {
-        CustomResult::DumpSessions(dump) => {
+        StoreEvalResult::DumpSessions(dump) => {
             let res = dump.check();
             assert!(res.is_ok());
 
@@ -464,8 +467,9 @@ fn test_custom_dump_sessions() {
 }
 
 #[test]
-fn test_custom_dump_items() {
+fn test_eval_dump_items() {
     let mut store = Store::new();
+    let evaluator = StoreEvaluator{};
 
     let read_permission = Permission::Read;
     let read_session = store.session(&read_permission).unwrap();
@@ -473,18 +477,18 @@ fn test_custom_dump_items() {
     let write_permission = Permission::Write;
     let write_session = store.session(&write_permission).unwrap();
 
-    let params = CustomParams::Dump(DumpParams::Items);
+    let params = StoreEvalParams::Dump(DumpParams::Items);
 
-    let res = store.custom(&write_session, &params);
+    let res = store.eval(&write_session, &params, &evaluator);
     assert!(res.is_err());
 
-    let res = store.custom(&read_session, &params);
+    let res = store.eval(&read_session, &params, &evaluator);
     assert!(res.is_ok());
 
     let result = res.unwrap();
 
     match result {
-        CustomResult::DumpItems(dump) => {
+        StoreEvalResult::DumpItems(dump) => {
             let res = dump.check();
             assert!(res.is_ok());
 
@@ -498,13 +502,13 @@ fn test_custom_dump_items() {
 
     store.create(&write_session, &key, &value).unwrap();
 
-    let res = store.custom(&read_session, &params);
+    let res = store.eval(&read_session, &params, &evaluator);
     assert!(res.is_ok());
 
     let result = res.unwrap();
 
     match result {
-        CustomResult::DumpItems(dump) => {
+        StoreEvalResult::DumpItems(dump) => {
             let res = dump.check();
             assert!(res.is_ok());
 
@@ -517,13 +521,13 @@ fn test_custom_dump_items() {
 
     store.delete(&write_session, &key).unwrap();
 
-    let res = store.custom(&read_session, &params);
+    let res = store.eval(&read_session, &params, &evaluator);
     assert!(res.is_ok());
 
     let result = res.unwrap();
 
     match result {
-        CustomResult::DumpItems(dump) => {
+        StoreEvalResult::DumpItems(dump) => {
             let res = dump.check();
             assert!(res.is_ok());
 
@@ -534,8 +538,9 @@ fn test_custom_dump_items() {
 }
 
 #[test]
-fn test_custom_dump_all() {
+fn test_eval_dump_all() {
     let mut store = Store::new();
+    let evaluator = StoreEvaluator{};
 
     let read_permission = Permission::Read;
     let read_session = store.session(&read_permission).unwrap();
@@ -543,18 +548,18 @@ fn test_custom_dump_all() {
     let write_permission = Permission::Write;
     let write_session = store.session(&write_permission).unwrap();
 
-    let params = CustomParams::Dump(DumpParams::All);
+    let params = StoreEvalParams::Dump(DumpParams::All);
 
-    let res = store.custom(&write_session, &params);
+    let res = store.eval(&write_session, &params, &evaluator);
     assert!(res.is_err());
 
-    let res = store.custom(&read_session, &params);
+    let res = store.eval(&read_session, &params, &evaluator);
     assert!(res.is_ok());
 
     let result = res.unwrap();
 
     match result {
-        CustomResult::DumpAll(dump) => {
+        StoreEvalResult::DumpAll(dump) => {
             let res = dump.check();
             assert!(res.is_ok());
 
@@ -580,13 +585,13 @@ fn test_custom_dump_all() {
 
     store.create(&write_session, &key, &value).unwrap();
 
-    let res = store.custom(&read_session, &params);
+    let res = store.eval(&read_session, &params, &evaluator);
     assert!(res.is_ok());
 
     let result = res.unwrap();
 
     match result {
-        CustomResult::DumpAll(dump) => {
+        StoreEvalResult::DumpAll(dump) => {
             let res = dump.check();
             assert!(res.is_ok());
 
@@ -611,13 +616,13 @@ fn test_custom_dump_all() {
 
     store.delete(&write_session, &key).unwrap();
 
-    let res = store.custom(&read_session, &params);
+    let res = store.eval(&read_session, &params, &evaluator);
     assert!(res.is_ok());
 
     let result = res.unwrap();
 
     match result {
-        CustomResult::DumpAll(dump) => {
+        StoreEvalResult::DumpAll(dump) => {
             let res = dump.check();
             assert!(res.is_ok());
 
@@ -636,5 +641,38 @@ fn test_custom_dump_all() {
             assert_eq!(dump.items_count, 0);
         },
         _ => panic!("invalid result"),
+    }
+}
+
+#[test]
+fn test_eval_mut_clear() {
+    let mut store = Store::new();
+    let mut evaluator = StoreEvaluator{};
+
+    let read_permission = Permission::Read;
+    let read_session = store.session(&read_permission).unwrap();
+
+    let write_permission = Permission::Write;
+    let write_session = store.session(&write_permission).unwrap();
+
+    let key = Vec::default();
+    let value = Vec::default();
+
+    store.create(&write_session, &key, &value).unwrap();
+
+    let params = StoreEvalMutParams::Clear;
+
+    let res = store.eval_mut(&read_session, &params, &mut evaluator);
+    assert!(res.is_err());
+
+    let res = store.eval_mut(&write_session, &params, &mut evaluator);
+    assert!(res.is_ok());
+
+    let result = res.unwrap();
+
+    match result {
+        StoreEvalMutResult::Cleared => {
+            assert_eq!(store.size(), 0)
+        },
     }
 }

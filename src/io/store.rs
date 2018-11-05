@@ -9,28 +9,27 @@ use base::Result;
 use base::Checkable;
 use base::Datable;
 use base::Serializable;
+use base::{Eval, EvalMut};
 use io::Permission;
 use io::Session;
 
 /// Trait representing the operations implemented by a store.
-pub trait Store<S, PC, RC>
+pub trait Store<S>
     where   S: Datable + Serializable,
-            PC: Datable + Serializable,
-            RC: Datable + Serializable,
-            Self: 'static + Send + Sync + Checkable
+            Self: 'static + Sized + Send + Sync + Checkable
 {
     /// Retrieves a new `Session` from the store.
     fn session(&mut self, permission: &Permission) -> Result<Session<S>>;
     
     /// Counts the store items starting from the `from` key until, not included, the `to` key.
-    fn count(&mut self, session: &Session<S>, from: &Option<Vec<u8>>, to: &Option<Vec<u8>>) -> Result<u64>;
+    fn count(&mut self, session: &Session<S>, from: Option<Vec<u8>>, to: Option<Vec<u8>>) -> Result<u64>;
     
     /// Lists the store items starting from the `from` key until, not included, the `to` key.
     fn list(&mut self,
             session: &Session<S>,
-            from: &Option<Vec<u8>>,
-            to: &Option<Vec<u8>>,
-            count: &Option<u64>)
+            from: Option<Vec<u8>>,
+            to: Option<Vec<u8>>,
+            count: Option<u64>)
         -> Result<Vec<Vec<u8>>>;
     
     /// Lookups an item from its key.
@@ -51,18 +50,53 @@ pub trait Store<S, PC, RC>
     /// Deletes an item from the store. The item should already exist in the store before the operation.
     fn delete(&mut self, session: &Session<S>, key: &[u8]) -> Result<()>;
     
-    /// Custom operation in the store.
-    fn custom(&mut self, session: &Session<S>, params: &PC) -> Result<RC>;
+    /// Eval operation in the store.
+    fn eval<E, P, R>(&mut self, session: &Session<S>, params: &P, evaluator: &E) -> Result<R>
+        where   E: Eval<Self, P, R>,
+                P: Datable,
+                R: Datable
+    {
+        session.check()?;
+        params.check()?;
+
+        if session.is_expired()? {
+            return Err(String::from("expired session"));
+        }
+
+        if session.permission > Permission::Read {
+            return Err(String::from("invalid permission")).into();
+        }
+
+        evaluator.eval(self, params)
+    }
+    
+    /// Evals mutably in the store.
+    fn eval_mut<E, P, R>(&mut self, session: &Session<S>, params: &P, evaluator: &mut E) -> Result<R>
+        where   E: EvalMut<Self, P, R>,
+                P: Datable,
+                R: Datable
+    {
+        session.check()?;
+        params.check()?;
+
+        if session.is_expired()? {
+            return Err(String::from("expired session"));
+        }
+
+        if session.permission < Permission::Write {
+            return Err(String::from("invalid permission")).into();
+        }
+
+        evaluator.eval_mut(self, params)
+    }
 }
 
 /// Trait implemented by types that can be stored and retrieved from a store.
-pub trait Storable<St, S, K, V, PC, RC>
-    where   St: Store<S, PC, RC>,
+pub trait Storable<St, S, K, V>
+    where   St: Store<S>,
             S: Datable + Serializable,
             K: Ord + Datable + Serializable,
             V: Datable + Serializable,
-            PC: Datable + Serializable,
-            RC: Datable + Serializable,
             Self: Datable + Serializable
 {
     /// Returns the store prefix of the implementor.
@@ -80,7 +114,7 @@ pub trait Storable<St, S, K, V, PC, RC>
     }
     
     /// Counts the store items starting from the `from` key until, not included, the `to` key.
-    fn store_count(store: &mut St, from: &Option<K>, to: &Option<K>) -> Result<u64> {
+    fn store_count(store: &mut St, from: Option<K>, to: Option<K>) -> Result<u64> {
         let permission = Permission::Read;
 
         let session = store.session(&permission)?;
@@ -88,8 +122,8 @@ pub trait Storable<St, S, K, V, PC, RC>
         from.check()?;
         to.check()?;
 
-        if let Some(from) = from {
-            if let Some(to) = to {
+        if let Some(ref from) = from {
+            if let Some(ref to) = to {
                 if from >= to {
                     return Err(String::from("invalid range"));
                 } 
@@ -120,14 +154,14 @@ pub trait Storable<St, S, K, V, PC, RC>
             None
         };
 
-        store.count(&session, &store_from, &store_to)
+        store.count(&session, store_from, store_to)
     }
     
     /// Lists the store items starting from the `from` key until, not included, the `to` key.
     fn store_list(store: &mut St,
-                  from: &Option<K>,
-                  to: &Option<K>,
-                  count: &Option<u64>)
+                  from: Option<K>,
+                  to: Option<K>,
+                  count: Option<u64>)
         -> Result<Vec<Self>>
     {
         let permission = Permission::Read;
@@ -137,8 +171,8 @@ pub trait Storable<St, S, K, V, PC, RC>
         from.check()?;
         to.check()?;
 
-        if let Some(from) = from {
-            if let Some(to) = to {
+        if let Some(from) = from.clone() {
+            if let Some(to) = to.clone() {
                 if from >= to {
                     return Err(String::from("invalid range"));
                 } 
@@ -146,7 +180,7 @@ pub trait Storable<St, S, K, V, PC, RC>
         }
 
         if let Some(count) = count {
-            if *count == 0 {
+            if count == 0 {
                 return Err(String::from("invalid count"));
             }
         }
@@ -177,7 +211,7 @@ pub trait Storable<St, S, K, V, PC, RC>
 
         let mut list = Vec::new();
 
-        for value in store.list(&session, &store_from, &store_to, count)?.iter() {
+        for value in store.list(&session, store_from, store_to, count)?.iter() {
             list.push(Self::from_store_value(&value)?);
         }
 
@@ -299,8 +333,13 @@ pub trait Storable<St, S, K, V, PC, RC>
         store.delete(&session, &store_key)
     }
 
-    /// Custom operation in the store.
-    fn store_custom(store: &mut St, params: &PC, session: &Session<S>) -> Result<RC> {
+    /// Eval operation in the store.
+    fn store_eval<E, P, R>(store: &mut St, session: &Session<S>, params: &P, evaluator: &E)
+        -> Result<R>
+        where   E: Eval<St, P, R>,
+                P: Datable,
+                R: Datable
+    {
         params.check()?;
         session.check()?;
 
@@ -308,6 +347,31 @@ pub trait Storable<St, S, K, V, PC, RC>
             return Err(String::from("expired session"));
         }
 
-        store.custom(session, params)
+        if session.permission > Permission::Read {
+            return Err(String::from("invalid permission")).into();
+        }
+
+        store.eval(session, params, evaluator)
+    }
+
+    /// Evals mutably in the store.
+    fn store_eval_mut<E, P, R>(store: &mut St, session: &Session<S>, params: &P, evaluator: &mut E)
+        -> Result<R>
+        where   E: EvalMut<St, P, R>,
+                P: Datable,
+                R: Datable
+    {
+        params.check()?;
+        session.check()?;
+
+        if session.is_expired()? {
+            return Err(String::from("expired session"));
+        }
+
+        if session.permission < Permission::Write {
+            return Err(String::from("invalid permission")).into();
+        }
+
+        store.eval_mut(session, params, evaluator)
     }
 }
