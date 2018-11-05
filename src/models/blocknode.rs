@@ -270,13 +270,12 @@ impl<D> Datable for BlockNode<D>
 
 pub const BLOCKNODE_STORE_PREFIX: u64 = 4;
 
-impl<St, S, D, StP, StPC, StRC>
-    Storable<St, S, D, BlockNode<D>, StP, StPC, StRC>
+impl<St, S, D, StPC, StRC>
+    Storable<St, S, D, BlockNode<D>, StPC, StRC>
     for BlockNode<D>
-    where   St: Store<S, StP, StPC, StRC>,
+    where   St: Store<S, StPC, StRC>,
             S: Datable + Serializable,
             D: Ord + Datable + ConstantSize + Serializable,
-            StP: Datable,
             StPC: Datable + Serializable,
             StRC: Datable + Serializable
 {

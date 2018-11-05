@@ -352,16 +352,15 @@ impl<D, Pk, A, P> Evaluable for Output<D, Pk, A, P>
 
 pub const OUTPUT_STORE_PREFIX: u64 = 2;
 
-impl<St, S, D, Pk, A, P, StP, StPC, StRC>
-    Storable<St, S, D, Output<D, Pk, A, P>, StP, StPC, StRC>
+impl<St, S, D, Pk, A, P, StPC, StRC>
+    Storable<St, S, D, Output<D, Pk, A, P>, StPC, StRC>
     for Output<D, Pk, A, P>
-    where   St: Store<S, StP, StPC, StRC>,
+    where   St: Store<S, StPC, StRC>,
             S: Datable + Serializable,
             D: Ord + Datable + ConstantSize + Serializable,
             Pk: Datable + ConstantSize + Serializable,
             A: Numerical + Serializable,
             P: Datable + Serializable,
-            StP: Datable,
             StPC: Datable + Serializable,
             StRC: Datable + Serializable
 {

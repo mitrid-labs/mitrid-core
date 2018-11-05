@@ -112,14 +112,13 @@ impl<A, P> Evaluable for Node<A, P>
 
 pub const NODE_STORE_PREFIX: u64 = 8;
 
-impl<St, S, A, P, StP, StPC, StRC>
-    Storable<St, S, A, Node<A, P>, StP, StPC, StRC>
+impl<St, S, A, P, StPC, StRC>
+    Storable<St, S, A, Node<A, P>, StPC, StRC>
     for Node<A, P>
-    where   St: Store<S, StP, StPC, StRC>,
+    where   St: Store<S, StPC, StRC>,
             S: Datable + Serializable,
             A: Ord + Datable + VariableSize + Serializable,
             P: Datable + Serializable,
-            StP: Datable,
             StPC: Datable + Serializable,
             StRC: Datable + Serializable
 {

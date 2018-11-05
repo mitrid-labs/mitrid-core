@@ -352,14 +352,13 @@ impl<D, P> Evaluable for BlockGraph<D, P>
 
 pub const BLOCKGRAPH_STORE_PREFIX: u64 = 6;
 
-impl<St, S, D, P, StP, StPC, StRC>
-    Storable<St, S, D, BlockGraph<D, P>, StP, StPC, StRC>
+impl<St, S, D, P, StPC, StRC>
+    Storable<St, S, D, BlockGraph<D, P>, StPC, StRC>
     for BlockGraph<D, P>
-    where   St: Store<S, StP, StPC, StRC>,
+    where   St: Store<S, StPC, StRC>,
             S: Datable + Serializable,
             D: Ord + Datable + ConstantSize + Serializable,
             P: Datable + Serializable,
-            StP: Datable,
             StPC: Datable + Serializable,
             StRC: Datable + Serializable
 {

@@ -446,10 +446,10 @@ fn test_input_store() {
                     .unwrap();
 
     let mut store = Store::new();
-    let res = input.store_create(&mut store, &());
+    let res = input.store_create(&mut store);
     assert!(res.is_ok());
 
-    let res = input.store_create(&mut store, &());
+    let res = input.store_create(&mut store);
     assert!(res.is_err());
 
     let mut invalid_version = Version::default();
@@ -461,38 +461,38 @@ fn test_input_store() {
     let mut invalid_input = input.clone();
     invalid_input.meta = invalid_meta;
 
-    let res = invalid_input.store_create(&mut store, &());
+    let res = invalid_input.store_create(&mut store);
     assert!(res.is_err());
 
-    let res = Input::store_lookup(&mut store, &(), &input.id);
+    let res = Input::store_lookup(&mut store, &input.id);
     assert!(res.is_ok());
     assert!(res.unwrap());
 
     let unknown_id = Digest::default();
 
-    let res = Input::store_lookup(&mut store, &(), &unknown_id);
+    let res = Input::store_lookup(&mut store, &unknown_id);
     assert!(res.is_ok());
     assert!(!res.unwrap());
 
-    let res = Input::store_get(&mut store, &(), &input.id);
+    let res = Input::store_get(&mut store, &input.id);
     assert!(res.is_ok());
 
     let found_input = res.unwrap();
     assert_eq!(found_input, input);
 
-    let res = Input::store_get(&mut store, &(), &unknown_id);
+    let res = Input::store_get(&mut store, &unknown_id);
     assert!(res.is_err());
 
     let mut from = Some(input.id.clone());
     let mut to = Some(input.id.clone());
 
-    let res = Input::store_count(&mut store, &(), &from, &to);
+    let res = Input::store_count(&mut store, &from, &to);
     assert!(res.is_err());
 
     from = None;
     to = None;
 
-    let res = Input::store_count(&mut store, &(), &from, &to);
+    let res = Input::store_count(&mut store, &from, &to);
     assert!(res.is_ok());
 
     let count = res.unwrap();
@@ -500,7 +500,7 @@ fn test_input_store() {
 
     from = Some(input.id.clone());
 
-    let res = Input::store_count(&mut store, &(), &from, &to);
+    let res = Input::store_count(&mut store, &from, &to);
     assert!(res.is_ok());
 
     let count = res.unwrap();
@@ -509,7 +509,7 @@ fn test_input_store() {
     from = None;
     to = Some(input.id.clone());
 
-    let res = Input::store_count(&mut store, &(), &from, &to);
+    let res = Input::store_count(&mut store, &from, &to);
     assert!(res.is_ok());
 
     let count = res.unwrap();
@@ -519,19 +519,19 @@ fn test_input_store() {
     let mut to = Some(input.id.clone());
     let mut count = None;
 
-    let res = Input::store_list(&mut store, &(), &from, &to, &count);
+    let res = Input::store_list(&mut store, &from, &to, &count);
     assert!(res.is_err());
 
     count = Some(0);
 
-    let res = Input::store_list(&mut store, &(), &from, &to, &count);
+    let res = Input::store_list(&mut store, &from, &to, &count);
     assert!(res.is_err());
 
     from = None;
     to = None;
     count = None;
 
-    let res = Input::store_list(&mut store, &(), &from, &to, &count);
+    let res = Input::store_list(&mut store, &from, &to, &count);
     assert!(res.is_ok());
 
     let list = res.unwrap();
@@ -539,7 +539,7 @@ fn test_input_store() {
 
     from = Some(input.id.clone());
 
-    let res = Input::store_list(&mut store, &(), &from, &to, &count);
+    let res = Input::store_list(&mut store, &from, &to, &count);
     assert!(res.is_ok());
 
     let list = res.unwrap();
@@ -548,29 +548,29 @@ fn test_input_store() {
     from = None;
     to = Some(input.id.clone());
 
-    let res = Input::store_list(&mut store, &(), &from, &to, &count);
+    let res = Input::store_list(&mut store, &from, &to, &count);
     assert!(res.is_ok());
 
     let list = res.unwrap();
     assert_eq!(list, vec![]);
 
-    let res = input.store_delete(&mut store, &());
+    let res = input.store_delete(&mut store);
     assert!(res.is_ok());
 
-    let res = input.store_delete(&mut store, &());
+    let res = input.store_delete(&mut store);
     assert!(res.is_err());
 
-    let res = Input::store_lookup(&mut store, &(), &coin.id);
+    let res = Input::store_lookup(&mut store, &coin.id);
     assert!(res.is_ok());
     assert!(!res.unwrap());
 
-    let res = Input::store_get(&mut store, &(), &coin.id);
+    let res = Input::store_get(&mut store, &coin.id);
     assert!(res.is_err());
 
     from = None;
     to = None;
 
-    let res = Input::store_count(&mut store, &(), &to, &from);
+    let res = Input::store_count(&mut store, &to, &from);
     assert!(res.is_ok());
 
     let count = res.unwrap();
@@ -578,16 +578,16 @@ fn test_input_store() {
 
     let count = None;
 
-    let res = Input::store_list(&mut store, &(), &to, &from, &count);
+    let res = Input::store_list(&mut store, &to, &from, &count);
     assert!(res.is_ok());
 
     let list = res.unwrap();
     assert_eq!(list, vec![]);
 
-    let res = input.store_upsert(&mut store, &());
+    let res = input.store_upsert(&mut store);
     assert!(res.is_ok());
 
-    let res = Input::store_count(&mut store, &(), &to, &from);
+    let res = Input::store_count(&mut store, &to, &from);
     assert!(res.is_ok());
 
     let count = res.unwrap();
@@ -595,7 +595,7 @@ fn test_input_store() {
 
     let count = None;
 
-    let res = Input::store_list(&mut store, &(), &to, &from, &count);
+    let res = Input::store_list(&mut store, &to, &from, &count);
     assert!(res.is_ok());
 
     let list = res.unwrap();

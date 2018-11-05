@@ -112,10 +112,10 @@ fn test_node_store() {
     let mut node = Node::new(&meta, &address, &payload).unwrap();
 
     let mut store = Store::new();
-    let res = node.store_create(&mut store, &());
+    let res = node.store_create(&mut store);
     assert!(res.is_ok());
 
-    let res = node.store_create(&mut store, &());
+    let res = node.store_create(&mut store);
     assert!(res.is_err());
 
     let invalid_size = 0;
@@ -124,38 +124,38 @@ fn test_node_store() {
 
     invalid_node.meta.set_size(invalid_size);
 
-    let res = invalid_node.store_create(&mut store, &());
+    let res = invalid_node.store_create(&mut store);
     assert!(res.is_err());
 
-    let res = Node::store_lookup(&mut store, &(), &node.address);
+    let res = Node::store_lookup(&mut store, &node.address);
     assert!(res.is_ok());
     assert!(res.unwrap());
 
     let unknown_address = Address::default();
 
-    let res = Node::store_lookup(&mut store, &(), &unknown_address);
+    let res = Node::store_lookup(&mut store, &unknown_address);
     assert!(res.is_ok());
     assert!(!res.unwrap());
 
-    let res = Node::store_get(&mut store, &(), &node.address);
+    let res = Node::store_get(&mut store, &node.address);
     assert!(res.is_ok());
 
     let found_node = res.unwrap();
     assert_eq!(found_node, node);
 
-    let res = Node::store_get(&mut store, &(), &unknown_address);
+    let res = Node::store_get(&mut store, &unknown_address);
     assert!(res.is_err());
 
     let mut from = Some(node.address.clone());
     let mut to = Some(node.address.clone());
 
-    let res = Node::store_count(&mut store, &(), &from, &to);
+    let res = Node::store_count(&mut store, &from, &to);
     assert!(res.is_err());
 
     from = None;
     to = None;
 
-    let res = Node::store_count(&mut store, &(), &from, &to);
+    let res = Node::store_count(&mut store, &from, &to);
     assert!(res.is_ok());
 
     let count = res.unwrap();
@@ -163,7 +163,7 @@ fn test_node_store() {
 
     from = Some(node.address.clone());
 
-    let res = Node::store_count(&mut store, &(), &from, &to);
+    let res = Node::store_count(&mut store, &from, &to);
     assert!(res.is_ok());
 
     let count = res.unwrap();
@@ -172,7 +172,7 @@ fn test_node_store() {
     from = None;
     to = Some(node.address.clone());
 
-    let res = Node::store_count(&mut store, &(), &from, &to);
+    let res = Node::store_count(&mut store, &from, &to);
     assert!(res.is_ok());
 
     let count = res.unwrap();
@@ -182,19 +182,19 @@ fn test_node_store() {
     let mut to = Some(node.address.clone());
     let mut count = None;
 
-    let res = Node::store_list(&mut store, &(), &from, &to, &count);
+    let res = Node::store_list(&mut store, &from, &to, &count);
     assert!(res.is_err());
 
     count = Some(0);
 
-    let res = Node::store_list(&mut store, &(), &from, &to, &count);
+    let res = Node::store_list(&mut store, &from, &to, &count);
     assert!(res.is_err());
 
     from = None;
     to = None;
     count = None;
 
-    let res = Node::store_list(&mut store, &(), &from, &to, &count);
+    let res = Node::store_list(&mut store, &from, &to, &count);
     assert!(res.is_ok());
 
     let list = res.unwrap();
@@ -202,7 +202,7 @@ fn test_node_store() {
 
     from = Some(node.address.clone());
 
-    let res = Node::store_list(&mut store, &(), &from, &to, &count);
+    let res = Node::store_list(&mut store, &from, &to, &count);
     assert!(res.is_ok());
 
     let list = res.unwrap();
@@ -211,7 +211,7 @@ fn test_node_store() {
     from = None;
     to = Some(node.address.clone());
 
-    let res = Node::store_list(&mut store, &(), &from, &to, &count);
+    let res = Node::store_list(&mut store, &from, &to, &count);
     assert!(res.is_ok());
 
     let list = res.unwrap();
@@ -219,43 +219,43 @@ fn test_node_store() {
 
     node.payload = Payload::new("An other one");
     
-    let res = node.store_update(&mut store, &());
+    let res = node.store_update(&mut store);
     assert!(res.is_err());
 
     node.update_size();
     
-    let res = node.store_update(&mut store, &());
+    let res = node.store_update(&mut store);
     assert!(res.is_ok());
 
     node.payload = Payload::new("Again");
     node.update_size();
     
-    let res = node.store_update(&mut store, &());
+    let res = node.store_update(&mut store);
     assert!(res.is_ok());
 
-    let res = Node::store_get(&mut store, &(), &node.address);
+    let res = Node::store_get(&mut store, &node.address);
     assert!(res.is_ok());
 
     let found_node = res.unwrap();
     assert_eq!(found_node, node);
 
-    let res = node.store_delete(&mut store, &());
+    let res = node.store_delete(&mut store);
     assert!(res.is_ok());
 
-    let res = node.store_delete(&mut store, &());
+    let res = node.store_delete(&mut store);
     assert!(res.is_err());
 
-    let res = Node::store_lookup(&mut store, &(), &node.address);
+    let res = Node::store_lookup(&mut store, &node.address);
     assert!(res.is_ok());
     assert!(!res.unwrap());
 
-    let res = Node::store_get(&mut store, &(), &node.address);
+    let res = Node::store_get(&mut store, &node.address);
     assert!(res.is_err());
 
     from = None;
     to = None;
 
-    let res = Node::store_count(&mut store, &(), &to, &from);
+    let res = Node::store_count(&mut store, &to, &from);
     assert!(res.is_ok());
 
     let count = res.unwrap();
@@ -263,16 +263,16 @@ fn test_node_store() {
 
     let count = None;
 
-    let res = Node::store_list(&mut store, &(), &to, &from, &count);
+    let res = Node::store_list(&mut store, &to, &from, &count);
     assert!(res.is_ok());
 
     let list = res.unwrap();
     assert_eq!(list, vec![]);
 
-    let res = node.store_upsert(&mut store, &());
+    let res = node.store_upsert(&mut store);
     assert!(res.is_ok());
 
-    let res = Node::store_count(&mut store, &(), &to, &from);
+    let res = Node::store_count(&mut store, &to, &from);
     assert!(res.is_ok());
 
     let count = res.unwrap();
@@ -280,7 +280,7 @@ fn test_node_store() {
 
     let count = None;
 
-    let res = Node::store_list(&mut store, &(), &to, &from, &count);
+    let res = Node::store_list(&mut store, &to, &from, &count);
     assert!(res.is_ok());
 
     let list = res.unwrap();

@@ -96,17 +96,16 @@ impl<S, Ad, NP, D, P> Datable for Request<S, Ad, NP, D, P>
 
 pub const REQUEST_STORE_PREFIX: u64 = 9;
 
-impl<St, S, MS, Ad, NP, D, P, StP, StPC, StRC>
-    Storable<St, S, D, Request<MS, Ad, NP, D, P>, StP, StPC, StRC>
+impl<St, S, MS, Ad, NP, D, P, StPC, StRC>
+    Storable<St, S, D, Request<MS, Ad, NP, D, P>, StPC, StRC>
     for Request<MS, Ad, NP, D, P>
-    where   St: Store<S, StP, StPC, StRC>,
+    where   St: Store<S, StPC, StRC>,
             S: Datable + Serializable,
             MS: Datable + Serializable,
             Ad: Ord + Datable + VariableSize + Serializable,
             NP: Datable + Serializable,
             D: Ord + Datable + ConstantSize + Serializable,
             P: Datable + Serializable,
-            StP: Datable,
             StPC: Datable + Serializable,
             StRC: Datable + Serializable
 {

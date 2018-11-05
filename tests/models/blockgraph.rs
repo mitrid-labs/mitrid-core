@@ -348,47 +348,47 @@ fn test_blockgraph_store() {
                 .unwrap();
 
     let mut store = Store::new();
-    let res = bg.store_create(&mut store, &());
+    let res = bg.store_create(&mut store);
     assert!(res.is_ok());
 
-    let res = bg.store_create(&mut store, &());
+    let res = bg.store_create(&mut store);
     assert!(res.is_err());
 
     let mut invalid_bg = bg.clone();
     invalid_bg.tip_idx = Some(bg.frontier_len + 1);
 
-    let res = invalid_bg.store_create(&mut store, &());
+    let res = invalid_bg.store_create(&mut store);
     assert!(res.is_err());
 
-    let res = BlockGraph::store_lookup(&mut store, &(), &bg.id);
+    let res = BlockGraph::store_lookup(&mut store, &bg.id);
     assert!(res.is_ok());
     assert!(res.unwrap());
 
     let unknown_id = Digest::default();
 
-    let res = BlockGraph::store_lookup(&mut store, &(), &unknown_id);
+    let res = BlockGraph::store_lookup(&mut store, &unknown_id);
     assert!(res.is_ok());
     assert!(!res.unwrap());
 
-    let res = BlockGraph::store_get(&mut store, &(), &bg.id);
+    let res = BlockGraph::store_get(&mut store, &bg.id);
     assert!(res.is_ok());
 
     let found_bg = res.unwrap();
     assert_eq!(found_bg, bg);
 
-    let res = BlockGraph::store_get(&mut store, &(), &unknown_id);
+    let res = BlockGraph::store_get(&mut store, &unknown_id);
     assert!(res.is_err());
 
     let mut from = Some(bg.id.clone());
     let mut to = Some(bg.id.clone());
 
-    let res = BlockGraph::store_count(&mut store, &(), &from, &to);
+    let res = BlockGraph::store_count(&mut store, &from, &to);
     assert!(res.is_err());
 
     from = None;
     to = None;
 
-    let res = BlockGraph::store_count(&mut store, &(), &from, &to);
+    let res = BlockGraph::store_count(&mut store, &from, &to);
     assert!(res.is_ok());
 
     let count = res.unwrap();
@@ -396,7 +396,7 @@ fn test_blockgraph_store() {
 
     from = Some(bg.id.clone());
 
-    let res = BlockGraph::store_count(&mut store, &(), &from, &to);
+    let res = BlockGraph::store_count(&mut store, &from, &to);
     assert!(res.is_ok());
 
     let count = res.unwrap();
@@ -405,7 +405,7 @@ fn test_blockgraph_store() {
     from = None;
     to = Some(bg.id.clone());
 
-    let res = BlockGraph::store_count(&mut store, &(), &from, &to);
+    let res = BlockGraph::store_count(&mut store, &from, &to);
     assert!(res.is_ok());
 
     let count = res.unwrap();
@@ -415,19 +415,19 @@ fn test_blockgraph_store() {
     let mut to = Some(bg.id.clone());
     let mut count = None;
 
-    let res = BlockGraph::store_list(&mut store, &(), &from, &to, &count);
+    let res = BlockGraph::store_list(&mut store, &from, &to, &count);
     assert!(res.is_err());
 
     count = Some(0);
 
-    let res = BlockGraph::store_list(&mut store, &(), &from, &to, &count);
+    let res = BlockGraph::store_list(&mut store, &from, &to, &count);
     assert!(res.is_err());
 
     from = None;
     to = None;
     count = None;
 
-    let res = BlockGraph::store_list(&mut store, &(), &from, &to, &count);
+    let res = BlockGraph::store_list(&mut store, &from, &to, &count);
     assert!(res.is_ok());
 
     let list = res.unwrap();
@@ -435,7 +435,7 @@ fn test_blockgraph_store() {
 
     from = Some(bg.id.clone());
 
-    let res = BlockGraph::store_list(&mut store, &(), &from, &to, &count);
+    let res = BlockGraph::store_list(&mut store, &from, &to, &count);
     assert!(res.is_ok());
 
     let list = res.unwrap();
@@ -444,29 +444,29 @@ fn test_blockgraph_store() {
     from = None;
     to = Some(bg.id.clone());
 
-    let res = BlockGraph::store_list(&mut store, &(), &from, &to, &count);
+    let res = BlockGraph::store_list(&mut store, &from, &to, &count);
     assert!(res.is_ok());
 
     let list = res.unwrap();
     assert_eq!(list, vec![]);
 
-    let res = bg.store_delete(&mut store, &());
+    let res = bg.store_delete(&mut store);
     assert!(res.is_ok());
 
-    let res = bg.store_delete(&mut store, &());
+    let res = bg.store_delete(&mut store);
     assert!(res.is_err());
 
-    let res = BlockGraph::store_lookup(&mut store, &(), &bg.id);
+    let res = BlockGraph::store_lookup(&mut store, &bg.id);
     assert!(res.is_ok());
     assert!(!res.unwrap());
 
-    let res = BlockGraph::store_get(&mut store, &(), &bg.id);
+    let res = BlockGraph::store_get(&mut store, &bg.id);
     assert!(res.is_err());
 
     from = None;
     to = None;
 
-    let res = BlockGraph::store_count(&mut store, &(), &to, &from);
+    let res = BlockGraph::store_count(&mut store, &to, &from);
     assert!(res.is_ok());
 
     let count = res.unwrap();
@@ -474,16 +474,16 @@ fn test_blockgraph_store() {
 
     let count = None;
 
-    let res = BlockGraph::store_list(&mut store, &(), &to, &from, &count);
+    let res = BlockGraph::store_list(&mut store, &to, &from, &count);
     assert!(res.is_ok());
 
     let list = res.unwrap();
     assert_eq!(list, vec![]);
 
-    let res = bg.store_upsert(&mut store, &());
+    let res = bg.store_upsert(&mut store);
     assert!(res.is_ok());
 
-    let res = BlockGraph::store_count(&mut store, &(), &to, &from);
+    let res = BlockGraph::store_count(&mut store, &to, &from);
     assert!(res.is_ok());
 
     let count = res.unwrap();
@@ -491,7 +491,7 @@ fn test_blockgraph_store() {
 
     let count = None;
 
-    let res = BlockGraph::store_list(&mut store, &(), &to, &from, &count);
+    let res = BlockGraph::store_list(&mut store, &to, &from, &count);
     assert!(res.is_ok());
 
     let list = res.unwrap();

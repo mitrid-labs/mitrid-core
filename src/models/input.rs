@@ -429,17 +429,16 @@ impl<D, A, P, Pk, Sig> Evaluable for Input<D, A, P, Pk, Sig>
 
 pub const INPUT_STORE_PREFIX: u64 = 1;
 
-impl<St, S, D, A, P, Pk, Sig, StP, StPC, StRC>
-    Storable<St, S, D, Input<D, A, P, Pk, Sig>, StP, StPC, StRC>
+impl<St, S, D, A, P, Pk, Sig, StPC, StRC>
+    Storable<St, S, D, Input<D, A, P, Pk, Sig>, StPC, StRC>
     for Input<D, A, P, Pk, Sig>
-    where   St: Store<S, StP, StPC, StRC>,
+    where   St: Store<S, StPC, StRC>,
             S: Datable + Serializable,
             D: Ord + Datable + ConstantSize + Serializable,
             A: Numerical + Serializable,
             P: Datable + Serializable,
             Pk: Datable + ConstantSize + Serializable,
             Sig: Datable + ConstantSize + Serializable,
-            StP: Datable,
             StPC: Datable + Serializable,
             StRC: Datable + Serializable
 {

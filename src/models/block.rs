@@ -496,10 +496,10 @@ impl<D, A, IP, Pk, Sig, OP, TP, P, Pr> Evaluable for Block<D, A, IP, Pk, Sig, OP
 
 pub const BLOCK_STORE_PREFIX: u64 = 5;
 
-impl<St, S, D, A, IP, Pk, Sig, OP, TP, P, Pr, StP, StPC, StRC>
-    Storable<St, S, D, Block<D, A, IP, Pk, Sig, OP, TP, P, Pr>, StP, StPC, StRC>
+impl<St, S, D, A, IP, Pk, Sig, OP, TP, P, Pr, StPC, StRC>
+    Storable<St, S, D, Block<D, A, IP, Pk, Sig, OP, TP, P, Pr>, StPC, StRC>
     for Block<D, A, IP, Pk, Sig, OP, TP, P, Pr>
-    where   St: Store<S, StP, StPC, StRC>,
+    where   St: Store<S, StPC, StRC>,
             S: Datable + Serializable,
             D: Ord + Datable + ConstantSize + Serializable,
             A: Numerical + Serializable,
@@ -510,7 +510,6 @@ impl<St, S, D, A, IP, Pk, Sig, OP, TP, P, Pr, StP, StPC, StRC>
             TP: Datable + Serializable,
             P: Datable + Serializable,
             Pr: Datable + Serializable,
-            StP: Datable,
             StPC: Datable + Serializable,
             StRC: Datable + Serializable
 {

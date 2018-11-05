@@ -285,14 +285,13 @@ impl<D, A> Datable for Coin<D, A>
 
 pub const COIN_STORE_PREFIX: u64 = 0;
 
-impl<St, S, D, A, StP, StPC, StRC>
-    Storable<St, S, D, Coin<D, A>, StP, StPC, StRC>
+impl<St, S, D, A, StPC, StRC>
+    Storable<St, S, D, Coin<D, A>, StPC, StRC>
     for Coin<D, A>
-    where   St: Store<S, StP, StPC, StRC>,
+    where   St: Store<S, StPC, StRC>,
             S: Datable + Serializable,
             D: Ord + Datable + ConstantSize + Serializable,
             A: Numerical + Serializable,
-            StP: Datable,
             StPC: Datable + Serializable,
             StRC: Datable + Serializable
 {

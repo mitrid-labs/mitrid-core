@@ -345,10 +345,10 @@ fn test_wallet_store() {
                     .unwrap();
 
     let mut store = Store::new();
-    let res = wallet.store_create(&mut store, &());
+    let res = wallet.store_create(&mut store);
     assert!(res.is_ok());
 
-    let res = wallet.store_create(&mut store, &());
+    let res = wallet.store_create(&mut store);
     assert!(res.is_err());
 
     let mut invalid_version = Version::default();
@@ -360,38 +360,38 @@ fn test_wallet_store() {
     let mut invalid_wallet = wallet.clone();
     invalid_wallet.meta = invalid_meta;
 
-    let res = invalid_wallet.store_create(&mut store, &());
+    let res = invalid_wallet.store_create(&mut store);
     assert!(res.is_err());
 
-    let res = Wallet::store_lookup(&mut store, &(), &wallet.id);
+    let res = Wallet::store_lookup(&mut store, &wallet.id);
     assert!(res.is_ok());
     assert!(res.unwrap());
 
     let unknown_id = Digest::default();
 
-    let res = Wallet::store_lookup(&mut store, &(), &unknown_id);
+    let res = Wallet::store_lookup(&mut store, &unknown_id);
     assert!(res.is_ok());
     assert!(!res.unwrap());
 
-    let res = Wallet::store_get(&mut store, &(), &wallet.id);
+    let res = Wallet::store_get(&mut store, &wallet.id);
     assert!(res.is_ok());
 
     let found_wallet = res.unwrap();
     assert_eq!(found_wallet, wallet);
 
-    let res = Wallet::store_get(&mut store, &(), &unknown_id);
+    let res = Wallet::store_get(&mut store, &unknown_id);
     assert!(res.is_err());
 
     let mut from = Some(wallet.id.clone());
     let mut to = Some(wallet.id.clone());
 
-    let res = Wallet::store_count(&mut store, &(), &from, &to);
+    let res = Wallet::store_count(&mut store, &from, &to);
     assert!(res.is_err());
 
     from = None;
     to = None;
 
-    let res = Wallet::store_count(&mut store, &(), &from, &to);
+    let res = Wallet::store_count(&mut store, &from, &to);
     assert!(res.is_ok());
 
     let count = res.unwrap();
@@ -399,7 +399,7 @@ fn test_wallet_store() {
 
     from = Some(wallet.id.clone());
 
-    let res = Wallet::store_count(&mut store, &(), &from, &to);
+    let res = Wallet::store_count(&mut store, &from, &to);
     assert!(res.is_ok());
 
     let count = res.unwrap();
@@ -408,7 +408,7 @@ fn test_wallet_store() {
     from = None;
     to = Some(wallet.id.clone());
 
-    let res = Wallet::store_count(&mut store, &(), &from, &to);
+    let res = Wallet::store_count(&mut store, &from, &to);
     assert!(res.is_ok());
 
     let count = res.unwrap();
@@ -418,19 +418,19 @@ fn test_wallet_store() {
     let mut to = Some(wallet.id.clone());
     let mut count = None;
 
-    let res = Wallet::store_list(&mut store, &(), &from, &to, &count);
+    let res = Wallet::store_list(&mut store, &from, &to, &count);
     assert!(res.is_err());
 
     count = Some(0);
 
-    let res = Wallet::store_list(&mut store, &(), &from, &to, &count);
+    let res = Wallet::store_list(&mut store, &from, &to, &count);
     assert!(res.is_err());
 
     from = None;
     to = None;
     count = None;
 
-    let res = Wallet::store_list(&mut store, &(), &from, &to, &count);
+    let res = Wallet::store_list(&mut store, &from, &to, &count);
     assert!(res.is_ok());
 
     let list = res.unwrap();
@@ -438,7 +438,7 @@ fn test_wallet_store() {
 
     from = Some(wallet.id.clone());
 
-    let res = Wallet::store_list(&mut store, &(), &from, &to, &count);
+    let res = Wallet::store_list(&mut store, &from, &to, &count);
     assert!(res.is_ok());
 
     let list = res.unwrap();
@@ -447,29 +447,29 @@ fn test_wallet_store() {
     from = None;
     to = Some(wallet.id.clone());
 
-    let res = Wallet::store_list(&mut store, &(), &from, &to, &count);
+    let res = Wallet::store_list(&mut store, &from, &to, &count);
     assert!(res.is_ok());
 
     let list = res.unwrap();
     assert_eq!(list, vec![]);
 
-    let res = wallet.store_delete(&mut store, &());
+    let res = wallet.store_delete(&mut store);
     assert!(res.is_ok());
 
-    let res = wallet.store_delete(&mut store, &());
+    let res = wallet.store_delete(&mut store);
     assert!(res.is_err());
 
-    let res = Wallet::store_lookup(&mut store, &(), &wallet.id);
+    let res = Wallet::store_lookup(&mut store, &wallet.id);
     assert!(res.is_ok());
     assert!(!res.unwrap());
 
-    let res = Wallet::store_get(&mut store, &(), &wallet.id);
+    let res = Wallet::store_get(&mut store, &wallet.id);
     assert!(res.is_err());
 
     from = None;
     to = None;
 
-    let res = Wallet::store_count(&mut store, &(), &to, &from);
+    let res = Wallet::store_count(&mut store, &to, &from);
     assert!(res.is_ok());
 
     let count = res.unwrap();
@@ -477,16 +477,16 @@ fn test_wallet_store() {
 
     let count = None;
 
-    let res = Wallet::store_list(&mut store, &(), &to, &from, &count);
+    let res = Wallet::store_list(&mut store, &to, &from, &count);
     assert!(res.is_ok());
 
     let list = res.unwrap();
     assert_eq!(list, vec![]);
 
-    let res = wallet.store_upsert(&mut store, &());
+    let res = wallet.store_upsert(&mut store);
     assert!(res.is_ok());
 
-    let res = Wallet::store_count(&mut store, &(), &to, &from);
+    let res = Wallet::store_count(&mut store, &to, &from);
     assert!(res.is_ok());
 
     let count = res.unwrap();
@@ -494,7 +494,7 @@ fn test_wallet_store() {
 
     let count = None;
 
-    let res = Wallet::store_list(&mut store, &(), &to, &from, &count);
+    let res = Wallet::store_list(&mut store, &to, &from, &count);
     assert!(res.is_ok());
 
     let list = res.unwrap();

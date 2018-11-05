@@ -419,17 +419,16 @@ impl<D, Sk, Pk, Sig, P> Evaluable for Wallet<D, Sk, Pk, Sig, P>
 
 pub const WALLET_STORE_PREFIX: u64 = 7;
 
-impl<St, S, D, Sk, Pk, Sig, P, StP, StPC, StRC>
-    Storable<St, S, D, Wallet<D, Sk, Pk, Sig, P>, StP, StPC, StRC>
+impl<St, S, D, Sk, Pk, Sig, P,  StPC, StRC>
+    Storable<St, S, D, Wallet<D, Sk, Pk, Sig, P>, StPC, StRC>
     for Wallet<D, Sk, Pk, Sig, P>
-    where   St: Store<S, StP, StPC, StRC>,
+    where   St: Store<S, StPC, StRC>,
             S: Datable + Serializable,
             D: Ord + Datable + ConstantSize + Serializable,
             Sk: Datable + ConstantSize + Serializable,
             Pk: Datable + ConstantSize + Serializable,
             Sig: Datable + ConstantSize + Serializable,
             P: Datable + Serializable,
-            StP: Datable,
             StPC: Datable + Serializable,
             StRC: Datable + Serializable
 {

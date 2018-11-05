@@ -392,10 +392,10 @@ impl<D, A, IP, Pk, Sig, OP, P> Evaluable for Transaction<D, A, IP, Pk, Sig, OP, 
 
 pub const TRANSACTION_STORE_PREFIX: u64 = 3;
 
-impl<St, S, D, A, IP, Pk, Sig, OP, P, StP, StPC, StRC>
-    Storable<St, S, D, Transaction<D, A, IP, Pk, Sig, OP, P>, StP, StPC, StRC>
+impl<St, S, D, A, IP, Pk, Sig, OP, P, StPC, StRC>
+    Storable<St, S, D, Transaction<D, A, IP, Pk, Sig, OP, P>, StPC, StRC>
     for Transaction<D, A, IP, Pk, Sig, OP, P>
-    where   St: Store<S, StP, StPC, StRC>,
+    where   St: Store<S, StPC, StRC>,
             S: Datable + Serializable,
             D: Ord + Datable + ConstantSize + Serializable,
             A: Numerical + Serializable,
@@ -404,7 +404,6 @@ impl<St, S, D, A, IP, Pk, Sig, OP, P, StP, StPC, StRC>
             Sig: Datable + ConstantSize + Serializable,
             OP: Datable + Serializable,
             P: Datable + Serializable,
-            StP: Datable,
             StPC: Datable + Serializable,
             StRC: Datable + Serializable
 {

@@ -63,8 +63,8 @@ impl Checkable for Store {
     }
 }
 
-impl BasicStore<(), (), CustomParams, CustomResult> for Store {
-    fn session(&mut self, _params: &(), permission: &Permission) -> Result<Session> {
+impl BasicStore<(), CustomParams, CustomResult> for Store {
+    fn session(&mut self, permission: &Permission) -> Result<Session> {
         permission.check()?;
 
         let sessions = &mut *self.sessions.lock().unwrap();
@@ -83,7 +83,6 @@ impl BasicStore<(), (), CustomParams, CustomResult> for Store {
     
     fn count(&self,
             session: &Session,
-            _params: &(),
             from: &Option<Vec<u8>>,
             to: &Option<Vec<u8>>)
         -> Result<u64>
@@ -144,7 +143,6 @@ impl BasicStore<(), (), CustomParams, CustomResult> for Store {
     
     fn list(&self,
             session: &Session,
-            _params: &(),
             from: &Option<Vec<u8>>,
             to: &Option<Vec<u8>>,
             count: &Option<u64>)
@@ -229,7 +227,6 @@ impl BasicStore<(), (), CustomParams, CustomResult> for Store {
     
     fn lookup(&self,
               session: &Session,
-              _params: &(),
               key: &[u8])
         -> Result<bool>
     {
@@ -258,7 +255,6 @@ impl BasicStore<(), (), CustomParams, CustomResult> for Store {
     
     fn get(&self,
            session: &Session,
-           _params: &(),
            key: &[u8])
         -> Result<Vec<u8>>
     {
@@ -289,7 +285,6 @@ impl BasicStore<(), (), CustomParams, CustomResult> for Store {
     
     fn create(&mut self,
               session: &Session,
-              _params: &(),
               key: &[u8],
               value: &[u8])
         -> Result<()>
@@ -323,7 +318,6 @@ impl BasicStore<(), (), CustomParams, CustomResult> for Store {
     
     fn update(&mut self,
               session: &Session,
-              _params: &(),
               key: &[u8],
               value: &[u8])
         -> Result<()>
@@ -357,7 +351,6 @@ impl BasicStore<(), (), CustomParams, CustomResult> for Store {
     
     fn upsert(&mut self,
               session: &Session,
-              _params: &(),
               key: &[u8],
               value: &[u8])
         -> Result<()>
@@ -387,7 +380,6 @@ impl BasicStore<(), (), CustomParams, CustomResult> for Store {
     
     fn delete(&mut self,
               session: &Session,
-              _params: &(),
               key: &[u8])
         -> Result<()>
     {

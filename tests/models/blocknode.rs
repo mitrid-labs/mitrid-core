@@ -264,10 +264,10 @@ fn test_blocknode_store() {
                         .unwrap();
 
     let mut store = Store::new();
-    let res = blocknode.store_create(&mut store, &());
+    let res = blocknode.store_create(&mut store);
     assert!(res.is_ok());
 
-    let res = blocknode.store_create(&mut store, &());
+    let res = blocknode.store_create(&mut store);
     assert!(res.is_err());
 
     let mut invalid_version = Version::default();
@@ -278,38 +278,38 @@ fn test_blocknode_store() {
     let mut invalid_blocknode = blocknode.clone();
     invalid_blocknode.meta = invalid_meta;
 
-    let res = invalid_blocknode.store_create(&mut store, &());
+    let res = invalid_blocknode.store_create(&mut store);
     assert!(res.is_err());
 
-    let res = BlockNode::store_lookup(&mut store, &(), &blocknode.id);
+    let res = BlockNode::store_lookup(&mut store, &blocknode.id);
     assert!(res.is_ok());
     assert!(res.unwrap());
 
     let unknown_id = Digest::default();
 
-    let res = BlockNode::store_lookup(&mut store, &(), &unknown_id);
+    let res = BlockNode::store_lookup(&mut store, &unknown_id);
     assert!(res.is_ok());
     assert!(!res.unwrap());
 
-    let res = BlockNode::store_get(&mut store, &(), &blocknode.id);
+    let res = BlockNode::store_get(&mut store, &blocknode.id);
     assert!(res.is_ok());
 
     let found_blocknode = res.unwrap();
     assert_eq!(found_blocknode, blocknode);
 
-    let res = BlockNode::store_get(&mut store, &(), &unknown_id);
+    let res = BlockNode::store_get(&mut store, &unknown_id);
     assert!(res.is_err());
 
     let mut from = Some(blocknode.id.clone());
     let mut to = Some(blocknode.id.clone());
 
-    let res = BlockNode::store_count(&mut store, &(), &from, &to);
+    let res = BlockNode::store_count(&mut store, &from, &to);
     assert!(res.is_err());
 
     from = None;
     to = None;
 
-    let res = BlockNode::store_count(&mut store, &(), &from, &to);
+    let res = BlockNode::store_count(&mut store, &from, &to);
     assert!(res.is_ok());
 
     let count = res.unwrap();
@@ -317,7 +317,7 @@ fn test_blocknode_store() {
 
     from = Some(blocknode.id.clone());
 
-    let res = BlockNode::store_count(&mut store, &(), &from, &to);
+    let res = BlockNode::store_count(&mut store, &from, &to);
     assert!(res.is_ok());
 
     let count = res.unwrap();
@@ -326,7 +326,7 @@ fn test_blocknode_store() {
     from = None;
     to = Some(blocknode.id.clone());
 
-    let res = BlockNode::store_count(&mut store, &(), &from, &to);
+    let res = BlockNode::store_count(&mut store, &from, &to);
     assert!(res.is_ok());
 
     let count = res.unwrap();
@@ -336,19 +336,19 @@ fn test_blocknode_store() {
     let mut to = Some(blocknode.id.clone());
     let mut count = None;
 
-    let res = BlockNode::store_list(&mut store, &(), &from, &to, &count);
+    let res = BlockNode::store_list(&mut store, &from, &to, &count);
     assert!(res.is_err());
 
     count = Some(0);
 
-    let res = BlockNode::store_list(&mut store, &(), &from, &to, &count);
+    let res = BlockNode::store_list(&mut store, &from, &to, &count);
     assert!(res.is_err());
 
     from = None;
     to = None;
     count = None;
 
-    let res = BlockNode::store_list(&mut store, &(), &from, &to, &count);
+    let res = BlockNode::store_list(&mut store, &from, &to, &count);
     assert!(res.is_ok());
 
     let list = res.unwrap();
@@ -356,7 +356,7 @@ fn test_blocknode_store() {
 
     from = Some(blocknode.id.clone());
 
-    let res = BlockNode::store_list(&mut store, &(), &from, &to, &count);
+    let res = BlockNode::store_list(&mut store, &from, &to, &count);
     assert!(res.is_ok());
 
     let list = res.unwrap();
@@ -365,29 +365,29 @@ fn test_blocknode_store() {
     from = None;
     to = Some(blocknode.id.clone());
 
-    let res = BlockNode::store_list(&mut store, &(), &from, &to, &count);
+    let res = BlockNode::store_list(&mut store, &from, &to, &count);
     assert!(res.is_ok());
 
     let list = res.unwrap();
     assert_eq!(list, vec![]);
 
-    let res = blocknode.store_delete(&mut store, &());
+    let res = blocknode.store_delete(&mut store);
     assert!(res.is_ok());
 
-    let res = blocknode.store_delete(&mut store, &());
+    let res = blocknode.store_delete(&mut store);
     assert!(res.is_err());
 
-    let res = BlockNode::store_lookup(&mut store, &(), &blocknode.id);
+    let res = BlockNode::store_lookup(&mut store, &blocknode.id);
     assert!(res.is_ok());
     assert!(!res.unwrap());
 
-    let res = BlockNode::store_get(&mut store, &(), &blocknode.id);
+    let res = BlockNode::store_get(&mut store, &blocknode.id);
     assert!(res.is_err());
 
     from = None;
     to = None;
 
-    let res = BlockNode::store_count(&mut store, &(), &to, &from);
+    let res = BlockNode::store_count(&mut store, &to, &from);
     assert!(res.is_ok());
 
     let count = res.unwrap();
@@ -395,16 +395,16 @@ fn test_blocknode_store() {
 
     let count = None;
 
-    let res = BlockNode::store_list(&mut store, &(), &to, &from, &count);
+    let res = BlockNode::store_list(&mut store, &to, &from, &count);
     assert!(res.is_ok());
 
     let list = res.unwrap();
     assert_eq!(list, vec![]);
 
-    let res = blocknode.store_upsert(&mut store, &());
+    let res = blocknode.store_upsert(&mut store);
     assert!(res.is_ok());
 
-    let res = BlockNode::store_count(&mut store, &(), &to, &from);
+    let res = BlockNode::store_count(&mut store, &to, &from);
     assert!(res.is_ok());
 
     let count = res.unwrap();
@@ -412,7 +412,7 @@ fn test_blocknode_store() {
 
     let count = None;
 
-    let res = BlockNode::store_list(&mut store, &(), &to, &from, &count);
+    let res = BlockNode::store_list(&mut store, &to, &from, &count);
     assert!(res.is_ok());
 
     let list = res.unwrap();

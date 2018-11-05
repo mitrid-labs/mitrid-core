@@ -18,11 +18,10 @@ use io::network::message::Request;
 
 /// Trait implemented by network servers.
 pub trait Server<St, StS, StK, StV, StP, StPC, StRC, ST, CT, H, R, S, Ad, NP, D, MP>
-    where   St: Store<StS, StP, StPC, StRC>,
+    where   St: Store<StS, StPC, StRC>,
             StS: Datable + Serializable,
             StK: Ord + Datable + Serializable,
             StV: Datable + Serializable,
-            StP: Datable,
             StPC: Datable + Serializable,
             StRC: Datable + Serializable,
             ST: ServerTransport<Ad, CT>,

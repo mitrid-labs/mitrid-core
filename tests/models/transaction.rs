@@ -495,10 +495,10 @@ fn test_transaction_store() {
                 .unwrap();
 
     let mut store = Store::new();
-    let res = tx.store_create(&mut store, &());
+    let res = tx.store_create(&mut store);
     assert!(res.is_ok());
 
-    let res = tx.store_create(&mut store, &());
+    let res = tx.store_create(&mut store);
     assert!(res.is_err());
 
     let mut invalid_version = Version::default();
@@ -509,38 +509,38 @@ fn test_transaction_store() {
     let mut invalid_tx = tx.clone();
     invalid_tx.meta = invalid_meta;
 
-    let res = invalid_tx.store_create(&mut store, &());
+    let res = invalid_tx.store_create(&mut store);
     assert!(res.is_err());
 
-    let res = Transaction::store_lookup(&mut store, &(), &tx.id);
+    let res = Transaction::store_lookup(&mut store, &tx.id);
     assert!(res.is_ok());
     assert!(res.unwrap());
 
     let unknown_id = Digest::default();
 
-    let res = Transaction::store_lookup(&mut store, &(), &unknown_id);
+    let res = Transaction::store_lookup(&mut store, &unknown_id);
     assert!(res.is_ok());
     assert!(!res.unwrap());
 
-    let res = Transaction::store_get(&mut store, &(), &tx.id);
+    let res = Transaction::store_get(&mut store, &tx.id);
     assert!(res.is_ok());
 
     let found_tx = res.unwrap();
     assert_eq!(found_tx, tx);
 
-    let res = Transaction::store_get(&mut store, &(), &unknown_id);
+    let res = Transaction::store_get(&mut store, &unknown_id);
     assert!(res.is_err());
 
     let mut from = Some(tx.id.clone());
     let mut to = Some(tx.id.clone());
 
-    let res = Transaction::store_count(&mut store, &(), &from, &to);
+    let res = Transaction::store_count(&mut store, &from, &to);
     assert!(res.is_err());
 
     from = None;
     to = None;
 
-    let res = Transaction::store_count(&mut store, &(), &from, &to);
+    let res = Transaction::store_count(&mut store, &from, &to);
     assert!(res.is_ok());
 
     let count = res.unwrap();
@@ -548,7 +548,7 @@ fn test_transaction_store() {
 
     from = Some(tx.id.clone());
 
-    let res = Transaction::store_count(&mut store, &(), &from, &to);
+    let res = Transaction::store_count(&mut store, &from, &to);
     assert!(res.is_ok());
 
     let count = res.unwrap();
@@ -557,7 +557,7 @@ fn test_transaction_store() {
     from = None;
     to = Some(tx.id.clone());
 
-    let res = Transaction::store_count(&mut store, &(), &from, &to);
+    let res = Transaction::store_count(&mut store, &from, &to);
     assert!(res.is_ok());
 
     let count = res.unwrap();
@@ -567,19 +567,19 @@ fn test_transaction_store() {
     let mut to = Some(tx.id.clone());
     let mut count = None;
 
-    let res = Transaction::store_list(&mut store, &(), &from, &to, &count);
+    let res = Transaction::store_list(&mut store, &from, &to, &count);
     assert!(res.is_err());
 
     count = Some(0);
 
-    let res = Transaction::store_list(&mut store, &(), &from, &to, &count);
+    let res = Transaction::store_list(&mut store, &from, &to, &count);
     assert!(res.is_err());
 
     from = None;
     to = None;
     count = None;
 
-    let res = Transaction::store_list(&mut store, &(), &from, &to, &count);
+    let res = Transaction::store_list(&mut store, &from, &to, &count);
     assert!(res.is_ok());
 
     let list = res.unwrap();
@@ -587,7 +587,7 @@ fn test_transaction_store() {
 
     from = Some(tx.id.clone());
 
-    let res = Transaction::store_list(&mut store, &(), &from, &to, &count);
+    let res = Transaction::store_list(&mut store, &from, &to, &count);
     assert!(res.is_ok());
 
     let list = res.unwrap();
@@ -596,29 +596,29 @@ fn test_transaction_store() {
     from = None;
     to = Some(tx.id.clone());
 
-    let res = Transaction::store_list(&mut store, &(), &from, &to, &count);
+    let res = Transaction::store_list(&mut store, &from, &to, &count);
     assert!(res.is_ok());
 
     let list = res.unwrap();
     assert_eq!(list, vec![]);
 
-    let res = tx.store_delete(&mut store, &());
+    let res = tx.store_delete(&mut store);
     assert!(res.is_ok());
 
-    let res = tx.store_delete(&mut store, &());
+    let res = tx.store_delete(&mut store);
     assert!(res.is_err());
 
-    let res = Transaction::store_lookup(&mut store, &(), &coin.id);
+    let res = Transaction::store_lookup(&mut store, &coin.id);
     assert!(res.is_ok());
     assert!(!res.unwrap());
 
-    let res = Transaction::store_get(&mut store, &(), &coin.id);
+    let res = Transaction::store_get(&mut store, &coin.id);
     assert!(res.is_err());
 
     from = None;
     to = None;
 
-    let res = Transaction::store_count(&mut store, &(), &to, &from);
+    let res = Transaction::store_count(&mut store, &to, &from);
     assert!(res.is_ok());
 
     let count = res.unwrap();
@@ -626,16 +626,16 @@ fn test_transaction_store() {
 
     let count = None;
 
-    let res = Transaction::store_list(&mut store, &(), &to, &from, &count);
+    let res = Transaction::store_list(&mut store, &to, &from, &count);
     assert!(res.is_ok());
 
     let list = res.unwrap();
     assert_eq!(list, vec![]);
 
-    let res = tx.store_upsert(&mut store, &());
+    let res = tx.store_upsert(&mut store);
     assert!(res.is_ok());
 
-    let res = Transaction::store_count(&mut store, &(), &to, &from);
+    let res = Transaction::store_count(&mut store, &to, &from);
     assert!(res.is_ok());
 
     let count = res.unwrap();
@@ -643,7 +643,7 @@ fn test_transaction_store() {
 
     let count = None;
 
-    let res = Transaction::store_list(&mut store, &(), &to, &from, &count);
+    let res = Transaction::store_list(&mut store, &to, &from, &count);
     assert!(res.is_ok());
 
     let list = res.unwrap();

@@ -12,11 +12,10 @@ use io::network::message::Response;
 
 /// Trait implemented by the server handler.
 pub trait Handler<St, StS, StK, StV, StP, StPC, StRC, S, Ad, NP, D, MP>
-    where   St: Store<StS, StP, StPC, StRC>,
+    where   St: Store<StS, StPC, StRC>,
             StS: Datable + Serializable,
             StK: Ord + Datable + Serializable,
             StV: Datable + Serializable,
-            StP: Datable,
             StPC: Datable + Serializable,
             StRC: Datable + Serializable,
             StS: Datable + Serializable,

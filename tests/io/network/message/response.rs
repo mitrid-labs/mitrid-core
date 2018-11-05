@@ -226,10 +226,10 @@ fn test_response_store() {
     let response = Response::new(&message).unwrap();
 
     let mut store = Store::new();
-    let res = response.store_create(&mut store, &());
+    let res = response.store_create(&mut store);
     assert!(res.is_ok());
 
-    let res = response.store_create(&mut store, &());
+    let res = response.store_create(&mut store);
     assert!(res.is_err());
 
     let mut invalid_response = response.clone();
@@ -242,38 +242,38 @@ fn test_response_store() {
 
     invalid_response.message.meta = invalid_meta;
 
-    let res = invalid_response.store_create(&mut store, &());
+    let res = invalid_response.store_create(&mut store);
     assert!(res.is_err());
 
-    let res = Response::store_lookup(&mut store, &(), &response.message.id);
+    let res = Response::store_lookup(&mut store, &response.message.id);
     assert!(res.is_ok());
     assert!(res.unwrap());
 
     let unknown_id = Digest::default();
 
-    let res = Response::store_lookup(&mut store, &(), &unknown_id);
+    let res = Response::store_lookup(&mut store, &unknown_id);
     assert!(res.is_ok());
     assert!(!res.unwrap());
 
-    let res = Response::store_get(&mut store, &(), &response.message.id);
+    let res = Response::store_get(&mut store, &response.message.id);
     assert!(res.is_ok());
 
     let found_response = res.unwrap();
     assert_eq!(found_response, response);
 
-    let res = Response::store_get(&mut store, &(), &unknown_id);
+    let res = Response::store_get(&mut store, &unknown_id);
     assert!(res.is_err());
 
     let mut from = Some(response.message.id.clone());
     let mut to = Some(response.message.id.clone());
 
-    let res = Response::store_count(&mut store, &(), &from, &to);
+    let res = Response::store_count(&mut store, &from, &to);
     assert!(res.is_err());
 
     from = None;
     to = None;
 
-    let res = Response::store_count(&mut store, &(), &from, &to);
+    let res = Response::store_count(&mut store, &from, &to);
     assert!(res.is_ok());
 
     let count = res.unwrap();
@@ -281,7 +281,7 @@ fn test_response_store() {
 
     from = Some(response.message.id.clone());
 
-    let res = Response::store_count(&mut store, &(), &from, &to);
+    let res = Response::store_count(&mut store, &from, &to);
     assert!(res.is_ok());
 
     let count = res.unwrap();
@@ -290,7 +290,7 @@ fn test_response_store() {
     from = None;
     to = Some(response.message.id.clone());
 
-    let res = Response::store_count(&mut store, &(), &from, &to);
+    let res = Response::store_count(&mut store, &from, &to);
     assert!(res.is_ok());
 
     let count = res.unwrap();
@@ -300,19 +300,19 @@ fn test_response_store() {
     let mut to = Some(response.message.id.clone());
     let mut count = None;
 
-    let res = Response::store_list(&mut store, &(), &from, &to, &count);
+    let res = Response::store_list(&mut store, &from, &to, &count);
     assert!(res.is_err());
 
     count = Some(0);
 
-    let res = Response::store_list(&mut store, &(), &from, &to, &count);
+    let res = Response::store_list(&mut store, &from, &to, &count);
     assert!(res.is_err());
 
     from = None;
     to = None;
     count = None;
 
-    let res = Response::store_list(&mut store, &(), &from, &to, &count);
+    let res = Response::store_list(&mut store, &from, &to, &count);
     assert!(res.is_ok());
 
     let list = res.unwrap();
@@ -320,7 +320,7 @@ fn test_response_store() {
 
     from = Some(response.message.id.clone());
 
-    let res = Response::store_list(&mut store, &(), &from, &to, &count);
+    let res = Response::store_list(&mut store, &from, &to, &count);
     assert!(res.is_ok());
 
     let list = res.unwrap();
@@ -329,29 +329,29 @@ fn test_response_store() {
     from = None;
     to = Some(response.message.id.clone());
 
-    let res = Response::store_list(&mut store, &(), &from, &to, &count);
+    let res = Response::store_list(&mut store, &from, &to, &count);
     assert!(res.is_ok());
 
     let list = res.unwrap();
     assert_eq!(list, vec![]);
 
-    let res = response.store_delete(&mut store, &());
+    let res = response.store_delete(&mut store);
     assert!(res.is_ok());
 
-    let res = response.store_delete(&mut store, &());
+    let res = response.store_delete(&mut store);
     assert!(res.is_err());
 
-    let res = Response::store_lookup(&mut store, &(), &response.message.id);
+    let res = Response::store_lookup(&mut store, &response.message.id);
     assert!(res.is_ok());
     assert!(!res.unwrap());
 
-    let res = Response::store_get(&mut store, &(), &response.message.id);
+    let res = Response::store_get(&mut store, &response.message.id);
     assert!(res.is_err());
 
     from = None;
     to = None;
 
-    let res = Response::store_count(&mut store, &(), &to, &from);
+    let res = Response::store_count(&mut store, &to, &from);
     assert!(res.is_ok());
 
     let count = res.unwrap();
@@ -359,16 +359,16 @@ fn test_response_store() {
 
     let count = None;
 
-    let res = Response::store_list(&mut store, &(), &to, &from, &count);
+    let res = Response::store_list(&mut store, &to, &from, &count);
     assert!(res.is_ok());
 
     let list = res.unwrap();
     assert_eq!(list, vec![]);
 
-    let res = response.store_upsert(&mut store, &());
+    let res = response.store_upsert(&mut store);
     assert!(res.is_ok());
 
-    let res = Response::store_count(&mut store, &(), &to, &from);
+    let res = Response::store_count(&mut store, &to, &from);
     assert!(res.is_ok());
 
     let count = res.unwrap();
@@ -376,7 +376,7 @@ fn test_response_store() {
 
     let count = None;
 
-    let res = Response::store_list(&mut store, &(), &to, &from, &count);
+    let res = Response::store_list(&mut store, &to, &from, &count);
     assert!(res.is_ok());
 
     let list = res.unwrap();

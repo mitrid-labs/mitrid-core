@@ -213,48 +213,48 @@ fn test_request_store() {
     let request = Request::new(&message).unwrap();
 
     let mut store = Store::new();
-    let res = request.store_create(&mut store, &());
+    let res = request.store_create(&mut store);
     assert!(res.is_ok());
 
-    let res = request.store_create(&mut store, &());
+    let res = request.store_create(&mut store);
     assert!(res.is_err());
 
     let mut invalid_request = request.clone();
 
     invalid_request.message.resource = Resource::Error;
 
-    let res = invalid_request.store_create(&mut store, &());
+    let res = invalid_request.store_create(&mut store);
     assert!(res.is_err());
 
-    let res = Request::store_lookup(&mut store, &(), &request.message.id);
+    let res = Request::store_lookup(&mut store, &request.message.id);
     assert!(res.is_ok());
     assert!(res.unwrap());
 
     let unknown_id = Digest::default();
 
-    let res = Request::store_lookup(&mut store, &(), &unknown_id);
+    let res = Request::store_lookup(&mut store, &unknown_id);
     assert!(res.is_ok());
     assert!(!res.unwrap());
 
-    let res = Request::store_get(&mut store, &(), &request.message.id);
+    let res = Request::store_get(&mut store, &request.message.id);
     assert!(res.is_ok());
 
     let found_request = res.unwrap();
     assert_eq!(found_request, request);
 
-    let res = Request::store_get(&mut store, &(), &unknown_id);
+    let res = Request::store_get(&mut store, &unknown_id);
     assert!(res.is_err());
 
     let mut from = Some(request.message.id.clone());
     let mut to = Some(request.message.id.clone());
 
-    let res = Request::store_count(&mut store, &(), &from, &to);
+    let res = Request::store_count(&mut store, &from, &to);
     assert!(res.is_err());
 
     from = None;
     to = None;
 
-    let res = Request::store_count(&mut store, &(), &from, &to);
+    let res = Request::store_count(&mut store, &from, &to);
     assert!(res.is_ok());
 
     let count = res.unwrap();
@@ -262,7 +262,7 @@ fn test_request_store() {
 
     from = Some(request.message.id.clone());
 
-    let res = Request::store_count(&mut store, &(), &from, &to);
+    let res = Request::store_count(&mut store, &from, &to);
     assert!(res.is_ok());
 
     let count = res.unwrap();
@@ -271,7 +271,7 @@ fn test_request_store() {
     from = None;
     to = Some(request.message.id.clone());
 
-    let res = Request::store_count(&mut store, &(), &from, &to);
+    let res = Request::store_count(&mut store, &from, &to);
     assert!(res.is_ok());
 
     let count = res.unwrap();
@@ -281,19 +281,19 @@ fn test_request_store() {
     let mut to = Some(request.message.id.clone());
     let mut count = None;
 
-    let res = Request::store_list(&mut store, &(), &from, &to, &count);
+    let res = Request::store_list(&mut store, &from, &to, &count);
     assert!(res.is_err());
 
     count = Some(0);
 
-    let res = Request::store_list(&mut store, &(), &from, &to, &count);
+    let res = Request::store_list(&mut store, &from, &to, &count);
     assert!(res.is_err());
 
     from = None;
     to = None;
     count = None;
 
-    let res = Request::store_list(&mut store, &(), &from, &to, &count);
+    let res = Request::store_list(&mut store, &from, &to, &count);
     assert!(res.is_ok());
 
     let list = res.unwrap();
@@ -301,7 +301,7 @@ fn test_request_store() {
 
     from = Some(request.message.id.clone());
 
-    let res = Request::store_list(&mut store, &(), &from, &to, &count);
+    let res = Request::store_list(&mut store, &from, &to, &count);
     assert!(res.is_ok());
 
     let list = res.unwrap();
@@ -310,29 +310,29 @@ fn test_request_store() {
     from = None;
     to = Some(request.message.id.clone());
 
-    let res = Request::store_list(&mut store, &(), &from, &to, &count);
+    let res = Request::store_list(&mut store, &from, &to, &count);
     assert!(res.is_ok());
 
     let list = res.unwrap();
     assert_eq!(list, vec![]);
 
-    let res = request.store_delete(&mut store, &());
+    let res = request.store_delete(&mut store);
     assert!(res.is_ok());
 
-    let res = request.store_delete(&mut store, &());
+    let res = request.store_delete(&mut store);
     assert!(res.is_err());
 
-    let res = Request::store_lookup(&mut store, &(), &request.message.id);
+    let res = Request::store_lookup(&mut store, &request.message.id);
     assert!(res.is_ok());
     assert!(!res.unwrap());
 
-    let res = Request::store_get(&mut store, &(), &request.message.id);
+    let res = Request::store_get(&mut store, &request.message.id);
     assert!(res.is_err());
 
     from = None;
     to = None;
 
-    let res = Request::store_count(&mut store, &(), &to, &from);
+    let res = Request::store_count(&mut store, &to, &from);
     assert!(res.is_ok());
 
     let count = res.unwrap();
@@ -340,16 +340,16 @@ fn test_request_store() {
 
     let count = None;
 
-    let res = Request::store_list(&mut store, &(), &to, &from, &count);
+    let res = Request::store_list(&mut store, &to, &from, &count);
     assert!(res.is_ok());
 
     let list = res.unwrap();
     assert_eq!(list, vec![]);
 
-    let res = request.store_upsert(&mut store, &());
+    let res = request.store_upsert(&mut store);
     assert!(res.is_ok());
 
-    let res = Request::store_count(&mut store, &(), &to, &from);
+    let res = Request::store_count(&mut store, &to, &from);
     assert!(res.is_ok());
 
     let count = res.unwrap();
@@ -357,7 +357,7 @@ fn test_request_store() {
 
     let count = None;
 
-    let res = Request::store_list(&mut store, &(), &to, &from, &count);
+    let res = Request::store_list(&mut store, &to, &from, &count);
     assert!(res.is_ok());
 
     let list = res.unwrap();

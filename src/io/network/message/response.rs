@@ -81,17 +81,16 @@ impl<S, Ad, NP, D, P> Datable for Response<S, Ad, NP, D, P>
 
 pub const RESPONSE_STORE_PREFIX: u64 = 10;
 
-impl<St, S, MS, Ad, NP, D, P, StP, StPC, StRC>
-    Storable<St, S, D, Response<MS, Ad, NP, D, P>, StP, StPC, StRC>
+impl<St, S, MS, Ad, NP, D, P, StPC, StRC>
+    Storable<St, S, D, Response<MS, Ad, NP, D, P>, StPC, StRC>
     for Response<MS, Ad, NP, D, P>
-    where   St: Store<S, StP, StPC, StRC>,
+    where   St: Store<S, StPC, StRC>,
             S: Datable + Serializable,
             MS: Datable + Serializable,
             Ad: Ord + Datable + VariableSize + Serializable,
             NP: Datable + Serializable,
             D: Ord + Datable + ConstantSize + Serializable,
             P: Datable + Serializable,
-            StP: Datable,
             StPC: Datable + Serializable,
             StRC: Datable + Serializable
 {
