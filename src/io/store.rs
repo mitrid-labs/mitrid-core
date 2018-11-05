@@ -23,10 +23,10 @@ pub trait Store<S, PC, RC>
     fn session(&mut self, permission: &Permission) -> Result<Session<S>>;
     
     /// Counts the store items starting from the `from` key until, not included, the `to` key.
-    fn count(&self, session: &Session<S>, from: &Option<Vec<u8>>, to: &Option<Vec<u8>>) -> Result<u64>;
+    fn count(&mut self, session: &Session<S>, from: &Option<Vec<u8>>, to: &Option<Vec<u8>>) -> Result<u64>;
     
     /// Lists the store items starting from the `from` key until, not included, the `to` key.
-    fn list(&self,
+    fn list(&mut self,
             session: &Session<S>,
             from: &Option<Vec<u8>>,
             to: &Option<Vec<u8>>,
@@ -34,10 +34,10 @@ pub trait Store<S, PC, RC>
         -> Result<Vec<Vec<u8>>>;
     
     /// Lookups an item from its key.
-    fn lookup(&self, session: &Session<S>, key: &[u8]) -> Result<bool>;
+    fn lookup(&mut self, session: &Session<S>, key: &[u8]) -> Result<bool>;
     
     /// Retrieves an item from its key. The item should already exist in the store before the operation.
-    fn get(&self, session: &Session<S>, key: &[u8]) -> Result<Vec<u8>>;
+    fn get(&mut self, session: &Session<S>, key: &[u8]) -> Result<Vec<u8>>;
     
     /// Creates an item in the store. The item should not exist in the store before the operation.
     fn create(&mut self, session: &Session<S>, key: &[u8], value: &[u8]) -> Result<()>;

@@ -81,7 +81,7 @@ impl BasicStore<(), CustomParams, CustomResult> for Store {
         Ok(session)
     }
     
-    fn count(&self,
+    fn count(&mut self,
             session: &Session,
             from: &Option<Vec<u8>>,
             to: &Option<Vec<u8>>)
@@ -141,7 +141,7 @@ impl BasicStore<(), CustomParams, CustomResult> for Store {
         Ok(count)
     }
     
-    fn list(&self,
+    fn list(&mut self,
             session: &Session,
             from: &Option<Vec<u8>>,
             to: &Option<Vec<u8>>,
@@ -225,7 +225,7 @@ impl BasicStore<(), CustomParams, CustomResult> for Store {
         Ok(list)
     }
     
-    fn lookup(&self,
+    fn lookup(&mut self,
               session: &Session,
               key: &[u8])
         -> Result<bool>
@@ -253,7 +253,7 @@ impl BasicStore<(), CustomParams, CustomResult> for Store {
         Ok(found)
     }
     
-    fn get(&self,
+    fn get(&mut self,
            session: &Session,
            key: &[u8])
         -> Result<Vec<u8>>
