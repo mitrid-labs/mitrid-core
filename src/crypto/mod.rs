@@ -17,8 +17,8 @@ pub mod authenticate;
 /// Trait implemented by types that can be proved and verified cryptographically.
 pub mod prove;
 
-pub use self::hash::Hashable;
-pub use self::sign::Signable;
-pub use self::commit::Committable;
-pub use self::authenticate::Authenticatable;
-pub use self::prove::Provable;
+pub use self::hash::{Hashable, Hash};
+pub use self::sign::{Signable, Sign};
+pub use self::commit::{Committable, Commit};
+pub use self::authenticate::{Authenticatable, Authenticate};
+pub use self::prove::{Provable, Prove};

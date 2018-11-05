@@ -9,6 +9,7 @@ use mitrid_core::base::{Sizable, ConstantSize};
 use mitrid_core::base::Checkable;
 use mitrid_core::base::Serializable;
 use mitrid_core::base::Datable;
+use mitrid_core::crypto::Hash;
 
 pub const DIGEST_SIZE: u64 = DIGESTBYTES as u64;
 
@@ -88,17 +89,37 @@ impl SHA512 {
     pub fn verify(msg: &[u8], digest: &Digest) -> Result<bool> {
         init().unwrap();
 
+        digest.check()?;
+        digest.check_size()?;
+
         Ok(&Self::digest(msg)? == digest)
     }
 
     pub fn check(msg: &[u8], digest: &Digest) -> Result<()> {
         init().unwrap();
 
+        digest.check()?;
+        digest.check_size()?;
+
         if !Self::verify(msg, digest)? {
             return Err(String::from("invalid digest"));
         }
 
         Ok(())
+    }
+}
+
+impl Hash<Digest> for SHA512 {
+    fn digest(&mut self, msg: &[u8]) -> Result<Digest> {
+        Self::digest(msg)
+    }
+
+    fn verify(&mut self, msg: &[u8], digest: &Digest) -> Result<bool> {
+        Self::verify(msg, digest)
+    }
+
+    fn check(&mut self, msg: &[u8], digest: &Digest) -> Result<()> {
+        Self::check(msg, digest)
     }
 }
 
@@ -135,7 +156,7 @@ fn test_digest_from_slice() {
 }
 
 #[test]
-fn test_sha512() {
+fn test_hash_sha512() {
     let mut msg = Vec::new();
     for _ in 0..500 {
         msg.push(0);
@@ -160,5 +181,36 @@ fn test_sha512() {
     assert!(!res.unwrap());
 
     let res = SHA512::check(&msg, &digest);
+    assert!(res.is_err());
+}
+
+#[test]
+fn test_hash_sha512_hash() {
+    let mut msg = Vec::new();
+    for _ in 0..500 {
+        msg.push(0);
+    }
+
+    let mut hash = SHA512{};
+
+    let res = hash.digest(&msg);
+    assert!(res.is_ok());
+
+    let digest = res.unwrap();
+
+    let res = hash.verify(&msg, &digest);
+    assert!(res.is_ok());
+    assert!(res.unwrap());
+
+    let res = hash.check(&msg, &digest);
+    assert!(res.is_ok());
+
+    msg.push(0);
+
+    let res = hash.verify(&msg, &digest);
+    assert!(res.is_ok());
+    assert!(!res.unwrap());
+
+    let res = hash.check(&msg, &digest);
     assert!(res.is_err());
 }

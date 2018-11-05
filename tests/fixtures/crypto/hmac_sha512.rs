@@ -11,8 +11,9 @@ use mitrid_core::base::{Sizable, ConstantSize};
 use mitrid_core::base::Checkable;
 use mitrid_core::base::Serializable;
 use mitrid_core::base::Datable;
+use mitrid_core::crypto::Authenticate;
 
-use fixtures::crypto::{sha512::DIGEST_SIZE, Digest};
+use fixtures::crypto::{hash_sha512::DIGEST_SIZE, Digest};
 
 pub const TAG_SIZE: u64 = DIGEST_SIZE;
 
@@ -98,6 +99,7 @@ impl SHA512HMAC {
         init().unwrap();
 
         key.check()?;
+        key.check_size()?;
 
         let _key = _Key::from_slice(key.as_slice()).unwrap();
         let _tag = authenticate(msg, &_key);
@@ -109,7 +111,9 @@ impl SHA512HMAC {
         init().unwrap();
 
         key.check()?;
+        key.check_size()?;
         tag.check()?;
+        tag.check_size()?;
 
         let _key = _Key::from_slice(key.as_slice()).unwrap();
         let _tag = _Tag::from_slice(tag.as_slice()).unwrap();
@@ -120,11 +124,34 @@ impl SHA512HMAC {
     pub fn check(msg: &[u8], key: &AuthKey, tag: &Tag) -> Result<()> {
         init().unwrap();
 
+        key.check()?;
+        key.check_size()?;
+        tag.check()?;
+        tag.check_size()?;
+
         if !Self::verify(msg, key, tag)? {
             return Err(String::from("invalid tag"));
         }
 
         Ok(())
+    }
+}
+
+impl Authenticate<AuthKey, Tag> for SHA512HMAC {
+    fn generate_key(&mut self) -> Result<AuthKey> {
+        Self::genkey()
+    }
+
+    fn authenticate(&mut self, msg: &[u8], key: &AuthKey) -> Result<Tag> {
+        Self::authenticate(msg, key)
+    }
+
+    fn verify(&mut self, msg: &[u8], key: &AuthKey, tag: &Tag) -> Result<bool> {
+        Self::verify(msg, key, tag)
+    }
+
+    fn check(&mut self, msg: &[u8], key: &AuthKey, tag: &Tag) -> Result<()> {
+        Self::check(msg, key, tag)
     }
 }
 
@@ -145,7 +172,7 @@ fn test_authkey_from_vec() {
 }
 
 #[test]
-fn test_sha512_hmac() {
+fn test_hmac_sha512() {
     let mut msg = Vec::new();
     for _ in 0..500 {
         msg.push(0);
@@ -175,5 +202,41 @@ fn test_sha512_hmac() {
     assert!(!res.unwrap());
 
     let res = SHA512HMAC::check(&msg, &key, &tag);
+    assert!(res.is_err());
+}
+
+#[test]
+fn test_hmac_sha512_authenticate() {
+    let mut msg = Vec::new();
+    for _ in 0..500 {
+        msg.push(0);
+    }
+
+    let mut auth = SHA512HMAC{};
+
+    let res = auth.generate_key();
+    assert!(res.is_ok());
+
+    let key = res.unwrap();
+
+    let res = auth.authenticate(&msg, &key);
+    assert!(res.is_ok());
+
+    let tag = res.unwrap();
+
+    let res = auth.verify(&msg, &key, &tag);
+    assert!(res.is_ok());
+    assert!(res.unwrap());
+
+    let res = auth.check(&msg, &key, &tag);
+    assert!(res.is_ok());
+
+    msg.push(0);
+
+    let res = auth.verify(&msg, &key, &tag);
+    assert!(res.is_ok());
+    assert!(!res.unwrap());
+
+    let res = auth.check(&msg, &key, &tag);
     assert!(res.is_err());
 }

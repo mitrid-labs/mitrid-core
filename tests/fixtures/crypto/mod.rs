@@ -1,11 +1,11 @@
-pub mod sha512;
-pub mod ed25519;
-pub mod hashcash;
-pub mod commit;
-pub mod hmac;
+pub mod hash_sha512;
+pub mod commit_sha512;
+pub mod hmac_sha512;
+pub mod sign_ed25519;
+pub mod hashcash_sha512;
 
-pub use self::sha512::{Digest, SHA512};
-pub use self::ed25519::{SecretKey, PublicKey, Signature, Ed25519};
-pub use self::hashcash::{Proof, HashCash};
-pub use self::commit::{Commitment, SHA512Commit};
-pub use self::hmac::{AuthKey, Tag, SHA512HMAC};
+pub use self::hash_sha512::{Digest, SHA512};
+pub use self::sign_ed25519::{SecretKey, PublicKey, Signature, Ed25519};
+pub use self::hashcash_sha512::{Proof, HashCash};
+pub use self::commit_sha512::{Commitment, SHA512Commit};
+pub use self::hmac_sha512::{AuthKey, Tag, SHA512HMAC};
