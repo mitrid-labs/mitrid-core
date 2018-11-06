@@ -17,7 +17,7 @@ To install the Mitrid Core library, add in your Cargo.toml:
 # Cargo.toml
 
 [dependencies]
-mitrid_core = "^0.6"
+mitrid_core = "^0.7"
 ```
 
 and in the root of your crate:
