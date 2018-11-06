@@ -6,10 +6,9 @@ use mitrid_core::model::Transaction as BaseTransaction;
 use fixture::base::Payload;
 use fixture::base::eval::*;
 use fixture::crypto::Digest;
-use fixture::crypto::{PublicKey, Signature};
 use fixture::model::Amount;
 
-pub type Transaction = BaseTransaction<Digest, Amount, Payload, PublicKey, Signature, Payload, Payload>;
+pub type Transaction = BaseTransaction<Digest, Amount, Payload, Payload, Payload>;
 
 
 #[derive(Clone)]

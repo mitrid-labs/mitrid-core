@@ -6,11 +6,10 @@ use mitrid_core::model::Block as BaseBlock;
 use fixture::base::Payload;
 use fixture::base::eval::*;
 use fixture::crypto::Digest;
-use fixture::crypto::{PublicKey, Signature};
 use fixture::crypto::Proof;
 use fixture::model::Amount;
 
-pub type Block = BaseBlock<Digest, Amount, Payload, PublicKey, Signature, Payload, Payload, Payload, Proof>;
+pub type Block = BaseBlock<Digest, Amount, Payload, Payload, Payload, Payload, Proof>;
 
 #[derive(Clone)]
 pub struct BlockEvaluator {}

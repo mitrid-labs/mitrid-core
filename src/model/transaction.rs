@@ -17,12 +17,10 @@ use model::Output;
 
 /// Type used to produce one or more `Output`s from one or more `Input`s.
 #[derive(Clone, PartialEq, Eq, PartialOrd, Ord, Debug, Default, Hash, Serialize, Deserialize)]
-pub struct Transaction<D, A, IP, Pk, Sig, OP, P>
+pub struct Transaction<D, A, IP, OP, P>
     where   D: Ord + Datable + ConstantSize,
             A: Numerical,
             IP: Datable,
-            Pk: Datable + ConstantSize,
-            Sig: Datable + ConstantSize,
             OP: Datable,
             P: Datable
 {
@@ -33,21 +31,19 @@ pub struct Transaction<D, A, IP, Pk, Sig, OP, P>
     /// Transaction inputs length.
     pub inputs_len: u64,
     /// Transaction inputs.
-    pub inputs: Vec<Input<D, A, IP, Pk, Sig>>,
+    pub inputs: Vec<Input<D, A, IP>>,
     /// Transaction outputs length.
     pub outputs_len: u64,
     /// Transaction outputs.
-    pub outputs: Vec<Output<D, Pk, A, OP>>,
+    pub outputs: Vec<Output<D, A, OP>>,
     /// Custom payload.
     pub payload: P,
 }
 
-impl<D, A, IP, Pk, Sig, OP, P> Transaction<D, A, IP, Pk, Sig, OP, P>
+impl<D, A, IP, OP, P> Transaction<D, A, IP, OP, P>
     where   D: Ord + Datable + ConstantSize,
             A: Numerical,
             IP: Datable,
-            Pk: Datable + ConstantSize,
-            Sig: Datable + ConstantSize,
             OP: Datable,
             P: Datable,
             Self: Serializable
@@ -77,7 +73,7 @@ impl<D, A, IP, Pk, Sig, OP, P> Transaction<D, A, IP, Pk, Sig, OP, P>
     }
 
     /// Sets the `Transaction`s set of inputs and its lenght.
-    pub fn inputs(mut self, inputs: &Vec<Input<D, A, IP, Pk, Sig>>,) -> Result<Self>
+    pub fn inputs(mut self, inputs: &Vec<Input<D, A, IP>>,) -> Result<Self>
     {
         inputs.check()?;
 
@@ -90,7 +86,7 @@ impl<D, A, IP, Pk, Sig, OP, P> Transaction<D, A, IP, Pk, Sig, OP, P>
     }
 
     /// Sets the `Transaction`s set of outputs and its lenght.
-    pub fn outputs(mut self, outputs: &Vec<Output<D, Pk, A, OP>>,) -> Result<Self>
+    pub fn outputs(mut self, outputs: &Vec<Output<D, A, OP>>,) -> Result<Self>
     {
         outputs.check()?;
 
@@ -193,12 +189,10 @@ impl<D, A, IP, Pk, Sig, OP, P> Transaction<D, A, IP, Pk, Sig, OP, P>
     }
 }
 
-impl<D, A, IP, Pk, Sig, OP, P> Sizable for Transaction<D, A, IP, Pk, Sig, OP, P>
+impl<D, A, IP, OP, P> Sizable for Transaction<D, A, IP, OP, P>
     where   D: Ord + Datable + ConstantSize,
             A: Numerical,
             IP: Datable,
-            Pk: Datable + ConstantSize,
-            Sig: Datable + ConstantSize,
             OP: Datable,
             P: Datable
 {
@@ -213,12 +207,10 @@ impl<D, A, IP, Pk, Sig, OP, P> Sizable for Transaction<D, A, IP, Pk, Sig, OP, P>
     }
 }
 
-impl<D, A, IP, Pk, Sig, OP, P> Checkable for Transaction<D, A, IP, Pk, Sig, OP, P>
+impl<D, A, IP, OP, P> Checkable for Transaction<D, A, IP, OP, P>
     where   D: Ord + Datable + ConstantSize,
             A: Numerical,
             IP: Datable,
-            Pk: Datable + ConstantSize,
-            Sig: Datable + ConstantSize,
             OP: Datable,
             P: Datable
 {
@@ -251,38 +243,32 @@ impl<D, A, IP, Pk, Sig, OP, P> Checkable for Transaction<D, A, IP, Pk, Sig, OP, 
     }
 }
 
-impl<D, A, IP, Pk, Sig, OP, P> Serializable for Transaction<D, A, IP, Pk, Sig, OP, P>
+impl<D, A, IP, OP, P> Serializable for Transaction<D, A, IP, OP, P>
     where   D: Ord + Datable + ConstantSize + Serializable,
             A: Numerical + Serializable,
             IP: Datable + Serializable,
-            Pk: Datable + ConstantSize + Serializable,
-            Sig: Datable + ConstantSize + Serializable,
             OP: Datable + Serializable,
             P: Datable + Serializable
 {}
 
-impl<D, A, IP, Pk, Sig, OP, P> Datable for Transaction<D, A, IP, Pk, Sig, OP, P>
+impl<D, A, IP, OP, P> Datable for Transaction<D, A, IP, OP, P>
     where   D: Ord + Datable + ConstantSize,
             A: Numerical,
             IP: Datable,
-            Pk: Datable + ConstantSize,
-            Sig: Datable + ConstantSize,
             OP: Datable,
             P: Datable
 {}
 
 pub const TRANSACTION_STORE_PREFIX: u64 = 3;
 
-impl<St, S, D, A, IP, Pk, Sig, OP, P>
-    Storable<St, S, D, Transaction<D, A, IP, Pk, Sig, OP, P>>
-    for Transaction<D, A, IP, Pk, Sig, OP, P>
+impl<St, S, D, A, IP, OP, P>
+    Storable<St, S, D, Transaction<D, A, IP, OP, P>>
+    for Transaction<D, A, IP, OP, P>
     where   St: Store<S>,
             S: Datable + Serializable,
             D: Ord + Datable + ConstantSize + Serializable,
             A: Numerical + Serializable,
             IP: Datable + Serializable,
-            Pk: Datable + ConstantSize + Serializable,
-            Sig: Datable + ConstantSize + Serializable,
             OP: Datable + Serializable,
             P: Datable + Serializable
 {

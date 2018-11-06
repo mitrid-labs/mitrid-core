@@ -15,9 +15,8 @@ use io::{Store, Storable};
 
 /// Type representing the output of a `Transaction`.
 #[derive(Clone, PartialEq, Eq, PartialOrd, Ord, Debug, Default, Hash, Serialize, Deserialize)]
-pub struct Output<D, Pk, A, P>
+pub struct Output<D, A, P>
     where   D: Ord + Datable + ConstantSize,
-            Pk: Datable + ConstantSize,
             A: Numerical,
             P: Datable
 {
@@ -25,19 +24,14 @@ pub struct Output<D, Pk, A, P>
     pub id: D,
     /// Output metadata.
     pub meta: Meta,
-    /// Output sender.
-    pub sender: Pk,
-    /// Output receiver.
-    pub receiver: Pk,
     /// Output amount.
     pub amount: A,
     /// Custom payload.
     pub payload: P,
 }
 
-impl<D, Pk, A, P> Output<D, Pk, A, P>
+impl<D, A, P> Output<D, A, P>
     where   D: Ord + Datable + ConstantSize,
-            Pk: Datable + ConstantSize,
             A: Numerical,
             P: Datable,
             Self: Serializable
@@ -60,26 +54,6 @@ impl<D, Pk, A, P> Output<D, Pk, A, P>
     pub fn meta(mut self, meta: &Meta) -> Result<Self> {
         meta.check()?;
         self.meta = meta.clone();
-
-        self.update_size();
-
-        Ok(self)
-    }
-
-    /// Sets the `Output`'s sender.
-    pub fn sender(mut self, sender: &Pk) -> Result<Self> {
-        sender.check()?;
-        self.sender = sender.clone();
-
-        self.update_size();
-
-        Ok(self)
-    }
-
-    /// Sets the `Output`'s receiver.
-    pub fn receiver(mut self, receiver: &Pk) -> Result<Self> {
-        receiver.check()?;
-        self.receiver = receiver.clone();
 
         self.update_size();
 
@@ -187,25 +161,21 @@ impl<D, Pk, A, P> Output<D, Pk, A, P>
     }
 }
 
-impl<D, Pk, A, P> Sizable for Output<D, Pk, A, P>
+impl<D, A, P> Sizable for Output<D, A, P>
     where   D: Ord + Datable + ConstantSize,
-            Pk: Datable + ConstantSize,
             A: Numerical,
             P: Datable
 {
     fn size(&self) -> u64 {
         self.id.size() +
             self.meta.size() +
-            self.sender.size() +
-            self.receiver.size() +
             self.amount.size() +
             self.payload.size()
     }
 }
 
-impl<D, Pk, A, P> Checkable for Output<D, Pk, A, P>
+impl<D, A, P> Checkable for Output<D, A, P>
     where   D: Ord + Datable + ConstantSize,
-            Pk: Datable + ConstantSize,
             A: Numerical,
             P: Datable
 {
@@ -217,11 +187,7 @@ impl<D, Pk, A, P> Checkable for Output<D, Pk, A, P>
         if self.meta.get_size() != self.size() {
             return Err(String::from("invalid meta size"));
         }
-        
-        self.sender.check()?;
-        self.sender.check_size()?;
-        self.receiver.check()?;
-        self.receiver.check_size()?;
+
         self.amount.check()?;
         self.payload.check()?;
 
@@ -229,29 +195,26 @@ impl<D, Pk, A, P> Checkable for Output<D, Pk, A, P>
     }
 }
 
-impl<D, Pk, A, P> Serializable for Output<D, Pk, A, P>
+impl<D, A, P> Serializable for Output<D, A, P>
     where   D: Ord + Datable + ConstantSize + Serializable,
-            Pk: Datable + ConstantSize + Serializable,
             A: Numerical + Serializable,
             P: Datable + Serializable
 {}
 
-impl<D, Pk, A, P> Datable for Output<D, Pk, A, P>
+impl<D, A, P> Datable for Output<D, A, P>
     where   D: Ord + Datable + ConstantSize,
-            Pk: Datable + ConstantSize,
             A: Numerical,
             P: Datable
 {}
 
 pub const OUTPUT_STORE_PREFIX: u64 = 2;
 
-impl<St, S, D, Pk, A, P>
-    Storable<St, S, D, Output<D, Pk, A, P>>
-    for Output<D, Pk, A, P>
+impl<St, S, D, A, P>
+    Storable<St, S, D, Output<D, A, P>>
+    for Output<D, A, P>
     where   St: Store<S>,
             S: Datable + Serializable,
             D: Ord + Datable + ConstantSize + Serializable,
-            Pk: Datable + ConstantSize + Serializable,
             A: Numerical + Serializable,
             P: Datable + Serializable
 {

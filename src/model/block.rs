@@ -19,12 +19,10 @@ use model::BlockNode;
 
 /// Type used to represent a bundle of confirmed `Transaction`s.
 #[derive(Clone, PartialEq, Eq, PartialOrd, Ord, Debug, Default, Hash, Serialize, Deserialize)]
-pub struct Block<D, A, IP, Pk, Sig, OP, TP, P, Pr>
+pub struct Block<D, A, IP, OP, TP, P, Pr>
     where   D: Ord + Datable + ConstantSize,
             A: Numerical,
             IP: Datable,
-            Pk: Datable + ConstantSize,
-            Sig: Datable + ConstantSize,
             OP: Datable,
             TP: Datable,
             P: Datable,
@@ -43,19 +41,17 @@ pub struct Block<D, A, IP, Pk, Sig, OP, TP, P, Pr>
     /// Block's transactions length.
     pub transactions_len: u64,
     /// Block's transactions.
-    pub transactions: Vec<Transaction<D, A, IP, Pk, Sig, OP, TP>>,
+    pub transactions: Vec<Transaction<D, A, IP, OP, TP>>,
     /// Custom payload.
     pub payload: P,
     /// Proof of the block.
     pub proof: Pr,
 }
 
-impl<D, A, IP, Pk, Sig, OP, TP, P, Pr> Block<D, A, IP, Pk, Sig, OP, TP, P, Pr>
+impl<D, A, IP, OP, TP, P, Pr> Block<D, A, IP, OP, TP, P, Pr>
     where   D: Ord + Datable + ConstantSize,
             A: Numerical,
             IP: Datable,
-            Pk: Datable + ConstantSize,
-            Sig: Datable + ConstantSize,
             OP: Datable,
             TP: Datable,
             P: Datable,
@@ -109,7 +105,7 @@ impl<D, A, IP, Pk, Sig, OP, TP, P, Pr> Block<D, A, IP, Pk, Sig, OP, TP, P, Pr>
     }
 
     /// Sets the `Block`s set of transactions and its lenght.
-    pub fn transactions(mut self, transactions: &Vec<Transaction<D, A, IP, Pk, Sig, OP, TP>>) -> Result<Self>
+    pub fn transactions(mut self, transactions: &Vec<Transaction<D, A, IP, OP, TP>>) -> Result<Self>
     {
         transactions.check()?;
 
@@ -255,12 +251,10 @@ impl<D, A, IP, Pk, Sig, OP, TP, P, Pr> Block<D, A, IP, Pk, Sig, OP, TP, P, Pr>
     }
 }
 
-impl<D, A, IP, Pk, Sig, OP, TP, P, Pr> Sizable for Block<D, A, IP, Pk, Sig, OP, TP, P, Pr>
+impl<D, A, IP, OP, TP, P, Pr> Sizable for Block<D, A, IP, OP, TP, P, Pr>
     where   D: Ord + Datable + ConstantSize,
             A: Numerical,
             IP: Datable,
-            Pk: Datable + ConstantSize,
-            Sig: Datable + ConstantSize,
             OP: Datable,
             TP: Datable,
             P: Datable,
@@ -279,12 +273,10 @@ impl<D, A, IP, Pk, Sig, OP, TP, P, Pr> Sizable for Block<D, A, IP, Pk, Sig, OP, 
     }
 }
 
-impl<D, A, IP, Pk, Sig, OP, TP, P, Pr> Checkable for Block<D, A, IP, Pk, Sig, OP, TP, P, Pr>
+impl<D, A, IP, OP, TP, P, Pr> Checkable for Block<D, A, IP, OP, TP, P, Pr>
     where   D: Ord + Datable + ConstantSize,
             A: Numerical,
             IP: Datable,
-            Pk: Datable + ConstantSize,
-            Sig: Datable + ConstantSize,
             OP: Datable,
             TP: Datable,
             P: Datable,
@@ -321,24 +313,20 @@ impl<D, A, IP, Pk, Sig, OP, TP, P, Pr> Checkable for Block<D, A, IP, Pk, Sig, OP
     }
 }
 
-impl<D, A, IP, Pk, Sig, OP, TP, P, Pr> Serializable for Block<D, A, IP, Pk, Sig, OP, TP, P, Pr>
+impl<D, A, IP, OP, TP, P, Pr> Serializable for Block<D, A, IP, OP, TP, P, Pr>
     where   D: Ord + Datable + ConstantSize + Serializable,
             A: Numerical + Serializable,
             IP: Datable + Serializable,
-            Pk: Datable + ConstantSize + Serializable,
-            Sig: Datable + ConstantSize + Serializable,
             OP: Datable + Serializable,
             TP: Datable + Serializable,
             P: Datable + Serializable,
             Pr: Datable + Serializable
 {}
 
-impl<D, A, IP, Pk, Sig, OP, TP, P, Pr> Datable for Block<D, A, IP, Pk, Sig, OP, TP, P, Pr>
+impl<D, A, IP, OP, TP, P, Pr> Datable for Block<D, A, IP, OP, TP, P, Pr>
     where   D: Ord + Datable + ConstantSize,
             A: Numerical,
             IP: Datable,
-            Pk: Datable + ConstantSize,
-            Sig: Datable + ConstantSize,
             OP: Datable,
             TP: Datable,
             P: Datable,
@@ -347,16 +335,14 @@ impl<D, A, IP, Pk, Sig, OP, TP, P, Pr> Datable for Block<D, A, IP, Pk, Sig, OP, 
 
 pub const BLOCK_STORE_PREFIX: u64 = 5;
 
-impl<St, S, D, A, IP, Pk, Sig, OP, TP, P, Pr>
-    Storable<St, S, D, Block<D, A, IP, Pk, Sig, OP, TP, P, Pr>>
-    for Block<D, A, IP, Pk, Sig, OP, TP, P, Pr>
+impl<St, S, D, A, IP, OP, TP, P, Pr>
+    Storable<St, S, D, Block<D, A, IP, OP, TP, P, Pr>>
+    for Block<D, A, IP, OP, TP, P, Pr>
     where   St: Store<S>,
             S: Datable + Serializable,
             D: Ord + Datable + ConstantSize + Serializable,
             A: Numerical + Serializable,
             IP: Datable + Serializable,
-            Pk: Datable + ConstantSize + Serializable,
-            Sig: Datable + ConstantSize + Serializable,
             OP: Datable + Serializable,
             TP: Datable + Serializable,
             P: Datable + Serializable,

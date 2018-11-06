@@ -6,10 +6,9 @@ use mitrid_core::model::Input as BaseInput;
 use fixture::base::Payload;
 use fixture::base::eval::*;
 use fixture::crypto::Digest;
-use fixture::crypto::{PublicKey, Signature};
 use fixture::model::Amount;
 
-pub type Input = BaseInput<Digest, Amount, Payload, PublicKey, Signature>;
+pub type Input = BaseInput<Digest, Amount, Payload>;
 
 #[derive(Clone)]
 pub struct InputEvaluator {}

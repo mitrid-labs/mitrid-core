@@ -6,10 +6,9 @@ use mitrid_core::model::Output as BaseOutput;
 use fixture::base::Payload;
 use fixture::base::eval::*;
 use fixture::crypto::Digest;
-use fixture::crypto::PublicKey;
 use fixture::model::Amount;
 
-pub type Output = BaseOutput<Digest, PublicKey, Amount, Payload>;
+pub type Output = BaseOutput<Digest, Amount, Payload>;
 
 #[derive(Clone)]
 pub struct OutputEvaluator {}

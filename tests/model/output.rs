@@ -8,7 +8,6 @@ use mitrid_core::io::Storable;
 use fixture::base::eval::*;
 use fixture::base::Payload;
 use fixture::crypto::{Digest, Hasher};
-use fixture::crypto::PublicKey;
 use fixture::model::Amount;
 use fixture::model::output::*;
 use fixture::io::store::*;
@@ -28,22 +27,6 @@ fn test_output_meta() {
 
     let res = Output::new().meta(&invalid_meta);
     assert!(res.is_err())
-}
-
-#[test]
-fn test_output_sender() {
-    let sender = PublicKey::default();
-    
-    let res = Output::new().sender(&sender);
-    assert!(res.is_ok());
-}
-
-#[test]
-fn test_output_receiver() {
-    let receiver = PublicKey::default();
-    
-    let res = Output::new().receiver(&receiver);
-    assert!(res.is_ok());
 }
 
 #[test]
@@ -90,17 +73,11 @@ fn test_output_check_digest() {
 #[test]
 fn test_output_finalize() {
     let meta = Meta::default();
-    let sender = PublicKey::default();
-    let receiver = PublicKey::default();
     let amount = Amount::default();
     let payload = Payload::default();
 
     let mut output = Output::new()
                         .meta(&meta)
-                        .unwrap()
-                        .sender(&sender)
-                        .unwrap()
-                        .receiver(&receiver)
                         .unwrap()
                         .amount(&amount)
                         .unwrap()
@@ -127,8 +104,6 @@ fn test_output_finalize() {
 #[test]
 fn test_output_check() {
     let meta = Meta::default();
-    let sender = PublicKey::default();
-    let receiver = PublicKey::default();
     let amount = Amount::default();
     let payload = Payload::default();
 
@@ -136,10 +111,6 @@ fn test_output_check() {
 
     let mut output = Output::new()
                         .meta(&meta)
-                        .unwrap()
-                        .sender(&sender)
-                        .unwrap()
-                        .receiver(&receiver)
                         .unwrap()
                         .amount(&amount)
                         .unwrap()
@@ -166,8 +137,6 @@ fn test_output_check() {
 #[test]
 fn test_output_eval() {
     let meta = Meta::default();
-    let sender = PublicKey::default();
-    let receiver = PublicKey::default();
     let amount = Amount::default();
     let payload = Payload::new("pAyLoAd");
 
@@ -175,10 +144,6 @@ fn test_output_eval() {
 
     let mut output = Output::new()
                         .meta(&meta)
-                        .unwrap()
-                        .sender(&sender)
-                        .unwrap()
-                        .receiver(&receiver)
                         .unwrap()
                         .amount(&amount)
                         .unwrap()
@@ -269,8 +234,6 @@ fn test_output_hex() {
 #[test]
 fn test_output_store() {
     let meta = Meta::default();
-    let sender = PublicKey::default();
-    let receiver = PublicKey::default();
     let amount = Amount::default();
     let payload = Payload::default();
 
@@ -278,10 +241,6 @@ fn test_output_store() {
 
     let output = Output::new()
                     .meta(&meta)
-                    .unwrap()
-                    .sender(&sender)
-                    .unwrap()
-                    .receiver(&receiver)
                     .unwrap()
                     .amount(&amount)
                     .unwrap()

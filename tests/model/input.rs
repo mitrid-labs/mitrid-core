@@ -1,7 +1,6 @@
 use mitrid_core::base::Checkable;
 use mitrid_core::base::Sizable;
 use mitrid_core::base::Serializable;
-use mitrid_core::crypto::Sign;
 use mitrid_core::util::Version;
 use mitrid_core::base::Meta;
 use mitrid_core::io::Storable;
@@ -9,7 +8,6 @@ use mitrid_core::io::Storable;
 use fixture::base::eval::*;
 use fixture::base::Payload;
 use fixture::crypto::{Digest, Hasher};
-use fixture::crypto::Signer;
 use fixture::model::Amount;
 use fixture::model::coin::*;
 use fixture::model::input::*;
@@ -74,55 +72,6 @@ fn test_input_payload() {
 }
 
 #[test]
-fn test_input_sign() {
-    let mut signer = Signer{};
-    let (pk, sk) = signer.generate_keys(None).unwrap();
-
-    let input = Input::new();
-
-    let res = input.sign(&sk, &pk, &mut signer);
-
-    assert!(res.is_ok());
-}
-
-#[test]
-fn test_input_verify_sign() {
-    let mut signer = Signer{};
-    let (pk, sk) = signer.generate_keys(None).unwrap();
-
-    let mut input = Input::new()
-                    .sign(&sk, &pk, &mut signer)
-                    .unwrap();
-
-    let res = input.verify_signature(&mut signer);
-
-    assert!(res.is_ok());
-    assert!(res.unwrap());
-
-    input = input.payload(&Payload::new("a different payload")).unwrap();
-    let res = input.verify_signature(&mut signer);
-    assert!(res.is_ok());
-    assert!(!res.unwrap());
-}
-
-#[test]
-fn test_input_check_sign() {
-    let mut signer = Signer{};
-    let (pk, sk) = signer.generate_keys(None).unwrap();
-
-    let mut input = Input::new()
-                        .sign(&sk, &pk, &mut signer)
-                        .unwrap();
-
-    let res = input.check_signature(&mut signer);
-    assert!(res.is_ok());
-
-    input = input.payload(&Payload::new("a different payload")).unwrap();
-    let res = input.check_signature(&mut signer);
-    assert!(res.is_err());
-}
-
-#[test]
 fn test_input_digest() {
     let input = Input::new();
 
@@ -176,17 +125,12 @@ fn test_input_finalize() {
 
     let payload = Payload::default();
 
-    let mut signer = Signer{};
-    let (pk, sk) = signer.generate_keys(None).unwrap();
-
     let mut input = Input::new()
                         .meta(&meta)
                         .unwrap()
                         .coin(&coin)
                         .unwrap()
                         .payload(&payload)
-                        .unwrap()
-                        .sign(&sk, &pk, &mut signer)
                         .unwrap();
 
     let res = input.clone().finalize(&mut hasher);
@@ -223,17 +167,12 @@ fn test_input_check() {
 
     let payload = Payload::default();
 
-    let mut signer = Signer{};
-    let (pk, sk) = signer.generate_keys(None).unwrap();
-
     let mut input = Input::new()
                         .meta(&meta)
                         .unwrap()
                         .coin(&coin)
                         .unwrap()
                         .payload(&payload)
-                        .unwrap()
-                        .sign(&sk, &pk, &mut signer)
                         .unwrap()
                         .finalize(&mut hasher)
                         .unwrap();
@@ -272,17 +211,12 @@ fn test_input_eval() {
 
     let payload = Payload::new("pAyLoAd");
 
-    let mut signer = Signer{};
-    let (pk, sk) = signer.generate_keys(None).unwrap();
-
     let mut input = Input::new()
                         .meta(&meta)
                         .unwrap()
                         .coin(&coin)
                         .unwrap()
                         .payload(&payload)
-                        .unwrap()
-                        .sign(&sk, &pk, &mut signer)
                         .unwrap()
                         .finalize(&mut hasher)
                         .unwrap();
@@ -385,17 +319,12 @@ fn test_input_store() {
 
     let payload = Payload::default();
 
-    let mut signer = Signer{};
-    let (pk, sk) = signer.generate_keys(None).unwrap();
-
     let input = Input::new()
                     .meta(&meta)
                     .unwrap()
                     .coin(&coin)
                     .unwrap()
                     .payload(&payload)
-                    .unwrap()
-                    .sign(&sk, &pk, &mut signer)
                     .unwrap()
                     .finalize(&mut hasher)
                     .unwrap();

@@ -1,7 +1,6 @@
 use mitrid_core::base::Checkable;
 use mitrid_core::base::Sizable;
 use mitrid_core::base::Serializable;
-use mitrid_core::crypto::Sign;
 use mitrid_core::util::Version;
 use mitrid_core::base::Meta;
 use mitrid_core::io::Storable;
@@ -9,7 +8,6 @@ use mitrid_core::io::Storable;
 use fixture::base::eval::*;
 use fixture::base::Payload;
 use fixture::crypto::{Digest, Hasher};
-use fixture::crypto::{PublicKey, Signer};
 use fixture::crypto::Prover;
 use fixture::model::Amount;
 use fixture::model::coin::*;
@@ -75,9 +73,6 @@ fn test_block_transactions() {
 
     let mut hasher = Hasher{};
 
-    let mut signer = Signer{};
-    let (pk, sk) = signer.generate_keys(None).unwrap();
-
     let input = Input::new()
                     .meta(&Meta::default())
                     .unwrap()
@@ -85,17 +80,11 @@ fn test_block_transactions() {
                     .unwrap()
                     .payload(&Payload::default())
                     .unwrap()
-                    .sign(&sk, &pk, &mut signer)
-                    .unwrap()
                     .finalize(&mut hasher)
                     .unwrap();
 
     let output = Output::new()
                     .meta(&Meta::default())
-                    .unwrap()
-                    .sender(&PublicKey::default())
-                    .unwrap()
-                    .receiver(&PublicKey::default())
                     .unwrap()
                     .amount(&Amount::default())
                     .unwrap()
@@ -241,9 +230,6 @@ fn test_block_finalize() {
                     .finalize(&mut hasher)
                     .unwrap();
 
-    let mut signer = Signer{};
-    let (pk, sk) = signer.generate_keys(None).unwrap();
-
     let input = Input::new()
                     .meta(&Meta::default())
                     .unwrap()
@@ -251,17 +237,11 @@ fn test_block_finalize() {
                     .unwrap()
                     .payload(&Payload::default())
                     .unwrap()
-                    .sign(&sk, &pk, &mut signer)
-                    .unwrap()
                     .finalize(&mut hasher)
                     .unwrap();
 
     let output = Output::new()
                     .meta(&Meta::default())
-                    .unwrap()
-                    .sender(&PublicKey::default())
-                    .unwrap()
-                    .receiver(&PublicKey::default())
                     .unwrap()
                     .amount(&Amount::default())
                     .unwrap()
@@ -322,9 +302,6 @@ fn test_block_check() {
                     .finalize(&mut hasher)
                     .unwrap();
 
-    let mut signer = Signer{};
-    let (pk, sk) = signer.generate_keys(None).unwrap();
-
     let input = Input::new()
                     .meta(&Meta::default())
                     .unwrap()
@@ -332,17 +309,11 @@ fn test_block_check() {
                     .unwrap()
                     .payload(&Payload::default())
                     .unwrap()
-                    .sign(&sk, &pk, &mut signer)
-                    .unwrap()
                     .finalize(&mut hasher)
                     .unwrap();
 
     let output = Output::new()
                     .meta(&Meta::default())
-                    .unwrap()
-                    .sender(&PublicKey::default())
-                    .unwrap()
-                    .receiver(&PublicKey::default())
                     .unwrap()
                     .amount(&Amount::default())
                     .unwrap()
@@ -405,9 +376,6 @@ fn test_block_eval() {
                     .finalize(&mut hasher)
                     .unwrap();
 
-    let mut signer = Signer{};
-    let (pk, sk) = signer.generate_keys(None).unwrap();
-
     let input = Input::new()
                     .meta(&Meta::default())
                     .unwrap()
@@ -415,17 +383,11 @@ fn test_block_eval() {
                     .unwrap()
                     .payload(&Payload::default())
                     .unwrap()
-                    .sign(&sk, &pk, &mut signer)
-                    .unwrap()
                     .finalize(&mut hasher)
                     .unwrap();
 
     let output = Output::new()
                     .meta(&Meta::default())
-                    .unwrap()
-                    .sender(&PublicKey::default())
-                    .unwrap()
-                    .receiver(&PublicKey::default())
                     .unwrap()
                     .amount(&Amount::default())
                     .unwrap()
@@ -560,9 +522,6 @@ fn test_block_store() {
                     .finalize(&mut hasher)
                     .unwrap();
 
-    let mut signer = Signer{};
-    let (pk, sk) = signer.generate_keys(None).unwrap();
-
     let input = Input::new()
                     .meta(&Meta::default())
                     .unwrap()
@@ -570,17 +529,11 @@ fn test_block_store() {
                     .unwrap()
                     .payload(&Payload::default())
                     .unwrap()
-                    .sign(&sk, &pk, &mut signer)
-                    .unwrap()
                     .finalize(&mut hasher)
                     .unwrap();
 
     let output = Output::new()
                     .meta(&Meta::default())
-                    .unwrap()
-                    .sender(&PublicKey::default())
-                    .unwrap()
-                    .receiver(&PublicKey::default())
                     .unwrap()
                     .amount(&Amount::default())
                     .unwrap()
