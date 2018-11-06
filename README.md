@@ -4,10 +4,7 @@
 [![Docs.rs](https://docs.rs/mitrid_core/badge.svg)](https://docs.rs/mitrid_core)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://github.com/mitrid-labs/mitrid-core/blob/master/LICENSE)
 
-Mitrid is a framework for building blockchains. It is meant to be flexible enough to cover different architectures (permissionless and permissioned; with authenticated chains, trees or directed graphs) and to let users use the cryptographical protocols they prefer. Add-ons will be added to ease development.
-<br>
-<br>
-Mitrid-core is the heart of the Mitrid framework and provides its models and crypto traits.
+Mitrid Core is a framework for building blockchains. It is meant to be flexible enough to cover different architectures (permissionless and permissioned; with authenticated chains, trees or directed graphs) and to let users use the cryptographical protocols they prefer. Add-ons will be added to ease development.
 <br>
 <br>
 
@@ -20,7 +17,7 @@ To install the mitrid-core library, add in your Cargo.toml:
 # Cargo.toml
 
 [dependencies]
-mitrid_core = "^0.5"
+mitrid_core = "^0.6"
 ```
 
 and in the root of your crate:
