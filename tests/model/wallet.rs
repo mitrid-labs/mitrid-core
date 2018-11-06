@@ -1,7 +1,6 @@
 use mitrid_core::base::Checkable;
 use mitrid_core::base::Sizable;
 use mitrid_core::base::Serializable;
-use mitrid_core::crypto::Sign;
 use mitrid_core::util::Version;
 use mitrid_core::base::Meta;
 use mitrid_core::io::Storable;
@@ -9,8 +8,9 @@ use mitrid_core::io::Storable;
 use fixture::base::eval::*;
 use fixture::base::Payload;
 use fixture::crypto::{Digest, Hasher};
-use fixture::crypto::Signer;
 use fixture::model::wallet::*;
+use fixture::model::Amount;
+use fixture::model::coin::*;
 use fixture::io::store::*;
 
 #[test]
@@ -31,60 +31,65 @@ fn test_wallet_meta() {
 }
 
 #[test]
+fn test_wallet_coins() {
+    let valid_meta = Meta::default();
+    let tx_id = Digest::default();
+    let out_idx = 0;
+    let out_amount = Amount::default();
+
+    let mut hasher = Hasher{};
+
+    let coin = Coin::new()
+                .meta(&valid_meta)
+                .unwrap()
+                .output_data(&tx_id, out_idx, &out_amount)
+                .unwrap()
+                .finalize(&mut hasher)
+                .unwrap();
+
+    let res = Wallet::default().unspent_coins(&vec![coin.clone()]);
+    assert!(res.is_ok());
+
+    let mut wallet = res.unwrap();
+
+    assert_eq!(wallet.unspent_coins_len, 1);
+    assert_eq!(wallet.spent_coins_len, 0);
+
+    let unspent_coin = wallet.unspent_coins[0].clone();
+    assert_eq!(&unspent_coin, &coin);
+
+    let res = wallet.clone().spent_coins(&vec![coin.clone()]);
+    assert!(res.is_err());
+
+    let res = wallet.spend_coin(&coin);
+    assert!(res.is_ok());
+
+    assert_eq!(wallet.unspent_coins_len, 0);
+    assert_eq!(wallet.spent_coins_len, 1);
+
+    let spent_coin = wallet.spent_coins[0].clone();
+    assert_eq!(&spent_coin, &coin);
+
+    // TODO: test del spent + add unspent
+    let res = wallet.del_spent_coin(&spent_coin);
+    assert!(res.is_ok());
+
+    let res = wallet.add_unspent_coin(&spent_coin);
+    assert!(res.is_ok());
+
+    assert_eq!(wallet.unspent_coins_len, 1);
+    assert_eq!(wallet.spent_coins_len, 0);
+
+    let unspent_coin = wallet.unspent_coins[0].clone();
+    assert_eq!(&unspent_coin, &coin);
+}
+
+#[test]
 fn test_wallet_payload() {
     let payload = Payload::default();
 
     let res = Wallet::new().payload(&payload);
     assert!(res.is_ok())
-}
-
-#[test]
-fn test_wallet_sign() {
-    let mut signer = Signer{};
-    let (pk, sk) = signer.generate_keys(None).unwrap();
-
-    let wallet = Wallet::new();
-
-    let res = wallet.sign(&sk, &pk, &mut signer);
-
-    assert!(res.is_ok());
-}
-
-#[test]
-fn test_wallet_verify_sign() {
-    let mut signer = Signer{};
-    let (pk, sk) = signer.generate_keys(None).unwrap();
-
-    let mut wallet = Wallet::new()
-                    .sign(&sk, &pk, &mut signer)
-                    .unwrap();
-
-    let res = wallet.verify_signature(&mut signer);
-
-    assert!(res.is_ok());
-    assert!(res.unwrap());
-
-    wallet = wallet.payload(&Payload::new("a different payload")).unwrap();
-    let res = wallet.verify_signature(&mut signer);
-    assert!(res.is_ok());
-    assert!(!res.unwrap());
-}
-
-#[test]
-fn test_wallet_check_sign() {
-    let mut signer = Signer{};
-    let (pk, sk) = signer.generate_keys(None).unwrap();
-
-    let mut wallet = Wallet::new()
-                        .sign(&sk, &pk, &mut signer)
-                        .unwrap();
-
-    let res = wallet.check_signature(&mut signer);
-    assert!(res.is_ok());
-
-    wallet = wallet.payload(&Payload::new("a different payload")).unwrap();
-    let res = wallet.check_signature(&mut signer);
-    assert!(res.is_err());
 }
 
 #[test]
@@ -124,15 +129,10 @@ fn test_wallet_check_digest() {
 
 #[test]
 fn test_wallet_finalize() {
-    let mut signer = Signer{};
-    let (pk, sk) = signer.generate_keys(None).unwrap();
-
     let mut wallet = Wallet::new()
                         .meta(&Meta::default())
                         .unwrap()
                         .payload(&Payload::default())
-                        .unwrap()
-                        .sign(&sk, &pk, &mut signer)
                         .unwrap();
 
     let mut hasher = Hasher{};
@@ -153,17 +153,12 @@ fn test_wallet_finalize() {
 
 #[test]
 fn test_wallet_check() {
-    let mut signer = Signer{};
-    let (pk, sk) = signer.generate_keys(None).unwrap();
-
     let mut hasher = Hasher{};
 
     let mut wallet = Wallet::new()
                         .meta(&Meta::default())
                         .unwrap()
                         .payload(&Payload::default())
-                        .unwrap()
-                        .sign(&sk, &pk, &mut signer)
                         .unwrap()
                         .finalize(&mut hasher)
                         .unwrap();
@@ -186,17 +181,12 @@ fn test_wallet_check() {
 fn test_wallet_eval() {
     let payload = Payload::new("pAyLoAd");
 
-    let mut signer = Signer{};
-    let (pk, sk) = signer.generate_keys(None).unwrap();
-
     let mut hasher = Hasher{};
 
     let mut wallet = Wallet::new()
                         .meta(&Meta::default())
                         .unwrap()
                         .payload(&payload)
-                        .unwrap()
-                        .sign(&sk, &pk, &mut signer)
                         .unwrap()
                         .finalize(&mut hasher)
                         .unwrap();
@@ -282,17 +272,12 @@ fn test_wallet_hex() {
 
 #[test]
 fn test_wallet_store() {
-    let mut signer = Signer{};
-    let (pk, sk) = signer.generate_keys(None).unwrap();
-
     let mut hasher = Hasher{};
 
     let wallet = Wallet::new()
                     .meta(&Meta::default())
                     .unwrap()
                     .payload(&Payload::default())
-                    .unwrap()
-                    .sign(&sk, &pk, &mut signer)
                     .unwrap()
                     .finalize(&mut hasher)
                     .unwrap();

@@ -6,9 +6,9 @@ use mitrid_core::model::Wallet as BaseWallet;
 use fixture::base::Payload;
 use fixture::base::eval::*;
 use fixture::crypto::Digest;
-use fixture::crypto::{SecretKey, PublicKey, Signature};
+use fixture::model::Amount;
 
-pub type Wallet = BaseWallet<Digest, SecretKey, PublicKey, Signature, Payload>;
+pub type Wallet = BaseWallet<Digest, Amount, Payload>;
 
 #[derive(Clone)]
 pub struct WalletEvaluator {}

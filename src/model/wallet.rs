@@ -8,39 +8,39 @@ use base::Datable;
 use base::Serializable;
 use base::{Sizable, ConstantSize};
 use base::{Eval, EvalMut};
+use base::Numerical;
 use base::Meta;
-use crypto::{Hash, Sign};
+use crypto::Hash;
 use io::{Store, Storable};
+use model::Coin;
 
 /// Type used to represent a wallet (account) in the distributed ledger.
 #[derive(Clone, PartialEq, Eq, PartialOrd, Ord, Debug, Default, Hash, Serialize, Deserialize)]
-pub struct Wallet<D, Sk, Pk, Sig, P>
+pub struct Wallet<D, A, P>
     where   D: Ord + Datable + ConstantSize,
-            Sk: Datable + ConstantSize,
-            Pk: Datable + ConstantSize,
-            Sig: Datable + ConstantSize,
+            A: Numerical,
             P: Datable
 {
     /// Wallet id. It is the digest of the same wallet, but with a default `D` id.
     pub id: D,
     /// Wallet metadata.
     pub meta: Meta,
-    /// Wallet secret key, if known.
-    pub secret_key: Option<Sk>,
-    /// Wallet public key.
-    pub public_key: Pk,
+    /// Wallet spent coins length.
+    pub spent_coins_len: u64,
+    /// Wallet spent coins.
+    pub spent_coins: Vec<Coin<D, A>>,
+    /// Wallet unspent coins length.
+    pub unspent_coins_len: u64,
+    /// Wallet unspent coins.
+    pub unspent_coins: Vec<Coin<D, A>>,
     /// Custom payload.
     pub payload: P,
-    /// Signature of the wallet with a default id.
-    pub signature: Sig,
 }
 
-impl<D, Sk, Pk, Sig, P> Wallet<D, Sk, Pk, Sig, P>
+impl<D, A, P> Wallet<D, A, P>
     where   D: Ord + Datable + ConstantSize,
-            Sk: Datable + ConstantSize,
-            Pk: Datable + ConstantSize,
-            Sig: Datable + ConstantSize,
             P: Datable,
+            A: Numerical,
             Self: Serializable
 {
     /// Creates a new `Wallet`.
@@ -67,6 +67,129 @@ impl<D, Sk, Pk, Sig, P> Wallet<D, Sk, Pk, Sig, P>
         Ok(self)
     }
 
+    /// Sets the `Wallet`s set of spent `Coin`s and its lenght.
+    pub fn spent_coins(mut self, spent_coins: &Vec<Coin<D, A>>) -> Result<Self> {
+        spent_coins.check()?;
+
+        for ref coin in spent_coins {
+            if self.unspent_coins.contains(&coin) {
+                return Err(format!("spent and unpent not disjunct"))
+            }
+        }
+
+        self.spent_coins_len = spent_coins.len() as u64;
+        self.spent_coins = spent_coins.clone();
+
+        self.update_size();
+
+        Ok(self)
+    }
+
+    /// Adds a spent `Coin` to the `Wallet` set of spent `Coin`s.
+    pub fn add_spent_coin(&mut self, spent_coin: &Coin<D, A>) -> Result<()> {
+        spent_coin.check()?;
+        
+        if self.spent_coins.contains(spent_coin) {
+            return Err(format!("already found"));
+        }
+
+        if self.unspent_coins.contains(spent_coin) {
+            return Err(format!("already found"));
+        }
+
+        self.spent_coins.push(spent_coin.to_owned());
+        self.spent_coins_len += 1;
+
+        Ok(())
+    }
+
+    /// Removes a spent `Coin` from the `Wallet` set of spent `Coin`s.
+    pub fn del_spent_coin(&mut self, spent_coin: &Coin<D, A>) -> Result<()> {
+        spent_coin.check()?;
+        
+        if !self.spent_coins.contains(spent_coin) {
+            return Err(format!("not found"));
+        }
+
+        if self.unspent_coins.contains(spent_coin) {
+            return Err(format!("already found"));
+        }
+
+        let idx = self.spent_coins.binary_search(spent_coin)
+                    .map_err(|e| format!("{:?}", e))?;
+
+        self.spent_coins.remove(idx);
+        self.spent_coins_len -= 1;
+
+        Ok(())
+    }
+
+    /// Sets the `Wallet`s set of unspent `Coin`s and its lenght.
+    pub fn unspent_coins(mut self, unspent_coins: &Vec<Coin<D, A>>) -> Result<Self> {
+        unspent_coins.check()?;
+
+        for ref coin in unspent_coins {
+            if self.spent_coins.contains(&coin) {
+                return Err(format!("spent and unpent not disjunct"))
+            }
+        }
+
+        self.unspent_coins_len = unspent_coins.len() as u64;
+        self.unspent_coins = unspent_coins.clone();
+
+        self.update_size();
+
+        Ok(self)
+    }
+
+    /// Adds an unspent `Coin` to the `Wallet` set of unspent `Coin`s.
+    pub fn add_unspent_coin(&mut self, unspent_coin: &Coin<D, A>) -> Result<()> {
+        unspent_coin.check()?;
+        
+        if self.unspent_coins.contains(unspent_coin) {
+            return Err(format!("already found"));
+        }
+
+        if self.spent_coins.contains(unspent_coin) {
+            return Err(format!("already found"));
+        }
+
+        self.unspent_coins.push(unspent_coin.to_owned());
+        self.unspent_coins_len += 1;
+
+        Ok(())
+    }
+
+    /// Removes a unspent `Coin` from the `Wallet` set of unspent `Coin`s.
+    pub fn del_unspent_coin(&mut self, unspent_coin: &Coin<D, A>) -> Result<()> {
+        unspent_coin.check()?;
+        
+        if !self.unspent_coins.contains(unspent_coin) {
+            return Err(format!("not found"));
+        }
+
+        if self.spent_coins.contains(unspent_coin) {
+            return Err(format!("already found"));
+        }
+
+        let idx = self.unspent_coins.binary_search(unspent_coin)
+                    .map_err(|e| format!("{:?}", e))?;
+
+        self.unspent_coins.remove(idx);
+        self.unspent_coins_len -= 1;
+
+        Ok(())
+    }
+
+    /// Sets an unspent `Coin` as spent, removing it from the set of unspent `Coin`s
+    /// and adding it to the set of spent `Coin`s.
+    pub fn spend_coin(&mut self, unspent_coin: &Coin<D, A>) -> Result<()> {
+        self.del_unspent_coin(unspent_coin)?;
+        self.add_spent_coin(unspent_coin)?;
+
+        Ok(())
+    }
+
     /// Sets the `Wallet`'s custom payload.
     pub fn payload(mut self, payload: &P) -> Result<Self> {
         payload.check()?;
@@ -76,70 +199,6 @@ impl<D, Sk, Pk, Sig, P> Wallet<D, Sk, Pk, Sig, P>
         self.update_size();
 
         Ok(self)
-    }
-
-    /// Signs cryptographically the `Wallet`.
-    pub fn sign<Sgnr, Seed>(mut self, sk: &Sk, pk: &Pk, signer: &mut Sgnr) -> Result<Self>
-        where   Sgnr: Sign<Seed, Pk, Sk, Sig>,
-                Seed: Datable + ConstantSize
-    {
-        sk.check()?;
-        pk.check()?;
-
-        self.public_key = pk.clone();
-        
-        let mut wallet = self.clone();
-        wallet.signature = Sig::default();
-        wallet.id = D::default();
-
-        let msg = wallet.to_bytes()?;
-        self.signature = signer.sign(&msg, sk)?;
-
-        self.update_size();
-
-        Ok(self)
-    }
-
-    /// Verifies the cryptographic signature against the `Wallet`.
-    pub fn verify_signature<Sgnr, Seed>(&self, signer: &mut Sgnr) -> Result<bool>
-        where   Sgnr: Sign<Seed, Pk, Sk, Sig>,
-                Seed: Datable + ConstantSize
-    {
-        let pk = self.public_key.clone();
-        pk.check()?;
-
-        let sig = self.signature.clone();
-        sig.check()?;
-
-        let mut wallet = self.clone();
-        wallet.signature = Sig::default();
-        wallet.id = D::default();
-        wallet.update_size();
-
-        let msg = wallet.to_bytes()?;
-
-        signer.verify(&msg, &pk, &sig)
-    }
-
-    /// Checks the cryptographic signature against the `Wallet`.
-    pub fn check_signature<Sgnr, Seed>(&self, signer: &mut Sgnr) -> Result<()>
-        where   Sgnr: Sign<Seed, Pk, Sk, Sig>,
-                Seed: Datable + ConstantSize
-    {
-        let pk = self.public_key.clone();
-        pk.check()?;
-
-        let sig = self.signature.clone();
-        sig.check()?;
-
-        let mut wallet = self.clone();
-        wallet.signature = Sig::default();
-        wallet.id = D::default();
-        wallet.update_size();
-
-        let msg = wallet.to_bytes()?;
-
-        signer.check(&msg, &pk, &sig)
     }
 
     /// Finalizes the `Wallet`, building its id and returning it's complete form.
@@ -222,28 +281,21 @@ impl<D, Sk, Pk, Sig, P> Wallet<D, Sk, Pk, Sig, P>
     }
 }
 
-impl<D, Sk, Pk, Sig, P> Sizable for Wallet<D, Sk, Pk, Sig, P>
+impl<D, A, P> Sizable for Wallet<D, A, P>
     where   D: Ord + Datable + ConstantSize,
-            Sk: Datable + ConstantSize,
-            Pk: Datable + ConstantSize,
-            Sig: Datable + ConstantSize,
+            A: Numerical,
             P: Datable
 {
     fn size(&self) -> u64 {
         self.id.size() +
             self.meta.size() +
-            self.secret_key.size() +
-            self.public_key.size() +
-            self.payload.size() +
-            self.signature.size()
+            self.payload.size()
     }
 }
 
-impl<D, Sk, Pk, Sig, P> Checkable for Wallet<D, Sk, Pk, Sig, P>
+impl<D, A, P> Checkable for Wallet<D, A, P>
     where   D: Ord + Datable + ConstantSize,
-            Sk: Datable + ConstantSize,
-            Pk: Datable + ConstantSize,
-            Sig: Datable + ConstantSize,
+            A: Numerical,
             P: Datable
 {
     fn check(&self) -> Result<()> {
@@ -254,49 +306,60 @@ impl<D, Sk, Pk, Sig, P> Checkable for Wallet<D, Sk, Pk, Sig, P>
         if self.meta.get_size() != self.size() {
             return Err(String::from("invalid meta size"));
         }
-        
-        if let Some(ref sk) = self.secret_key {
-            sk.check()?;
-            sk.check_size()?;
+
+        self.spent_coins_len.check()?;
+        self.spent_coins.check()?;
+
+        if self.spent_coins.len() != self.spent_coins_len as usize {
+            return Err(String::from("invalid spent coins length"));
         }
 
-        self.public_key.check()?;
-        self.public_key.check_size()?;
+        self.unspent_coins_len.check()?;
+        self.unspent_coins.check()?;
+
+        if self.unspent_coins.len() != self.unspent_coins_len as usize {
+            return Err(String::from("invalid unspent coins length"));
+        }
+
+        for ref coin in self.spent_coins.iter() {
+            if self.unspent_coins.contains(&coin) {
+                return Err(format!("spent and unpent not disjunct"))
+            }
+        }
+
+        for ref coin in self.unspent_coins.iter() {
+            if self.spent_coins.contains(&coin) {
+                return Err(format!("spent and unpent not disjunct"))
+            }
+        }
+
         self.payload.check()?;
-        self.signature.check()?;
-        self.signature.check_size()?;
 
         Ok(())
     }
 }
 
-impl<D, Sk, Pk, Sig, P> Serializable for Wallet<D, Sk, Pk, Sig, P>
+impl<D, A, P> Serializable for Wallet<D, A, P>
     where   D: Ord + Datable + ConstantSize + Serializable,
-            Sk: Datable + ConstantSize + Serializable,
-            Pk: Datable + ConstantSize + Serializable,
-            Sig: Datable + ConstantSize + Serializable,
+            A: Numerical + Serializable,
             P: Datable + Serializable
 {}
 
-impl<D, Sk, Pk, Sig, P> Datable for Wallet<D, Sk, Pk, Sig, P>
+impl<D, A, P> Datable for Wallet<D, A, P>
     where   D: Ord + Datable + ConstantSize,
-            Sk: Datable + ConstantSize,
-            Pk: Datable + ConstantSize,
-            Sig: Datable + ConstantSize,
+            A: Numerical,
             P: Datable
 {}
 
 pub const WALLET_STORE_PREFIX: u64 = 7;
 
-impl<St, S, D, Sk, Pk, Sig, P>
-    Storable<St, S, D, Wallet<D, Sk, Pk, Sig, P>>
-    for Wallet<D, Sk, Pk, Sig, P>
+impl<St, S, D, A, P>
+    Storable<St, S, D, Wallet<D, A, P>>
+    for Wallet<D, A, P>
     where   St: Store<S>,
             S: Datable + Serializable,
             D: Ord + Datable + ConstantSize + Serializable,
-            Sk: Datable + ConstantSize + Serializable,
-            Pk: Datable + ConstantSize + Serializable,
-            Sig: Datable + ConstantSize + Serializable,
+            A: Numerical + Serializable,
             P: Datable + Serializable
 {
     fn store_prefix() -> u64 {

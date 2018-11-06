@@ -70,8 +70,7 @@ impl<D, P> BlockGraph<D, P>
     }
 
     /// Sets the `BlockGraph`s frontier and its height and lenght.
-    pub fn frontier(mut self, tip_idx: Option<u64>, frontier: &Vec<BlockNode<D>>) -> Result<Self>
-    {
+    pub fn frontier(mut self, tip_idx: Option<u64>, frontier: &Vec<BlockNode<D>>) -> Result<Self> {
         frontier.check()?;
 
         let mut height = 0;

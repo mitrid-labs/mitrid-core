@@ -83,8 +83,7 @@ impl<D, A, IP, OP, TP, P, Pr> Block<D, A, IP, OP, TP, P, Pr>
     }
 
     /// Sets the `Block`s set of previous blocks and its lenght.
-    pub fn prev_blocks(mut self, prev_blocks: &Vec<BlockNode<D>>) -> Result<Self>
-    {
+    pub fn prev_blocks(mut self, prev_blocks: &Vec<BlockNode<D>>) -> Result<Self> {
         prev_blocks.check()?;
 
         let mut prev_height = 0;
@@ -105,8 +104,7 @@ impl<D, A, IP, OP, TP, P, Pr> Block<D, A, IP, OP, TP, P, Pr>
     }
 
     /// Sets the `Block`s set of transactions and its lenght.
-    pub fn transactions(mut self, transactions: &Vec<Transaction<D, A, IP, OP, TP>>) -> Result<Self>
-    {
+    pub fn transactions(mut self, transactions: &Vec<Transaction<D, A, IP, OP, TP>>) -> Result<Self> {
         transactions.check()?;
 
         self.transactions_len = transactions.len() as u64;

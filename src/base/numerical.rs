@@ -8,7 +8,7 @@ use std::ops::{Add, Sub, Mul};
 use base::data::Datable;
 
 /// Trait implemented by types that can be added, subtracted or multiplied.
-pub trait Numerical : Sized + Datable + Add + Sub + Mul {}
+pub trait Numerical : Sized + Ord + Datable + Add + Sub + Mul {}
 
 impl Numerical for u8 {}
 

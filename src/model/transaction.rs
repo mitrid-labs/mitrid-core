@@ -73,8 +73,7 @@ impl<D, A, IP, OP, P> Transaction<D, A, IP, OP, P>
     }
 
     /// Sets the `Transaction`s set of inputs and its lenght.
-    pub fn inputs(mut self, inputs: &Vec<Input<D, A, IP>>,) -> Result<Self>
-    {
+    pub fn inputs(mut self, inputs: &Vec<Input<D, A, IP>>) -> Result<Self> {
         inputs.check()?;
 
         self.inputs_len = inputs.len() as u64;
@@ -86,8 +85,7 @@ impl<D, A, IP, OP, P> Transaction<D, A, IP, OP, P>
     }
 
     /// Sets the `Transaction`s set of outputs and its lenght.
-    pub fn outputs(mut self, outputs: &Vec<Output<D, A, OP>>,) -> Result<Self>
-    {
+    pub fn outputs(mut self, outputs: &Vec<Output<D, A, OP>>) -> Result<Self> {
         outputs.check()?;
 
         self.outputs_len = outputs.len() as u64;
