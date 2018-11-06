@@ -10,7 +10,7 @@ Mitrid Core is a framework for building blockchains and other block-based distri
 
 ## Install
 
-To install the mitrid-core library, add in your Cargo.toml:
+To install the Mitrid Core library, add in your Cargo.toml:
 
 
 ```toml
