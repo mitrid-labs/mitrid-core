@@ -18,7 +18,6 @@ pub struct Store {
     pub(crate) items: Arc<Mutex<HashMap<Vec<u8>, Vec<u8>>>>,
 }
 
-#[allow(dead_code)]
 impl Store {
     pub fn new() -> Store {
         Store::default()

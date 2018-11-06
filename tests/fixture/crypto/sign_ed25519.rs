@@ -1,5 +1,3 @@
-#![allow(dead_code)]
-
 use sodiumoxide::init;
 use sodiumoxide::crypto::sign::{SEEDBYTES, SECRETKEYBYTES, PUBLICKEYBYTES, SIGNATUREBYTES};
 use sodiumoxide::crypto::sign::Seed as _Seed;
@@ -28,10 +26,6 @@ impl Seed {
         }
 
         Ok(Seed(buf.to_owned()))
-    }
-
-    pub fn to_vec(&self) -> Vec<u8> {
-        self.0.clone()
     }
 
     pub fn from_slice(buf: &[u8]) -> Result<Seed> {
@@ -96,10 +90,6 @@ impl SecretKey {
         Ok(SecretKey(buf.to_owned()))
     }
 
-    pub fn to_vec(&self) -> Vec<u8> {
-        self.0.clone()
-    }
-
     pub fn from_slice(buf: &[u8]) -> Result<SecretKey> {
         if buf.len() != SECRETKEY_SIZE as usize {
             return Err(String::from("invalid length"));
@@ -162,10 +152,6 @@ impl PublicKey {
         Ok(PublicKey(buf.to_owned()))
     }
 
-    pub fn to_vec(&self) -> Vec<u8> {
-        self.0.clone()
-    }
-
     pub fn from_slice(buf: &[u8]) -> Result<PublicKey> {
         if buf.len() != PUBLICKEY_SIZE as usize {
             return Err(String::from("invalid length"));
@@ -226,10 +212,6 @@ impl Signature {
         }
 
         Ok(Signature(buf.to_owned()))
-    }
-
-    pub fn to_vec(&self) -> Vec<u8> {
-        self.0.clone()
     }
 
     pub fn from_slice(buf: &[u8]) -> Result<Signature> {
@@ -364,8 +346,6 @@ impl Sign<Seed, PublicKey, SecretKey, Signature> for Ed25519 {
         Self::check(msg, pk, sig)
     }
 }
-
-pub type Signer = Ed25519;
 
 #[test]
 fn test_keyseed_from_vec() {

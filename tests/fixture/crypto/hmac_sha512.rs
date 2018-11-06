@@ -1,5 +1,3 @@
-#![allow(dead_code)]
-
 use sodiumoxide::init;
 use sodiumoxide::crypto::auth::hmacsha512::KEYBYTES;
 use sodiumoxide::crypto::auth::hmacsha512::Key as _Key;
@@ -13,9 +11,7 @@ use mitrid_core::base::Serializable;
 use mitrid_core::base::Datable;
 use mitrid_core::crypto::Authenticate;
 
-use fixture::crypto::{hash_sha512::DIGEST_SIZE, Digest};
-
-pub const TAG_SIZE: u64 = DIGEST_SIZE;
+use fixture::crypto::Digest;
 
 pub type Tag = Digest;
 
@@ -31,10 +27,6 @@ impl AuthKey {
         }
 
         Ok(AuthKey(buf.to_owned()))
-    }
-
-    pub fn to_vec(&self) -> Vec<u8> {
-        self.0.clone()
     }
 
     pub fn from_slice(buf: &[u8]) -> Result<AuthKey> {

@@ -15,7 +15,6 @@ pub enum DumpParams {
 }
 
 impl DumpParams {
-    #[allow(dead_code)]
     pub fn parse(s: &str) -> Result<DumpParams> {
         match s {
             "sessions" => Ok(DumpParams::Sessions),

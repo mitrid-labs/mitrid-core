@@ -1,5 +1,3 @@
-#![allow(dead_code)]
-
 use sodiumoxide::init;
 use sodiumoxide::crypto::hash::DIGESTBYTES;
 use sodiumoxide::crypto::hash::hash;
@@ -23,10 +21,6 @@ impl Digest {
         }
 
         Ok(Digest(buf.to_owned()))
-    }
-
-    pub fn to_vec(&self) -> Vec<u8> {
-        self.0.clone()
     }
 
     pub fn from_slice(buf: &[u8]) -> Result<Digest> {
