@@ -45,9 +45,10 @@ fn test_block_prev_blocks() {
                     .block_data(&Digest::default(), block_height)
                     .unwrap();
 
-    let res = Block::new()
-                .prev_blocks(&vec![bn.clone()]);
+    let res = Block::new().prev_blocks(&vec![bn.clone(), bn.clone()]);
+    assert!(res.is_err());
 
+    let res = Block::new().prev_blocks(&vec![bn.clone()]);
     assert!(res.is_ok());
 
     let mut invalid_version = Version::default();
@@ -105,8 +106,10 @@ fn test_block_transactions() {
                     .finalize(&mut hasher)
                     .unwrap();
 
-    let res = Block::new()
-                .transactions(&vec![tx.clone()]);
+    let res = Block::new().transactions(&vec![tx.clone(), tx.clone()]);
+    assert!(res.is_err());
+
+    let res = Block::new().transactions(&vec![tx.clone()]);
     assert!(res.is_ok());
 
     tx.inputs_len += 1;

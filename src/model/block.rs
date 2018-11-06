@@ -86,6 +86,13 @@ impl<D, A, IP, OP, TP, P, Pr> Block<D, A, IP, OP, TP, P, Pr>
     pub fn prev_blocks(mut self, prev_blocks: &Vec<BlockNode<D>>) -> Result<Self> {
         prev_blocks.check()?;
 
+        let mut unique_prev_blocks = prev_blocks.clone();
+        unique_prev_blocks.dedup_by(|a, b| { a == b });
+
+        if unique_prev_blocks.len() != prev_blocks.len() {
+            return Err(format!("duplicates found"));
+        }
+
         let mut prev_height = 0;
 
         for prev_block in prev_blocks.clone() {
@@ -106,6 +113,13 @@ impl<D, A, IP, OP, TP, P, Pr> Block<D, A, IP, OP, TP, P, Pr>
     /// Sets the `Block`s set of transactions and its lenght.
     pub fn transactions(mut self, transactions: &Vec<Transaction<D, A, IP, OP, TP>>) -> Result<Self> {
         transactions.check()?;
+
+        let mut unique_transactions = transactions.clone();
+        unique_transactions.dedup_by(|a, b| { a == b });
+
+        if unique_transactions.len() != transactions.len() {
+            return Err(format!("duplicates found"));
+        }
 
         self.transactions_len = transactions.len() as u64;
         self.transactions = transactions.clone();
@@ -297,11 +311,25 @@ impl<D, A, IP, OP, TP, P, Pr> Checkable for Block<D, A, IP, OP, TP, P, Pr>
             return Err(String::from("invalid previous blocks length"));
         }
 
+        let mut unique_prev_blocks = self.prev_blocks.clone();
+        unique_prev_blocks.dedup_by(|a, b| { a == b });
+
+        if unique_prev_blocks.len() != self.prev_blocks.len() {
+            return Err(format!("duplicates found"));
+        }
+
         self.transactions_len.check()?;
         self.transactions.check()?;
 
         if self.transactions.len() != self.transactions_len as usize {
             return Err(String::from("invalid transactions length"));
+        }
+
+        let mut unique_transactions = self.transactions.clone();
+        unique_transactions.dedup_by(|a, b| { a == b });
+
+        if unique_transactions.len() != self.transactions.len() {
+            return Err(format!("duplicates found"));
         }
 
         self.payload.check()?;

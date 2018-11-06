@@ -47,6 +47,9 @@ fn test_wallet_coins() {
                 .finalize(&mut hasher)
                 .unwrap();
 
+    let res = Wallet::default().unspent_coins(&vec![coin.clone(), coin.clone()]);
+    assert!(res.is_err());
+
     let res = Wallet::default().unspent_coins(&vec![coin.clone()]);
     assert!(res.is_ok());
 
@@ -82,6 +85,23 @@ fn test_wallet_coins() {
 
     let unspent_coin = wallet.unspent_coins[0].clone();
     assert_eq!(&unspent_coin, &coin);
+
+    let res = wallet.del_unspent_coin(&unspent_coin);
+    assert!(res.is_ok());
+
+    assert_eq!(wallet.unspent_coins_len, 0);
+    assert_eq!(wallet.spent_coins_len, 0);
+
+    let res = Wallet::default().spent_coins(&vec![coin.clone(), coin.clone()]);
+    assert!(res.is_err());
+
+    let res = Wallet::default().spent_coins(&vec![coin.clone()]);
+    assert!(res.is_ok());
+
+    let wallet = res.unwrap();
+
+    assert_eq!(wallet.unspent_coins_len, 0);
+    assert_eq!(wallet.spent_coins_len, 1);
 }
 
 #[test]

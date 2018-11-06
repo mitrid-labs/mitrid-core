@@ -50,6 +50,9 @@ fn test_transaction_inputs() {
                         .finalize(&mut hasher)
                         .unwrap();
 
+    let res = Transaction::new().inputs(&vec![input.clone(), input.clone()]);
+    assert!(res.is_err());
+
     let res = Transaction::new().inputs(&vec![input.clone()]);
     assert!(res.is_ok());
 
@@ -78,6 +81,9 @@ fn test_transaction_outputs() {
                         .unwrap()
                         .finalize(&mut hasher)
                         .unwrap();
+
+    let res = Transaction::new().outputs(&vec![output.clone(), output.clone()]);
+    assert!(res.is_err());
 
     let res = Transaction::new().outputs(&vec![output.clone()]);
     assert!(res.is_ok());

@@ -71,6 +71,13 @@ impl<D, A, P> Wallet<D, A, P>
     pub fn spent_coins(mut self, spent_coins: &Vec<Coin<D, A>>) -> Result<Self> {
         spent_coins.check()?;
 
+        let mut unique_spent_coins = spent_coins.clone();
+        unique_spent_coins.dedup_by(|a, b| { a == b });
+
+        if unique_spent_coins.len() != spent_coins.len() {
+            return Err(format!("duplicates found"));
+        }
+
         for ref coin in spent_coins {
             if self.unspent_coins.contains(&coin) {
                 return Err(format!("spent and unpent not disjunct"))
@@ -127,6 +134,13 @@ impl<D, A, P> Wallet<D, A, P>
     /// Sets the `Wallet`s set of unspent `Coin`s and its lenght.
     pub fn unspent_coins(mut self, unspent_coins: &Vec<Coin<D, A>>) -> Result<Self> {
         unspent_coins.check()?;
+
+        let mut unique_unspent_coins = unspent_coins.clone();
+        unique_unspent_coins.dedup_by(|a, b| { a == b });
+
+        if unique_unspent_coins.len() != unspent_coins.len() {
+            return Err(format!("duplicates found"));
+        }
 
         for ref coin in unspent_coins {
             if self.spent_coins.contains(&coin) {
@@ -314,11 +328,25 @@ impl<D, A, P> Checkable for Wallet<D, A, P>
             return Err(String::from("invalid spent coins length"));
         }
 
+        let mut unique_spent_coins = self.spent_coins.clone();
+        unique_spent_coins.dedup_by(|a, b| { a == b });
+
+        if unique_spent_coins.len() != self.spent_coins.len() {
+            return Err(format!("duplicates found"));
+        }
+
         self.unspent_coins_len.check()?;
         self.unspent_coins.check()?;
 
         if self.unspent_coins.len() != self.unspent_coins_len as usize {
             return Err(String::from("invalid unspent coins length"));
+        }
+
+        let mut unique_unspent_coins = self.unspent_coins.clone();
+        unique_unspent_coins.dedup_by(|a, b| { a == b });
+
+        if unique_unspent_coins.len() != self.unspent_coins.len() {
+            return Err(format!("duplicates found"));
         }
 
         for ref coin in self.spent_coins.iter() {

@@ -42,6 +42,9 @@ fn test_blockgraph_frontier() {
 
     let tip_idx = 0;
 
+    let res = BlockGraph::new().frontier(Some(tip_idx), &vec![bn.clone(), bn.clone()]);
+    assert!(res.is_err());
+
     let res = BlockGraph::new().frontier(Some(tip_idx), &vec![bn.clone()]);
     assert!(res.is_ok());
 

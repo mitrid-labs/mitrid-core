@@ -76,6 +76,13 @@ impl<D, A, IP, OP, P> Transaction<D, A, IP, OP, P>
     pub fn inputs(mut self, inputs: &Vec<Input<D, A, IP>>) -> Result<Self> {
         inputs.check()?;
 
+        let mut unique_inputs = inputs.clone();
+        unique_inputs.dedup_by(|a, b| { a == b });
+
+        if unique_inputs.len() != inputs.len() {
+            return Err(format!("duplicates found"));
+        }
+
         self.inputs_len = inputs.len() as u64;
         self.inputs = inputs.clone();
 
@@ -87,6 +94,13 @@ impl<D, A, IP, OP, P> Transaction<D, A, IP, OP, P>
     /// Sets the `Transaction`s set of outputs and its lenght.
     pub fn outputs(mut self, outputs: &Vec<Output<D, A, OP>>) -> Result<Self> {
         outputs.check()?;
+
+        let mut unique_outputs = outputs.clone();
+        unique_outputs.dedup_by(|a, b| { a == b });
+
+        if unique_outputs.len() != outputs.len() {
+            return Err(format!("duplicates found"));
+        }
 
         self.outputs_len = outputs.len() as u64;
         self.outputs = outputs.clone();
@@ -228,11 +242,25 @@ impl<D, A, IP, OP, P> Checkable for Transaction<D, A, IP, OP, P>
             return Err(String::from("invalid inputs length"));
         }
 
+        let mut unique_inputs = self.inputs.clone();
+        unique_inputs.dedup_by(|a, b| { a == b });
+
+        if unique_inputs.len() != self.inputs.len() {
+            return Err(format!("duplicates found"));
+        }
+
         self.outputs_len.check()?;
         self.outputs.check()?;
 
         if self.outputs.len() != self.outputs_len as usize {
             return Err(String::from("invalid outputs length"));
+        }
+
+        let mut unique_outputs = self.outputs.clone();
+        unique_outputs.dedup_by(|a, b| { a == b });
+
+        if unique_outputs.len() != self.outputs.len() {
+            return Err(format!("duplicates found"));
         }
 
         self.payload.check()?;

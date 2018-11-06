@@ -73,6 +73,13 @@ impl<D, P> BlockGraph<D, P>
     pub fn frontier(mut self, tip_idx: Option<u64>, frontier: &Vec<BlockNode<D>>) -> Result<Self> {
         frontier.check()?;
 
+        let mut unique_frontier = frontier.clone();
+        unique_frontier.dedup_by(|a, b| { a == b });
+
+        if unique_frontier.len() != frontier.len() {
+            return Err(format!("duplicates found"));
+        }
+
         let mut height = 0;
 
         for node in frontier.clone() {
@@ -222,6 +229,13 @@ impl<D, P> Checkable for BlockGraph<D, P>
 
         if self.frontier.len() != self.frontier_len as usize {
             return Err(String::from("invalid frontier length"));
+        }
+
+        let mut unique_frontier = self.frontier.clone();
+        unique_frontier.dedup_by(|a, b| { a == b });
+
+        if unique_frontier.len() != self.frontier.len() {
+            return Err(format!("duplicates found"));
         }
         
         for node in self.frontier.clone() {
