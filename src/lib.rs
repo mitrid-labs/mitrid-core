@@ -1,7 +1,7 @@
 //! # Mitrid Core
 //!
-//! `mitrid_core` is a framework for building blockchains and other distributed ledgers using block-based authenticated
-//! data structures (authenticated trees, authenticated graphs, etc).
+//! `mitrid_core` is a framework for building blockchains and other distributed ledgers that use block-based
+//! authenticated data structures (authenticated trees, authenticated graphs, etc).
 
 extern crate serde;
 #[macro_use]

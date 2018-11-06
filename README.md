@@ -4,7 +4,7 @@
 [![Docs.rs](https://docs.rs/mitrid_core/badge.svg)](https://docs.rs/mitrid_core)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://github.com/mitrid-labs/mitrid-core/blob/master/LICENSE)
 
-Mitrid Core is a framework for building blockchains. It is meant to be flexible enough to cover different architectures (permissionless and permissioned; with authenticated chains, trees or directed graphs) and to let users use the cryptographical protocols they prefer. Add-ons will be added to ease development.
+Mitrid Core is a framework for building blockchains and other block-based distributed technology ledgers. It is meant to be flexible enough to cover different architectures (permissionless and permissioned; with authenticated chains, trees or directed graphs) and to let users use the cryptographical protocols they prefer. Add-ons will be added to ease development.
 <br>
 <br>
 
