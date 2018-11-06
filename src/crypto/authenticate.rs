@@ -22,16 +22,5 @@ pub trait Authenticate<K, T>
     fn verify(&mut self, msg: &[u8], key: &K, tag: &T) -> Result<bool>;
 
     /// Checks an authentication tag against a message using an authentication key.
-    fn check(&mut self, msg: &[u8], key: &K, tag: &T) -> Result<()> {
-        key.check()?;
-        key.check_size()?;
-        tag.check()?;
-        tag.check_size()?;
-
-        if !self.verify(msg, key, tag)? {
-            return Err(format!("invalid tag"));
-        }
-
-        Ok(())
-    }
+    fn check(&mut self, msg: &[u8], key: &K, tag: &T) -> Result<()>;
 }

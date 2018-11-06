@@ -24,11 +24,5 @@ pub trait Sign<Seed, Pk, Sk, Sig>
     fn verify(&mut self, msg: &[u8], pk: &Pk, sig: &Sig) -> Result<bool>;
 
     /// Checks a cryptographic signature against a message using a public key.
-    fn check(&mut self, msg: &[u8], pk: &Pk, sig: &Sig) -> Result<()> {
-        if !self.verify(msg, pk, sig)? {
-            return Err(format!("invalid signature"));
-        }
-
-        Ok(())
-    }
+    fn check(&mut self, msg: &[u8], pk: &Pk, sig: &Sig) -> Result<()>;
 }

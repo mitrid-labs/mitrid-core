@@ -18,11 +18,5 @@ pub trait Hash<D>
     fn verify(&mut self, msg: &[u8], digest: &D) -> Result<bool>;
 
     /// Checks a digest against a message.
-    fn check(&mut self, msg: &[u8], digest: &D) -> Result<()> {
-        if !self.verify(msg, digest)? {
-            return Err(format!("invalid digest"));
-        }
-
-        Ok(())
-    }
+    fn check(&mut self, msg: &[u8], digest: &D) -> Result<()>;
 }

@@ -17,11 +17,5 @@ pub trait Prove<P>
     fn verify(&mut self, msg: &[u8], proof: &P) -> Result<bool>;
 
     /// Checks a proof against a message.
-    fn check(&mut self, msg: &[u8], proof: &P) -> Result<()> {
-        if !self.verify(msg, proof)? {
-            return Err(format!("invalid proof"));
-        }
-
-        Ok(())
-    }
+    fn check(&mut self, msg: &[u8], proof: &P) -> Result<()>;
 }

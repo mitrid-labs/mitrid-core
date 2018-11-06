@@ -18,11 +18,5 @@ pub trait Commit<C>
     fn verify(&mut self, msg: &[u8], commitment: &C) -> Result<bool>;
 
     /// Checks a commitment against a message.
-    fn check(&mut self, msg: &[u8], commitment: &C) -> Result<()> {
-        if !self.verify(msg, commitment)? {
-            return Err(format!("invalid commitment"));
-        }
-
-        Ok(())
-    }
+    fn check(&mut self, msg: &[u8], commitment: &C) -> Result<()>;
 }
