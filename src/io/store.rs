@@ -23,6 +23,12 @@ pub trait Store<S>
     
     /// Counts the store items starting from the `from` key until, not included, the `to` key.
     fn count(&mut self, session: &Session<S>, from: Option<Vec<u8>>, to: Option<Vec<u8>>) -> Result<u64>;
+
+    /// Counts the store items starting with the given prefix.
+    fn count_prefix(&mut self,
+                    session: &Session<S>,
+                    prefix: &[u8])
+        -> Result<u64>;
     
     /// Lists the store items starting from the `from` key until, not included, the `to` key.
     fn list(&mut self,
@@ -30,6 +36,13 @@ pub trait Store<S>
             from: Option<Vec<u8>>,
             to: Option<Vec<u8>>,
             count: Option<u64>)
+        -> Result<Vec<Vec<u8>>>;
+
+    /// Lists the store items starting with the given prefix.
+    fn list_prefix(&mut self,
+                   session: &Session<S>,
+                   prefix: &[u8],
+                   count: Option<u64>)
         -> Result<Vec<Vec<u8>>>;
     
     /// Lookups an item from its key.
@@ -122,6 +135,14 @@ pub trait Storable<St, S, K, V>
         from.check()?;
         to.check()?;
 
+        let mut prefix = Vec::new();
+        let _prefix: [u8; 8] = unsafe { mem::transmute(Self::store_prefix()) };
+        prefix.extend_from_slice(&_prefix[..]);
+
+        if from.is_none() && to.is_none() {
+            return store.count_prefix(&session, &prefix);
+        }
+
         if let Some(ref from) = from {
             if let Some(ref to) = to {
                 if from >= to {
@@ -132,9 +153,7 @@ pub trait Storable<St, S, K, V>
 
         let store_from = if let Some(k) = from {
             let mut from_key = Vec::new();
-
-            let prefix: [u8; 8] = unsafe { mem::transmute(Self::store_prefix()) };
-            from_key.extend_from_slice(&prefix[..]);
+            from_key.extend_from_slice(&prefix);
             from_key.extend(&k.to_bytes()?);
 
             Some(from_key)
@@ -144,9 +163,7 @@ pub trait Storable<St, S, K, V>
 
         let store_to = if let Some(k) = to {
             let mut to_key = Vec::new();
-
-            let prefix: [u8; 8] = unsafe { mem::transmute(Self::store_prefix()) };
-            to_key.extend_from_slice(&prefix[..]);
+            to_key.extend_from_slice(&prefix);
             to_key.extend(&k.to_bytes()?);
 
             Some(to_key)
@@ -171,6 +188,26 @@ pub trait Storable<St, S, K, V>
         from.check()?;
         to.check()?;
 
+        if let Some(count) = count {
+            if count == 0 {
+                return Err(String::from("invalid count"));
+            }
+        }
+
+        let mut list = Vec::new();
+
+        let mut prefix = Vec::new();
+        let _prefix: [u8; 8] = unsafe { mem::transmute(Self::store_prefix()) };
+        prefix.extend_from_slice(&_prefix[..]);
+
+        if from.is_none() && to.is_none() {
+            for value in store.list_prefix(&session, &prefix, count)?.iter() {
+                list.push(Self::from_store_value(&value)?);
+            }
+
+            return Ok(list)
+        }
+
         if let Some(from) = from.clone() {
             if let Some(to) = to.clone() {
                 if from >= to {
@@ -179,17 +216,9 @@ pub trait Storable<St, S, K, V>
             }
         }
 
-        if let Some(count) = count {
-            if count == 0 {
-                return Err(String::from("invalid count"));
-            }
-        }
-
         let store_from = if let Some(k) = from {
             let mut from_key = Vec::new();
-
-            let prefix: [u8; 8] = unsafe { mem::transmute(Self::store_prefix()) };
-            from_key.extend_from_slice(&prefix[..]);
+            from_key.extend_from_slice(&prefix);
             from_key.extend(&k.to_bytes()?);
 
             Some(from_key)
@@ -199,17 +228,13 @@ pub trait Storable<St, S, K, V>
 
         let store_to = if let Some(k) = to {
             let mut to_key = Vec::new();
-
-            let prefix: [u8; 8] = unsafe { mem::transmute(Self::store_prefix()) };
-            to_key.extend_from_slice(&prefix[..]);
+            to_key.extend_from_slice(&prefix);
             to_key.extend(&k.to_bytes()?);
 
             Some(to_key)
         } else {
             None
         };
-
-        let mut list = Vec::new();
 
         for value in store.list(&session, store_from, store_to, count)?.iter() {
             list.push(Self::from_store_value(&value)?);

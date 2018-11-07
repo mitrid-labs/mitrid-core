@@ -146,6 +146,14 @@ impl BasicStore<()> for Store {
 
         Ok(count)
     }
+
+    fn count_prefix(&mut self,
+                    session: &Session,
+                    _prefix: &[u8])
+        -> Result<u64>
+    {
+        self.count(session, None, None,)
+    }
     
     fn list(&mut self,
             session: &Session,
@@ -229,6 +237,15 @@ impl BasicStore<()> for Store {
         }
 
         Ok(list)
+    }
+
+    fn list_prefix(&mut self,
+                   session: &Session,
+                   _prefix: &[u8],
+                   count: Option<u64>)
+        -> Result<Vec<Vec<u8>>>
+    {
+        self.list(session, None, None, count)
     }
     
     fn lookup(&mut self,

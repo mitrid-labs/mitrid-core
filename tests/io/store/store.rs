@@ -117,6 +117,33 @@ fn test_store_count() {
 }
 
 #[test]
+fn test_store_count_prefix() {
+    let mut store = Store::new();
+
+    let write_permission = Permission::Write;
+    let write_session = store.session(&write_permission).unwrap();
+
+    let key = Vec::default();
+    let value = Vec::default();
+
+    store.create(&write_session, &key, &value).unwrap();
+
+    let prefix = Vec::new();
+
+    let res = store.count_prefix(&write_session, &prefix);
+    assert!(res.is_err());
+
+    let read_permission = Permission::Read;
+    let read_session = store.session(&read_permission).unwrap();
+
+    let res = store.count_prefix(&read_session, &prefix);
+    assert!(res.is_ok());
+
+    let count = res.unwrap();
+    assert_eq!(count, 1);
+}
+
+#[test]
 fn test_store_list() {
     let mut store = Store::new();
 
@@ -173,6 +200,41 @@ fn test_store_list() {
     count = Some(0);
 
     let res = store.list(&read_session, from, to, count);
+    assert!(res.is_err());
+}
+
+#[test]
+fn test_store_list_prefix() {
+    let mut store = Store::new();
+
+    let write_permission = Permission::Write;
+    let write_session = store.session(&write_permission).unwrap();
+
+    let key = Vec::default();
+    let value = Vec::default();
+
+    store.create(&write_session, &key, &value).unwrap();
+
+    let prefix = Vec::new();
+    let mut count = None;
+
+    let res = store.list_prefix(&write_session, &prefix, count);
+    assert!(res.is_err());
+
+    let read_permission = Permission::Read;
+    let read_session = store.session(&read_permission).unwrap();
+
+    let res = store.list_prefix(&read_session, &prefix, count);
+    assert!(res.is_ok());
+
+    let values = vec![value];
+
+    let list = res.unwrap();
+    assert_eq!(&list, &values);
+
+    count = Some(0);
+
+    let res = store.list_prefix(&read_session, &prefix, count);
     assert!(res.is_err());
 }
 
