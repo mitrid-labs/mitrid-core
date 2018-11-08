@@ -2,6 +2,8 @@
 //!
 //! `request` is the module providing the type representing network request messages.
 
+use std::mem;
+
 use base::Result;
 use base::{Sizable, ConstantSize, VariableSize};
 use base::Checkable;
@@ -10,6 +12,9 @@ use base::Datable;
 use io::store::{Store, Storable};
 use io::network::message::Resource;
 use io::network::message::Message;
+
+/// Code of the `Request` type.
+pub const REQUEST_CODE: u64 = 9;
 
 /// Type representing a network request message.
 #[derive(Clone, Eq, PartialEq, Ord, PartialOrd, Debug, Default, Hash, Serialize, Deserialize)]
@@ -94,8 +99,6 @@ impl<S, Ad, NP, D, P> Datable for Request<S, Ad, NP, D, P>
             P: Datable
 {}
 
-pub const REQUEST_STORE_PREFIX: u64 = 9;
-
 impl<St, S, MS, Ad, NP, D, P>
     Storable<St, S, D, Request<MS, Ad, NP, D, P>>
     for Request<MS, Ad, NP, D, P>
@@ -107,8 +110,13 @@ impl<St, S, MS, Ad, NP, D, P>
             D: Ord + Datable + ConstantSize + Serializable,
             P: Datable + Serializable
 {
-    fn store_prefix() -> u64 {
-        REQUEST_STORE_PREFIX
+    fn store_prefix() -> Vec<u8> {
+        let mut prefix = Vec::new();
+
+        let _prefix: [u8; 8] = unsafe { mem::transmute(REQUEST_CODE) };
+        prefix.extend_from_slice(&_prefix[..]);
+
+        prefix
     }
 
     fn store_key(&self) -> Result<D> {

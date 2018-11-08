@@ -6,6 +6,8 @@
 //! An authenticated graph allows to represent different authenticated data structures
 //! (linked lists, trees, sets, etc), so it is a natural choice to keep the framework generic.
 
+use std::mem;
+
 use base::Result;
 use base::Checkable;
 use base::Datable;
@@ -16,6 +18,9 @@ use base::Meta;
 use crypto::Hash;
 use io::{Store, Storable};
 use model::BlockNode;
+
+/// Code of the `BlockGraph` type.
+pub const BLOCKGRAPH_CODE: u64 = 6;
 
 /// Type representing a graph of `BlockNodes`. It just expose the graph frontier, from which
 /// one can span the entire graph after following the `BlockNode`s' `Block`s `prev_block_id` links.
@@ -264,8 +269,6 @@ impl<D, P> Datable for BlockGraph<D, P>
             P: Datable
 {}
 
-pub const BLOCKGRAPH_STORE_PREFIX: u64 = 6;
-
 impl<St, S, D, P>
     Storable<St, S, D, BlockGraph<D, P>>
     for BlockGraph<D, P>
@@ -274,8 +277,13 @@ impl<St, S, D, P>
             D: Ord + Datable + ConstantSize + Serializable,
             P: Datable + Serializable
 {
-    fn store_prefix() -> u64 {
-        BLOCKGRAPH_STORE_PREFIX
+    fn store_prefix() -> Vec<u8> {
+        let mut prefix = Vec::new();
+
+        let _prefix: [u8; 8] = unsafe { mem::transmute(BLOCKGRAPH_CODE) };
+        prefix.extend_from_slice(&_prefix[..]);
+
+        prefix
     }
 
     fn store_key(&self) -> Result<D> {

@@ -3,6 +3,8 @@
 //! `blocknode` is the module providing the type used to represent a node in the `BlockNode`.
 //! A `BlockNode` references a `Block`.
 
+use std::mem;
+
 use base::Result;
 use base::Checkable;
 use base::Datable;
@@ -12,6 +14,9 @@ use base::{Eval, EvalMut};
 use base::Meta;
 use crypto::Hash;
 use io::{Store, Storable};
+
+/// Code of the `BlockNode` type.
+pub const BLOCKNODE_CODE: u64 = 4;
 
 /// Type used to represent a node in the `BlockNode` and that references a `Block`.
 #[derive(Clone, PartialEq, Eq, PartialOrd, Ord, Debug, Default, Hash, Serialize, Deserialize)]
@@ -188,8 +193,6 @@ impl<D> Datable for BlockNode<D>
     where   D: Ord + Datable + ConstantSize
 {}
 
-pub const BLOCKNODE_STORE_PREFIX: u64 = 4;
-
 impl<St, S, D>
     Storable<St, S, D, BlockNode<D>>
     for BlockNode<D>
@@ -197,8 +200,13 @@ impl<St, S, D>
             S: Datable + Serializable,
             D: Ord + Datable + ConstantSize + Serializable
 {
-    fn store_prefix() -> u64 {
-        BLOCKNODE_STORE_PREFIX
+    fn store_prefix() -> Vec<u8> {
+        let mut prefix = Vec::new();
+
+        let _prefix: [u8; 8] = unsafe { mem::transmute(BLOCKNODE_CODE) };
+        prefix.extend_from_slice(&_prefix[..]);
+
+        prefix
     }
 
     fn store_key(&self) -> Result<D> {

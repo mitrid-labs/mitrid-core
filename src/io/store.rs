@@ -3,8 +3,6 @@
 //! `store` is the module providing the traits implemented by stores and by types that
 //! can be stored in and retrieved from a store.
 
-use std::mem;
-
 use base::Result;
 use base::Checkable;
 use base::Datable;
@@ -115,7 +113,7 @@ pub trait Storable<St, S, K, V>
             Self: Datable + Serializable
 {
     /// Returns the store prefix of the implementor.
-    fn store_prefix() -> u64;
+    fn store_prefix() -> Vec<u8>;
 
     /// Returns the store key of the implementor.
     fn store_key(&self) -> Result<K>;
@@ -137,9 +135,7 @@ pub trait Storable<St, S, K, V>
         from.check()?;
         to.check()?;
 
-        let mut prefix = Vec::new();
-        let _prefix: [u8; 8] = unsafe { mem::transmute(Self::store_prefix()) };
-        prefix.extend_from_slice(&_prefix[..]);
+        let prefix = Self::store_prefix();
 
         if from.is_none() && to.is_none() {
             return store.count_prefix(&session, &prefix);
@@ -203,9 +199,7 @@ pub trait Storable<St, S, K, V>
 
         let mut list = Vec::new();
 
-        let mut prefix = Vec::new();
-        let _prefix: [u8; 8] = unsafe { mem::transmute(Self::store_prefix()) };
-        prefix.extend_from_slice(&_prefix[..]);
+        let prefix = Self::store_prefix();
 
         if from.is_none() && to.is_none() {
             for value in store.list_prefix(&session, &prefix, count, skip)?.iter() {
@@ -260,9 +254,10 @@ pub trait Storable<St, S, K, V>
 
         let mut store_key = Vec::new();
 
-        let prefix: [u8; 8] = unsafe { mem::transmute(Self::store_prefix()) };
-        store_key.extend_from_slice(&prefix[..]);
-        store_key.extend(&key.to_bytes()?);
+        let prefix = Self::store_prefix();
+        
+        store_key.extend_from_slice(&prefix);
+        store_key.extend_from_slice(&key.to_bytes()?);
 
         store.lookup(&session, &store_key)
     }
@@ -277,9 +272,10 @@ pub trait Storable<St, S, K, V>
         
         let mut store_key = Vec::new();
 
-        let prefix: [u8; 8] = unsafe { mem::transmute(Self::store_prefix()) };
-        store_key.extend_from_slice(&prefix[..]);
-        store_key.extend(&key.to_bytes()?);
+        let prefix = Self::store_prefix();
+        
+        store_key.extend_from_slice(&prefix);
+        store_key.extend_from_slice(&key.to_bytes()?);
 
         let value = store.get(&session, &store_key)?;
         Self::from_store_value(&value)
@@ -297,9 +293,10 @@ pub trait Storable<St, S, K, V>
         
         let mut store_key = Vec::new();
 
-        let prefix: [u8; 8] = unsafe { mem::transmute(Self::store_prefix()) };
-        store_key.extend_from_slice(&prefix[..]);
-        store_key.extend(&key.to_bytes()?);
+        let prefix = Self::store_prefix();
+        
+        store_key.extend_from_slice(&prefix);
+        store_key.extend_from_slice(&key.to_bytes()?);
 
         let store_value = value.to_bytes()?;
 
@@ -318,9 +315,10 @@ pub trait Storable<St, S, K, V>
         
         let mut store_key = Vec::new();
 
-        let prefix: [u8; 8] = unsafe { mem::transmute(Self::store_prefix()) };
-        store_key.extend_from_slice(&prefix[..]);
-        store_key.extend(&key.to_bytes()?);
+        let prefix = Self::store_prefix();
+        
+        store_key.extend_from_slice(&prefix);
+        store_key.extend_from_slice(&key.to_bytes()?);
 
         let store_value = value.to_bytes()?;
 
@@ -339,9 +337,10 @@ pub trait Storable<St, S, K, V>
         
         let mut store_key = Vec::new();
 
-        let prefix: [u8; 8] = unsafe { mem::transmute(Self::store_prefix()) };
-        store_key.extend_from_slice(&prefix[..]);
-        store_key.extend(&key.to_bytes()?);
+        let prefix = Self::store_prefix();
+        
+        store_key.extend_from_slice(&prefix);
+        store_key.extend_from_slice(&key.to_bytes()?);
 
         let store_value = value.to_bytes()?;
         
@@ -358,9 +357,10 @@ pub trait Storable<St, S, K, V>
         
         let mut store_key = Vec::new();
 
-        let prefix: [u8; 8] = unsafe { mem::transmute(Self::store_prefix()) };
-        store_key.extend_from_slice(&prefix[..]);
-        store_key.extend(&key.to_bytes()?);
+        let prefix = Self::store_prefix();
+        
+        store_key.extend_from_slice(&prefix);
+        store_key.extend_from_slice(&key.to_bytes()?);
         
         store.delete(&session, &store_key)
     }

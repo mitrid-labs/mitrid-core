@@ -2,6 +2,8 @@
 //!
 //! `node` is the module providing the type used to represent a node in the distributed ledger network.
 
+use std::mem;
+
 use base::Result;
 use base::Checkable;
 use base::Datable;
@@ -10,6 +12,9 @@ use base::{Sizable, VariableSize};
 use base::{Eval, EvalMut};
 use base::Meta;
 use io::{Store, Storable};
+
+/// Code of the `Node` type.
+pub const NODE_CODE: u64 = 8;
 
 /// Type representing a node in the distributed ledger network.
 #[derive(Clone, PartialEq, Eq, PartialOrd, Ord, Debug, Default, Hash, Serialize, Deserialize)]
@@ -125,8 +130,6 @@ impl<A, P> Datable for Node<A, P>
             P: Datable
 {}
 
-pub const NODE_STORE_PREFIX: u64 = 8;
-
 impl<St, S, A, P>
     Storable<St, S, A, Node<A, P>>
     for Node<A, P>
@@ -135,8 +138,13 @@ impl<St, S, A, P>
             A: Ord + Datable + VariableSize + Serializable,
             P: Datable + Serializable
 {
-    fn store_prefix() -> u64 {
-        NODE_STORE_PREFIX
+    fn store_prefix() -> Vec<u8> {
+        let mut prefix = Vec::new();
+
+        let _prefix: [u8; 8] = unsafe { mem::transmute(NODE_CODE) };
+        prefix.extend_from_slice(&_prefix[..]);
+
+        prefix
     }
 
     fn store_key(&self) -> Result<A> {

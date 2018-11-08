@@ -2,6 +2,8 @@
 //!
 //! `output` is the module providing the type used to represent the output of a `Transaction`.
 
+use std::mem;
+
 use base::Result;
 use base::Checkable;
 use base::Datable;
@@ -12,6 +14,9 @@ use base::{Eval, EvalMut};
 use base::Meta;
 use crypto::Hash;
 use io::{Store, Storable};
+
+/// Code of the `Output` type.
+pub const OUTPUT_CODE: u64 = 2;
 
 /// Type representing the output of a `Transaction`.
 #[derive(Clone, PartialEq, Eq, PartialOrd, Ord, Debug, Default, Hash, Serialize, Deserialize)]
@@ -207,8 +212,6 @@ impl<D, A, P> Datable for Output<D, A, P>
             P: Datable
 {}
 
-pub const OUTPUT_STORE_PREFIX: u64 = 2;
-
 impl<St, S, D, A, P>
     Storable<St, S, D, Output<D, A, P>>
     for Output<D, A, P>
@@ -218,8 +221,13 @@ impl<St, S, D, A, P>
             A: Numerical + Serializable,
             P: Datable + Serializable
 {
-    fn store_prefix() -> u64 {
-        OUTPUT_STORE_PREFIX
+    fn store_prefix() -> Vec<u8> {
+        let mut prefix = Vec::new();
+
+        let _prefix: [u8; 8] = unsafe { mem::transmute(OUTPUT_CODE) };
+        prefix.extend_from_slice(&_prefix[..]);
+
+        prefix
     }
 
     fn store_key(&self) -> Result<D> {

@@ -2,6 +2,8 @@
 //!
 //! `response` is the module providing the type representing network response messages.
 
+use std::mem;
+
 use base::Result;
 use base::{Sizable, ConstantSize, VariableSize};
 use base::Checkable;
@@ -9,6 +11,9 @@ use base::Serializable;
 use base::Datable;
 use io::store::{Store, Storable};
 use io::network::message::Message;
+
+/// Code of the `Response` type.
+pub const RESPONSE_CODE: u64 = 10;
 
 /// Type representing a network response message.
 #[derive(Clone, Eq, PartialEq, Ord, PartialOrd, Debug, Default, Hash, Serialize, Deserialize)]
@@ -79,8 +84,6 @@ impl<S, Ad, NP, D, P> Datable for Response<S, Ad, NP, D, P>
             P: Datable
 {}
 
-pub const RESPONSE_STORE_PREFIX: u64 = 10;
-
 impl<St, S, MS, Ad, NP, D, P>
     Storable<St, S, D, Response<MS, Ad, NP, D, P>>
     for Response<MS, Ad, NP, D, P>
@@ -92,8 +95,13 @@ impl<St, S, MS, Ad, NP, D, P>
             D: Ord + Datable + ConstantSize + Serializable,
             P: Datable + Serializable
 {
-    fn store_prefix() -> u64 {
-        RESPONSE_STORE_PREFIX
+    fn store_prefix() -> Vec<u8> {
+        let mut prefix = Vec::new();
+
+        let _prefix: [u8; 8] = unsafe { mem::transmute(RESPONSE_CODE) };
+        prefix.extend_from_slice(&_prefix[..]);
+
+        prefix
     }
 
     fn store_key(&self) -> Result<D> {

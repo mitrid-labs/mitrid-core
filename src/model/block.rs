@@ -4,6 +4,8 @@
 //! to one or more `Transaction`s in the `BlockGraph`. Put differently, a `Block` is a bundle of
 //! transactions confirmed by one or more nodes.
 
+use std::mem;
+
 use base::Result;
 use base::Checkable;
 use base::Datable;
@@ -16,6 +18,9 @@ use crypto::{Hash, Prove};
 use io::{Store, Storable};
 use model::Transaction;
 use model::BlockNode;
+
+/// Code of the `Block` type.
+pub const BLOCK_CODE: u64 = 5;
 
 /// Type used to represent a bundle of confirmed `Transaction`s.
 #[derive(Clone, PartialEq, Eq, PartialOrd, Ord, Debug, Default, Hash, Serialize, Deserialize)]
@@ -359,8 +364,6 @@ impl<D, A, IP, OP, TP, P, Pr> Datable for Block<D, A, IP, OP, TP, P, Pr>
             Pr: Datable
 {}
 
-pub const BLOCK_STORE_PREFIX: u64 = 5;
-
 impl<St, S, D, A, IP, OP, TP, P, Pr>
     Storable<St, S, D, Block<D, A, IP, OP, TP, P, Pr>>
     for Block<D, A, IP, OP, TP, P, Pr>
@@ -374,8 +377,13 @@ impl<St, S, D, A, IP, OP, TP, P, Pr>
             P: Datable + Serializable,
             Pr: Datable + Serializable
 {
-    fn store_prefix() -> u64 {
-        BLOCK_STORE_PREFIX
+    fn store_prefix() -> Vec<u8> {
+        let mut prefix = Vec::new();
+
+        let _prefix: [u8; 8] = unsafe { mem::transmute(BLOCK_CODE) };
+        prefix.extend_from_slice(&_prefix[..]);
+
+        prefix
     }
 
     fn store_key(&self) -> Result<D> {

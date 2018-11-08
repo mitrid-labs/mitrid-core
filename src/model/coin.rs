@@ -3,6 +3,8 @@
 //! `coin` is the module providing the `Coin` type, an `Output` already registered or sent to the
 //! distributed ledger, or just past in time.
 
+use std::mem;
+
 use base::Result;
 use base::Checkable;
 use base::Datable;
@@ -13,6 +15,9 @@ use base::Numerical;
 use base::Meta;
 use crypto::Hash;
 use io::{Store, Storable};
+
+/// Code of the `Coin` type.
+pub const COIN_CODE: u64 = 0;
 
 /// Type used to represent a past `Output`.
 #[derive(Clone, PartialEq, Eq, PartialOrd, Ord, Debug, Default, Hash, Serialize, Deserialize)]
@@ -201,8 +206,6 @@ impl<D, A> Datable for Coin<D, A>
             A: Numerical
 {}
 
-pub const COIN_STORE_PREFIX: u64 = 0;
-
 impl<St, S, D, A>
     Storable<St, S, D, Coin<D, A>>
     for Coin<D, A>
@@ -211,8 +214,13 @@ impl<St, S, D, A>
             D: Ord + Datable + ConstantSize + Serializable,
             A: Numerical + Serializable
 {
-    fn store_prefix() -> u64 {
-        COIN_STORE_PREFIX
+    fn store_prefix() -> Vec<u8> {
+        let mut prefix = Vec::new();
+
+        let _prefix: [u8; 8] = unsafe { mem::transmute(COIN_CODE) };
+        prefix.extend_from_slice(&_prefix[..]);
+
+        prefix
     }
 
     fn store_key(&self) -> Result<D> {

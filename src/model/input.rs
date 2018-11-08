@@ -3,6 +3,8 @@
 //! `input` is the module providing the type used to bind as inputs one or more `Input`s
 //! in a `Input`.
 
+use std::mem;
+
 use base::Result;
 use base::Checkable;
 use base::Datable;
@@ -14,6 +16,9 @@ use base::Meta;
 use crypto::Hash;
 use io::{Store, Storable};
 use model::Coin;
+
+/// Code of the `Input` type.
+pub const INPUT_CODE: u64 = 1;
 
 /// Type used to bind one or more `Input`s to a `Input` as one of its inputs.
 #[derive(Clone, PartialEq, Eq, PartialOrd, Ord, Debug, Default, Hash, Serialize, Deserialize)]
@@ -212,8 +217,6 @@ impl<D, A, P> Datable for Input<D, A, P>
             P: Datable
 {}
 
-pub const INPUT_STORE_PREFIX: u64 = 1;
-
 impl<St, S, D, A, P>
     Storable<St, S, D, Input<D, A, P>>
     for Input<D, A, P>
@@ -223,8 +226,13 @@ impl<St, S, D, A, P>
             A: Numerical + Serializable,
             P: Datable + Serializable
 {
-    fn store_prefix() -> u64 {
-        INPUT_STORE_PREFIX
+    fn store_prefix() -> Vec<u8> {
+        let mut prefix = Vec::new();
+
+        let _prefix: [u8; 8] = unsafe { mem::transmute(INPUT_CODE) };
+        prefix.extend_from_slice(&_prefix[..]);
+
+        prefix
     }
 
     fn store_key(&self) -> Result<D> {

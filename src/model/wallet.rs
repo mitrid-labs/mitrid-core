@@ -2,6 +2,8 @@
 //!
 //! `wallet` is the module providing the type used for wallets (accounts) in the distributed ledger.
 
+use std::mem;
+
 use base::Result;
 use base::Checkable;
 use base::Datable;
@@ -13,6 +15,9 @@ use base::Meta;
 use crypto::Hash;
 use io::{Store, Storable};
 use model::Coin;
+
+/// Code of the `Wallet` type.
+pub const WALLET_CODE: u64 = 7;
 
 /// Type used to represent a wallet (account) in the distributed ledger.
 #[derive(Clone, PartialEq, Eq, PartialOrd, Ord, Debug, Default, Hash, Serialize, Deserialize)]
@@ -379,8 +384,6 @@ impl<D, A, P> Datable for Wallet<D, A, P>
             P: Datable
 {}
 
-pub const WALLET_STORE_PREFIX: u64 = 7;
-
 impl<St, S, D, A, P>
     Storable<St, S, D, Wallet<D, A, P>>
     for Wallet<D, A, P>
@@ -390,8 +393,13 @@ impl<St, S, D, A, P>
             A: Numerical + Serializable,
             P: Datable + Serializable
 {
-    fn store_prefix() -> u64 {
-        WALLET_STORE_PREFIX
+    fn store_prefix() -> Vec<u8> {
+        let mut prefix = Vec::new();
+
+        let _prefix: [u8; 8] = unsafe { mem::transmute(WALLET_CODE) };
+        prefix.extend_from_slice(&_prefix[..]);
+
+        prefix
     }
 
     fn store_key(&self) -> Result<D> {

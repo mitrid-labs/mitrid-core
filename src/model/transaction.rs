@@ -2,6 +2,8 @@
 //!
 //! `transaction` is the module providing the type used to produce new `Output`s from one or more input `Transaction`s.
 
+use std::mem;
+
 use base::Result;
 use base::Checkable;
 use base::Datable;
@@ -14,6 +16,9 @@ use crypto::Hash;
 use io::{Store, Storable};
 use model::Input;
 use model::Output;
+
+/// Code of the `Transaction` type.
+pub const TRANSACTION_CODE: u64 = 3;
 
 /// Type used to produce one or more `Output`s from one or more `Input`s.
 #[derive(Clone, PartialEq, Eq, PartialOrd, Ord, Debug, Default, Hash, Serialize, Deserialize)]
@@ -285,8 +290,6 @@ impl<D, A, IP, OP, P> Datable for Transaction<D, A, IP, OP, P>
             P: Datable
 {}
 
-pub const TRANSACTION_STORE_PREFIX: u64 = 3;
-
 impl<St, S, D, A, IP, OP, P>
     Storable<St, S, D, Transaction<D, A, IP, OP, P>>
     for Transaction<D, A, IP, OP, P>
@@ -298,8 +301,13 @@ impl<St, S, D, A, IP, OP, P>
             OP: Datable + Serializable,
             P: Datable + Serializable
 {
-    fn store_prefix() -> u64 {
-        TRANSACTION_STORE_PREFIX
+    fn store_prefix() -> Vec<u8> {
+        let mut prefix = Vec::new();
+
+        let _prefix: [u8; 8] = unsafe { mem::transmute(TRANSACTION_CODE) };
+        prefix.extend_from_slice(&_prefix[..]);
+
+        prefix
     }
 
     fn store_key(&self) -> Result<D> {
