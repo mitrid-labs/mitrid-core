@@ -255,6 +255,7 @@ fn test_request_store() {
 
     let mut from = Some(request.message.id.clone());
     let mut to = Some(request.message.id.clone());
+    let skip = 0;
 
     let res = Request::store_count(&mut store, from.clone(), to.clone());
     assert!(res.is_err());
@@ -289,19 +290,19 @@ fn test_request_store() {
     let mut to = Some(request.message.id.clone());
     let mut count = None;
 
-    let res = Request::store_list(&mut store, from.clone(), to.clone(), count.clone());
+    let res = Request::store_list(&mut store, from.clone(), to.clone(), count.clone(), skip);
     assert!(res.is_err());
 
     count = Some(0);
 
-    let res = Request::store_list(&mut store, from.clone(), to.clone(), count.clone());
+    let res = Request::store_list(&mut store, from.clone(), to.clone(), count.clone(), skip);
     assert!(res.is_err());
 
     from = None;
     to = None;
     count = None;
 
-    let res = Request::store_list(&mut store, from.clone(), to.clone(), count.clone());
+    let res = Request::store_list(&mut store, from.clone(), to.clone(), count.clone(), skip);
     assert!(res.is_ok());
 
     let list = res.unwrap();
@@ -309,7 +310,7 @@ fn test_request_store() {
 
     from = Some(request.message.id.clone());
 
-    let res = Request::store_list(&mut store, from.clone(), to.clone(), count.clone());
+    let res = Request::store_list(&mut store, from.clone(), to.clone(), count.clone(), skip);
     assert!(res.is_ok());
 
     let list = res.unwrap();
@@ -318,7 +319,7 @@ fn test_request_store() {
     from = None;
     to = Some(request.message.id.clone());
 
-    let res = Request::store_list(&mut store, from.clone(), to.clone(), count.clone());
+    let res = Request::store_list(&mut store, from.clone(), to.clone(), count.clone(), skip);
     assert!(res.is_ok());
 
     let list = res.unwrap();
@@ -348,7 +349,7 @@ fn test_request_store() {
 
     let count = None;
 
-    let res = Request::store_list(&mut store, to.clone(), from.clone(), count.clone());
+    let res = Request::store_list(&mut store, to.clone(), from.clone(), count.clone(), skip);
     assert!(res.is_ok());
 
     let list = res.unwrap();
@@ -365,7 +366,7 @@ fn test_request_store() {
 
     let count = None;
 
-    let res = Request::store_list(&mut store, to, from, count);
+    let res = Request::store_list(&mut store, to, from, count, skip);
     assert!(res.is_ok());
 
     let list = res.unwrap();

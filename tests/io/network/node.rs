@@ -181,20 +181,21 @@ fn test_node_store() {
     let mut from = Some(node.address.clone());
     let mut to = Some(node.address.clone());
     let mut count = None;
+    let skip = 0;
 
-    let res = Node::store_list(&mut store, from.clone(), to.clone(), count);
+    let res = Node::store_list(&mut store, from.clone(), to.clone(), count, skip);
     assert!(res.is_err());
 
     count = Some(0);
 
-    let res = Node::store_list(&mut store, from.clone(), to.clone(), count);
+    let res = Node::store_list(&mut store, from.clone(), to.clone(), count, skip);
     assert!(res.is_err());
 
     from = None;
     to = None;
     count = None;
 
-    let res = Node::store_list(&mut store, from.clone(), to.clone(), count);
+    let res = Node::store_list(&mut store, from.clone(), to.clone(), count, skip);
     assert!(res.is_ok());
 
     let list = res.unwrap();
@@ -202,7 +203,7 @@ fn test_node_store() {
 
     from = Some(node.address.clone());
 
-    let res = Node::store_list(&mut store, from.clone(), to.clone(), count);
+    let res = Node::store_list(&mut store, from.clone(), to.clone(), count, skip);
     assert!(res.is_ok());
 
     let list = res.unwrap();
@@ -211,7 +212,7 @@ fn test_node_store() {
     from = None;
     to = Some(node.address.clone());
 
-    let res = Node::store_list(&mut store, from.clone(), to.clone(), count);
+    let res = Node::store_list(&mut store, from.clone(), to.clone(), count, skip);
     assert!(res.is_ok());
 
     let list = res.unwrap();
@@ -263,7 +264,7 @@ fn test_node_store() {
 
     let count = None;
 
-    let res = Node::store_list(&mut store, to.clone(), from.clone(), count);
+    let res = Node::store_list(&mut store, to.clone(), from.clone(), count, skip);
     assert!(res.is_ok());
 
     let list = res.unwrap();
@@ -280,7 +281,7 @@ fn test_node_store() {
 
     let count = None;
 
-    let res = Node::store_list(&mut store, to, from, count);
+    let res = Node::store_list(&mut store, to, from, count, skip);
     assert!(res.is_ok());
 
     let list = res.unwrap();

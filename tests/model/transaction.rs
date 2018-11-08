@@ -478,20 +478,21 @@ fn test_transaction_store() {
     let mut from = Some(tx.id.clone());
     let mut to = Some(tx.id.clone());
     let mut count = None;
+    let skip = 0;
 
-    let res = Transaction::store_list(&mut store, from.clone(), to.clone(), count.clone());
+    let res = Transaction::store_list(&mut store, from.clone(), to.clone(), count.clone(), skip);
     assert!(res.is_err());
 
     count = Some(0);
 
-    let res = Transaction::store_list(&mut store, from.clone(), to.clone(), count.clone());
+    let res = Transaction::store_list(&mut store, from.clone(), to.clone(), count.clone(), skip);
     assert!(res.is_err());
 
     from = None;
     to = None;
     count = None;
 
-    let res = Transaction::store_list(&mut store, from.clone(), to.clone(), count.clone());
+    let res = Transaction::store_list(&mut store, from.clone(), to.clone(), count.clone(), skip);
     assert!(res.is_ok());
 
     let list = res.unwrap();
@@ -499,7 +500,7 @@ fn test_transaction_store() {
 
     from = Some(tx.id.clone());
 
-    let res = Transaction::store_list(&mut store, from.clone(), to.clone(), count.clone());
+    let res = Transaction::store_list(&mut store, from.clone(), to.clone(), count.clone(), skip);
     assert!(res.is_ok());
 
     let list = res.unwrap();
@@ -508,7 +509,7 @@ fn test_transaction_store() {
     from = None;
     to = Some(tx.id.clone());
 
-    let res = Transaction::store_list(&mut store, from.clone(), to.clone(), count.clone());
+    let res = Transaction::store_list(&mut store, from.clone(), to.clone(), count.clone(), skip);
     assert!(res.is_ok());
 
     let list = res.unwrap();
@@ -538,7 +539,7 @@ fn test_transaction_store() {
 
     let count = None;
 
-    let res = Transaction::store_list(&mut store, to.clone(), from.clone(), count.clone());
+    let res = Transaction::store_list(&mut store, to.clone(), from.clone(), count.clone(), skip);
     assert!(res.is_ok());
 
     let list = res.unwrap();
@@ -555,7 +556,7 @@ fn test_transaction_store() {
 
     let count = None;
 
-    let res = Transaction::store_list(&mut store, to, from, count);
+    let res = Transaction::store_list(&mut store, to, from, count, skip);
     assert!(res.is_ok());
 
     let list = res.unwrap();

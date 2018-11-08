@@ -375,20 +375,21 @@ fn test_wallet_store() {
     let mut from = Some(wallet.id.clone());
     let mut to = Some(wallet.id.clone());
     let mut count = None;
+    let skip = 0;
 
-    let res = Wallet::store_list(&mut store, from.clone(), to.clone(), count.clone());
+    let res = Wallet::store_list(&mut store, from.clone(), to.clone(), count.clone(), skip);
     assert!(res.is_err());
 
     count = Some(0);
 
-    let res = Wallet::store_list(&mut store, from.clone(), to.clone(), count.clone());
+    let res = Wallet::store_list(&mut store, from.clone(), to.clone(), count.clone(), skip);
     assert!(res.is_err());
 
     from = None;
     to = None;
     count = None;
 
-    let res = Wallet::store_list(&mut store, from.clone(), to.clone(), count.clone());
+    let res = Wallet::store_list(&mut store, from.clone(), to.clone(), count.clone(), skip);
     assert!(res.is_ok());
 
     let list = res.unwrap();
@@ -396,7 +397,7 @@ fn test_wallet_store() {
 
     from = Some(wallet.id.clone());
 
-    let res = Wallet::store_list(&mut store, from.clone(), to.clone(), count.clone());
+    let res = Wallet::store_list(&mut store, from.clone(), to.clone(), count.clone(), skip);
     assert!(res.is_ok());
 
     let list = res.unwrap();
@@ -405,7 +406,7 @@ fn test_wallet_store() {
     from = None;
     to = Some(wallet.id.clone());
 
-    let res = Wallet::store_list(&mut store, from.clone(), to.clone(), count.clone());
+    let res = Wallet::store_list(&mut store, from.clone(), to.clone(), count.clone(), skip);
     assert!(res.is_ok());
 
     let list = res.unwrap();
@@ -435,7 +436,7 @@ fn test_wallet_store() {
 
     let count = None;
 
-    let res = Wallet::store_list(&mut store, to.clone(), from.clone(), count.clone());
+    let res = Wallet::store_list(&mut store, to.clone(), from.clone(), count.clone(), skip);
     assert!(res.is_ok());
 
     let list = res.unwrap();
@@ -452,7 +453,7 @@ fn test_wallet_store() {
 
     let count = None;
 
-    let res = Wallet::store_list(&mut store, to, from, count);
+    let res = Wallet::store_list(&mut store, to, from, count, skip);
     assert!(res.is_ok());
 
     let list = res.unwrap();

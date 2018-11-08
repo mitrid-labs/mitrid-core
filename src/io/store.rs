@@ -35,14 +35,16 @@ pub trait Store<S>
             session: &Session<S>,
             from: Option<Vec<u8>>,
             to: Option<Vec<u8>>,
-            count: Option<u64>)
+            count: Option<u64>,
+            skip: u64)
         -> Result<Vec<Vec<u8>>>;
 
     /// Lists the store items starting with the given prefix.
     fn list_prefix(&mut self,
                    session: &Session<S>,
                    prefix: &[u8],
-                   count: Option<u64>)
+                   count: Option<u64>,
+                   skip: u64)
         -> Result<Vec<Vec<u8>>>;
     
     /// Lookups an item from its key.
@@ -178,7 +180,8 @@ pub trait Storable<St, S, K, V>
     fn store_list(store: &mut St,
                   from: Option<K>,
                   to: Option<K>,
-                  count: Option<u64>)
+                  count: Option<u64>,
+                  skip: u64)
         -> Result<Vec<Self>>
     {
         let permission = Permission::Read;
@@ -192,6 +195,10 @@ pub trait Storable<St, S, K, V>
             if count == 0 {
                 return Err(String::from("invalid count"));
             }
+
+            if skip > count {
+                return Err(String::from("invalid skip"));
+            }
         }
 
         let mut list = Vec::new();
@@ -201,7 +208,7 @@ pub trait Storable<St, S, K, V>
         prefix.extend_from_slice(&_prefix[..]);
 
         if from.is_none() && to.is_none() {
-            for value in store.list_prefix(&session, &prefix, count)?.iter() {
+            for value in store.list_prefix(&session, &prefix, count, skip)?.iter() {
                 list.push(Self::from_store_value(&value)?);
             }
 
@@ -236,7 +243,7 @@ pub trait Storable<St, S, K, V>
             None
         };
 
-        for value in store.list(&session, store_from, store_to, count)?.iter() {
+        for value in store.list(&session, store_from, store_to, count, skip)?.iter() {
             list.push(Self::from_store_value(&value)?);
         }
 

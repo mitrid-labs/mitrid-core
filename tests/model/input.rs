@@ -402,20 +402,21 @@ fn test_input_store() {
     let mut from = Some(input.id.clone());
     let mut to = Some(input.id.clone());
     let mut count = None;
+    let skip = 0;
 
-    let res = Input::store_list(&mut store, from.clone(), to.clone(), count.clone());
+    let res = Input::store_list(&mut store, from.clone(), to.clone(), count.clone(), skip);
     assert!(res.is_err());
 
     count = Some(0);
 
-    let res = Input::store_list(&mut store, from.clone(), to.clone(), count.clone());
+    let res = Input::store_list(&mut store, from.clone(), to.clone(), count.clone(), skip);
     assert!(res.is_err());
 
     from = None;
     to = None;
     count = None;
 
-    let res = Input::store_list(&mut store, from.clone(), to.clone(), count.clone());
+    let res = Input::store_list(&mut store, from.clone(), to.clone(), count.clone(), skip);
     assert!(res.is_ok());
 
     let list = res.unwrap();
@@ -423,7 +424,7 @@ fn test_input_store() {
 
     from = Some(input.id.clone());
 
-    let res = Input::store_list(&mut store, from.clone(), to.clone(), count.clone());
+    let res = Input::store_list(&mut store, from.clone(), to.clone(), count.clone(), skip);
     assert!(res.is_ok());
 
     let list = res.unwrap();
@@ -432,7 +433,7 @@ fn test_input_store() {
     from = None;
     to = Some(input.id.clone());
 
-    let res = Input::store_list(&mut store, from.clone(), to.clone(), count.clone());
+    let res = Input::store_list(&mut store, from.clone(), to.clone(), count.clone(), skip);
     assert!(res.is_ok());
 
     let list = res.unwrap();
@@ -462,7 +463,7 @@ fn test_input_store() {
 
     let count = None;
 
-    let res = Input::store_list(&mut store, to.clone(), from.clone(), count.clone());
+    let res = Input::store_list(&mut store, to.clone(), from.clone(), count.clone(), skip);
     assert!(res.is_ok());
 
     let list = res.unwrap();
@@ -479,7 +480,7 @@ fn test_input_store() {
 
     let count = None;
 
-    let res = Input::store_list(&mut store, to, from, count);
+    let res = Input::store_list(&mut store, to, from, count, skip);
     assert!(res.is_ok());
 
     let list = res.unwrap();

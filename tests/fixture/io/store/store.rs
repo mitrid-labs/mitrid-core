@@ -159,7 +159,8 @@ impl BasicStore<()> for Store {
             session: &Session,
             from: Option<Vec<u8>>,
             to: Option<Vec<u8>>,
-            count: Option<u64>)
+            count: Option<u64>,
+            skip: u64)
         -> Result<Vec<Vec<u8>>>
     {
         session.check()?;
@@ -188,6 +189,10 @@ impl BasicStore<()> for Store {
             if count == 0 {
                 return Err(String::from("invalid count"));
             }
+
+            if skip >= count {
+                return Err(String::from("invalid skip"));
+            }
         }
 
         let sessions = &*self.sessions.lock().unwrap();
@@ -214,8 +219,14 @@ impl BasicStore<()> for Store {
         } else {
             -1
         };
+        let mut skip = skip;
 
         for (key, value) in items.iter() {
+            if skip > 0 {
+                skip -= 1;
+                continue;
+            }
+
             if cnt == 0 {
                 break;
             }
@@ -242,10 +253,11 @@ impl BasicStore<()> for Store {
     fn list_prefix(&mut self,
                    session: &Session,
                    _prefix: &[u8],
-                   count: Option<u64>)
+                   count: Option<u64>,
+                   skip: u64)
         -> Result<Vec<Vec<u8>>>
     {
-        self.list(session, None, None, count)
+        self.list(session, None, None, count, skip)
     }
     
     fn lookup(&mut self,

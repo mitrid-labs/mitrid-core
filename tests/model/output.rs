@@ -322,20 +322,21 @@ fn test_output_store() {
     let mut from = Some(output.id.clone());
     let mut to = Some(output.id.clone());
     let mut count = None;
+    let skip = 0;
 
-    let res = Output::store_list(&mut store, from.clone(), to.clone(), count.clone());
+    let res = Output::store_list(&mut store, from.clone(), to.clone(), count.clone(), skip);
     assert!(res.is_err());
 
     count = Some(0);
 
-    let res = Output::store_list(&mut store, from.clone(), to.clone(), count.clone());
+    let res = Output::store_list(&mut store, from.clone(), to.clone(), count.clone(), skip);
     assert!(res.is_err());
 
     from = None;
     to = None;
     count = None;
 
-    let res = Output::store_list(&mut store, from.clone(), to.clone(), count.clone());
+    let res = Output::store_list(&mut store, from.clone(), to.clone(), count.clone(), skip);
     assert!(res.is_ok());
 
     let list = res.unwrap();
@@ -343,7 +344,7 @@ fn test_output_store() {
 
     from = Some(output.id.clone());
 
-    let res = Output::store_list(&mut store, from.clone(), to.clone(), count.clone());
+    let res = Output::store_list(&mut store, from.clone(), to.clone(), count.clone(), skip);
     assert!(res.is_ok());
 
     let list = res.unwrap();
@@ -352,7 +353,7 @@ fn test_output_store() {
     from = None;
     to = Some(output.id.clone());
 
-    let res = Output::store_list(&mut store, from.clone(), to.clone(), count.clone());
+    let res = Output::store_list(&mut store, from.clone(), to.clone(), count.clone(), skip);
     assert!(res.is_ok());
 
     let list = res.unwrap();
@@ -382,7 +383,7 @@ fn test_output_store() {
 
     let count = None;
 
-    let res = Output::store_list(&mut store, to.clone(), from.clone(), count.clone());
+    let res = Output::store_list(&mut store, to.clone(), from.clone(), count.clone(), skip);
     assert!(res.is_ok());
 
     let list = res.unwrap();
@@ -399,7 +400,7 @@ fn test_output_store() {
 
     let count = None;
 
-    let res = Output::store_list(&mut store, to, from, count);
+    let res = Output::store_list(&mut store, to, from, count, skip);
     assert!(res.is_ok());
 
     let list = res.unwrap();

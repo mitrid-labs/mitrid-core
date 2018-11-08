@@ -158,14 +158,15 @@ fn test_store_list() {
     let mut from = None;
     let mut to = None;
     let mut count = None;
+    let mut skip = 0;
 
-    let res = store.list(&write_session, from.clone(), to.clone(), count);
+    let res = store.list(&write_session, from.clone(), to.clone(), count, skip);
     assert!(res.is_err());
 
     let read_permission = Permission::Read;
     let read_session = store.session(&read_permission).unwrap();
 
-    let res = store.list(&read_session, from.clone(), to.clone(), count);
+    let res = store.list(&read_session, from.clone(), to.clone(), count, skip);
     assert!(res.is_ok());
 
     let values = vec![value];
@@ -175,7 +176,7 @@ fn test_store_list() {
 
     from = Some(key.clone());
 
-    let res = store.list(&read_session, from.clone(), to.clone(), count);
+    let res = store.list(&read_session, from.clone(), to.clone(), count, skip);
     assert!(res.is_ok());
 
     let list = res.unwrap();
@@ -183,23 +184,33 @@ fn test_store_list() {
 
     to = Some(key.clone());
 
-    let res = store.list(&read_session, from.clone(), to.clone(), count);
+    let res = store.list(&read_session, from.clone(), to.clone(), count, skip);
     assert!(res.is_err());
 
     from = None;
     to = None;
     count = Some(1);
+    skip = 2;
 
-    let res = store.list(&read_session, from.clone(), to.clone(), count);
-    println!("{:?}", &res);
+    let res = store.list(&read_session, from.clone(), to.clone(), count, skip);
+    assert!(res.is_err());
+
+    skip = 0;
+
+    let res = store.list(&read_session, from.clone(), to.clone(), count, skip);
     assert!(res.is_ok());
 
     let list = res.unwrap();
     assert_eq!(&list, &values);
 
+    skip = 1;
+
+    let res = store.list(&read_session, from.clone(), to.clone(), count, skip);
+    assert!(res.is_err());
+
     count = Some(0);
 
-    let res = store.list(&read_session, from, to, count);
+    let res = store.list(&read_session, from, to, count, skip);
     assert!(res.is_err());
 }
 
@@ -217,14 +228,15 @@ fn test_store_list_prefix() {
 
     let prefix = Vec::new();
     let mut count = None;
+    let mut skip = 0;
 
-    let res = store.list_prefix(&write_session, &prefix, count);
+    let res = store.list_prefix(&write_session, &prefix, count, skip);
     assert!(res.is_err());
 
     let read_permission = Permission::Read;
     let read_session = store.session(&read_permission).unwrap();
 
-    let res = store.list_prefix(&read_session, &prefix, count);
+    let res = store.list_prefix(&read_session, &prefix, count, skip);
     assert!(res.is_ok());
 
     let values = vec![value];
@@ -232,9 +244,21 @@ fn test_store_list_prefix() {
     let list = res.unwrap();
     assert_eq!(&list, &values);
 
-    count = Some(0);
+    count = Some(1);
+    skip = 2;
 
-    let res = store.list_prefix(&read_session, &prefix, count);
+    let res = store.list_prefix(&read_session, &prefix, count, skip);
+    assert!(res.is_err());
+
+    skip = 1;
+
+    let res = store.list_prefix(&read_session, &prefix, count, skip);
+    assert!(res.is_err());
+
+    count = Some(0);
+    skip = 0;
+
+    let res = store.list_prefix(&read_session, &prefix, count, skip);
     assert!(res.is_err());
 }
 
