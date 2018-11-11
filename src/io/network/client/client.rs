@@ -40,11 +40,10 @@ pub trait Client<CT, Ad, S, D, MP>
             let ser_req = req.to_bytes()?;
             transport.send(&ser_req)?;
 
-            for ser_res in transport.recv()? {
-                let res = Response::from_bytes(&ser_res)?;
-                res.check()?;
-                ress.push(res);
-            }
+            let ser_res = transport.recv()?;
+            let res = Response::from_bytes(&ser_res)?;
+            res.check()?;
+            ress.push(res);
         }
 
         responses.extend(ress);
@@ -67,14 +66,15 @@ pub trait Client<CT, Ad, S, D, MP>
             let ser_req = req.to_bytes()?;
             transport.send(&ser_req)?;
 
-            for ser_res in transport.recv()? {
-                let res = Response::from_bytes(&ser_res)?;
-                res.check()?;
-                if res.message.is_error() {
-                    return Err(String::from("error response"));
-                }
-                ress.push(res);
+            let ser_res = transport.recv()?;
+            let res = Response::from_bytes(&ser_res)?;
+            res.check()?;
+            
+            if res.message.is_error() {
+                return Err(String::from("error response"));
             }
+
+            ress.push(res);
         }
 
         responses.extend(ress);
@@ -105,21 +105,20 @@ pub trait Client<CT, Ad, S, D, MP>
                 let ser_req = req.to_bytes()?;
                 transport.send(&ser_req)?;
 
-                for ser_res in transport.recv()? {
-                    let res = Response::from_bytes(&ser_res)?;
-                    res.check()?;
+                let ser_res = transport.recv()?;
+                let res = Response::from_bytes(&ser_res)?;
+                res.check()?;
                     
-                    if res.message.is_error() {
-                        if t == 1 {
-                            ress.push(res);
-                        } else {
-                            t -= 1;
-                            break;
-                        }
-                    } else {
+                if res.message.is_error() {
+                    if t == 1 {
                         ress.push(res);
-                        step += 1;
+                    } else {
+                        t -= 1;
+                        break;
                     }
+                } else {
+                    ress.push(res);
+                    step += 1;
                 }
             }
         }
@@ -152,23 +151,22 @@ pub trait Client<CT, Ad, S, D, MP>
                 let ser_req = req.to_bytes()?;
                 transport.send(&ser_req)?;
                 
-                for ser_res in transport.recv()? {
-                    let res = Response::from_bytes(&ser_res)?;
-                    res.check()?;
-                    
-                    if res.message.is_error() {
-                        if t == 1 {
-                            if step != requests.len() -1 {
-                                return Err(String::from("error response"));
-                            }
-                        } else {
-                            t -= 1;
-                            break;
+                let ser_res = transport.recv()?;
+                let res = Response::from_bytes(&ser_res)?;
+                res.check()?;
+                
+                if res.message.is_error() {
+                    if t == 1 {
+                        if step != requests.len() -1 {
+                            return Err(String::from("error response"));
                         }
                     } else {
-                        ress.push(res);
-                        step += 1;
+                        t -= 1;
+                        break;
                     }
+                } else {
+                    ress.push(res);
+                    step += 1;
                 }
             }
         }

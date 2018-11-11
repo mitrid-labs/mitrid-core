@@ -59,35 +59,34 @@ pub trait Server<St, StS, ST, CT, Ad, H, R, S, D, MP>
                 transport.accept()
                     .and_then(|(mut transport, _)| {
 
-                        for ser_req in transport.recv()? {
-                            let req = Request::from_bytes(ser_req.as_slice())?;
-                            let mut transport = transport.clone();
-                            let store = store.clone();
-                            let handler = handler.clone(); 
-                            let router = router.clone();
-                            let evaluator = evaluator.clone();
-                            let evaluator_mut = evaluator_mut.clone();
-                            let threads_num = threads_num.clone();
-                            
-                            let _ = thread::spawn(move || {
-                                *threads_num.lock().unwrap() += 1;
+                        let ser_req = transport.recv()?;
+                        let req = Request::from_bytes(ser_req.as_slice())?;
+                        let mut transport = transport.clone();
+                        let store = store.clone();
+                        let handler = handler.clone(); 
+                        let router = router.clone();
+                        let evaluator = evaluator.clone();
+                        let evaluator_mut = evaluator_mut.clone();
+                        let threads_num = threads_num.clone();
+                        
+                        let _ = thread::spawn(move || {
+                            *threads_num.lock().unwrap() += 1;
 
-                                let router = &mut *router.lock().unwrap();
-                                let store = &mut *store.lock().unwrap();
-                                let handler = &mut *handler.lock().unwrap();
-                                let evaluator: &Ev = &*evaluator;
-                                let evaluator_mut: &mut EvM = &mut *evaluator_mut.lock().unwrap();
+                            let router = &mut *router.lock().unwrap();
+                            let store = &mut *store.lock().unwrap();
+                            let handler = &mut *handler.lock().unwrap();
+                            let evaluator: &Ev = &*evaluator;
+                            let evaluator_mut: &mut EvM = &mut *evaluator_mut.lock().unwrap();
 
-                                router.route(store, handler, &req, &*evaluator, evaluator_mut)
-                                    .and_then(|res| {
-                                        transport.send(&res.to_bytes().unwrap())
-                                    })
-                                    .or_else(|e| Err(format!("{:}", e)))
-                            })
-                            .join()
-                            .map_err(|e| format!("{:?}", e))
-                            .unwrap();
-                        }
+                            router.route(store, handler, &req, &*evaluator, evaluator_mut)
+                                .and_then(|res| {
+                                    transport.send(&res.to_bytes().unwrap())
+                                })
+                                .or_else(|e| Err(format!("{:}", e)))
+                        })
+                        .join()
+                        .map_err(|e| format!("{:?}", e))
+                        .unwrap();
 
                         Ok(())
                     })

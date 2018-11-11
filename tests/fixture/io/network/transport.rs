@@ -58,7 +58,7 @@ impl BasicClientTransport<Address> for ClientTransport {
             .map_err(|e| format!("{:?}", e))
     }
 
-    fn recv(&mut self) -> Result<Vec<Vec<u8>>> {
+    fn recv(&mut self) -> Result<Vec<u8>> {
         let mut buffer: [u8; BUFFER_SIZE] = [0; BUFFER_SIZE];
 
         self.0.read(&mut buffer[..])
@@ -78,7 +78,7 @@ impl BasicClientTransport<Address> for ClientTransport {
             msg.push(buffer[i+4]);
         }
 
-        Ok(vec![msg])
+        Ok(msg)
     }
 }
 
@@ -90,9 +90,7 @@ impl ServerTransport {
 
         let (mut client, _) = server.accept().unwrap();
         
-        let recvd = client.recv().unwrap();
-
-        let msg = &recvd[0];
+        let msg = client.recv().unwrap();
 
         client.send(msg.as_slice()).unwrap();
     }

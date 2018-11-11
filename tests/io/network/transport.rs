@@ -27,10 +27,8 @@ fn test_ping_server() {
     let res = client.recv();
     assert!(res.is_ok());
 
-    let responses = res.unwrap();
-    assert!(responses.len() == 1);
-
-    let msg_b = responses[0].as_slice();
+    let response = res.unwrap();
+    let msg_b = response.as_slice();
 
     assert_eq!(msg_a, msg_b);
 
