@@ -22,7 +22,7 @@ pub trait Client<CT, Ad, S, D, MP>
             Self: 'static + Sized + Clone + Send + Sync
 {
     /// Builds a list to `Request` messages to send in sequence.
-    fn build(&mut self, address: &Ad)
+    fn build<P: Datable>(&mut self, params: &P, address: &Ad)
         -> Result<Vec<Request<S, D, MP>>>;
 
     /// Client behaviour when `OnError` is set to Ignore.
@@ -178,9 +178,10 @@ pub trait Client<CT, Ad, S, D, MP>
 
     /// Sends a sequence of `Request`s to one or more addresses. `Request`s are build
     /// by some params and the list of addresses.
-    fn send(&mut self,
-            address: &Ad,
-            on_error: OnError)
+    fn send<P: Datable>(&mut self,
+                        params: &P,
+                        address: &Ad,
+                        on_error: OnError)
         -> Result<Vec<Response<S, D, MP>>>
     {
         address.check()?;
@@ -188,7 +189,7 @@ pub trait Client<CT, Ad, S, D, MP>
         
         on_error.check()?;
 
-        let requests = self.build(&address)?;
+        let requests = self.build(params, address)?;
 
         let mut transport = CT::connect(&address)?;
 
