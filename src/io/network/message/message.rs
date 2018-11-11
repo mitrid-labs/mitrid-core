@@ -5,7 +5,7 @@
 use rand::random;
 
 use base::Result;
-use base::{Sizable, ConstantSize, VariableSize};
+use base::{Sizable, ConstantSize};
 use base::Checkable;
 use base::Serializable;
 use base::Datable;
@@ -13,16 +13,13 @@ use base::{Eval, EvalMut};
 use base::Meta;
 use crypto::Hash;
 use io::Session;
-use io::Node;
 use io::Method;
 use io::Resource;
 
 /// Type used to represent a network message.
 #[derive(Clone, Eq, PartialEq, Ord, PartialOrd, Debug, Default, Hash, Serialize, Deserialize)]
-pub struct Message<S, Ad, NP, D, P>
+pub struct Message<S, D, P>
     where   S: Datable,
-            Ad: Ord + Datable + VariableSize,
-            NP: Datable,
             D: Ord + Datable + ConstantSize,
             P: Datable
 {
@@ -34,12 +31,6 @@ pub struct Message<S, Ad, NP, D, P>
     pub nonce: u64,
     /// Message session.
     pub session: Session<S>,
-    /// Message sending node.
-    pub sender: Node<Ad, NP>,
-    /// Length of the message receivers.
-    pub receivers_len: u64,
-    /// Message receiving nodes.
-    pub receivers: Vec<Node<Ad, NP>>,
     /// Message method.
     pub method: Method,
     /// Message resource.
@@ -48,10 +39,8 @@ pub struct Message<S, Ad, NP, D, P>
     pub payload: P
 }
 
-impl<S, Ad, NP, D, P> Message<S, Ad, NP, D, P>
+impl<S, D, P> Message<S, D, P>
     where   S: Datable,
-            Ad: Ord + Datable + VariableSize,
-            NP: Datable,
             D: Ord + Datable + ConstantSize,
             P: Datable,
             Self: Serializable
@@ -98,29 +87,6 @@ impl<S, Ad, NP, D, P> Message<S, Ad, NP, D, P>
     /// Returns if the `Message` is expired.
     pub fn is_expired(&self) -> Result<bool> {
         self.session.is_expired()
-    }
-
-    /// Sets the `Message` sender.
-    pub fn sender(mut self, sender: &Node<Ad, NP>) -> Result<Self> {
-        sender.check()?;
-
-        self.sender = sender.clone();
-
-        self.update_size();
-
-        Ok(self)
-    }
-
-    /// Sets the `Message` set of receivers and its lenght.
-    pub fn receivers(mut self, recvs: &Vec<Node<Ad, NP>>,) -> Result<Self> {
-        recvs.check()?;
-
-        self.receivers_len = recvs.len() as u64;
-        self.receivers = recvs.clone();
-
-        self.update_size();
-
-        Ok(self)
     }
 
     /// Sets the `Message` method.
@@ -244,10 +210,8 @@ impl<S, Ad, NP, D, P> Message<S, Ad, NP, D, P>
     }
 }
 
-impl<S, Ad, NP, D, P> Sizable for Message<S, Ad, NP, D, P>
+impl<S, D, P> Sizable for Message<S, D, P>
     where   S: Datable,
-            Ad: Ord + Datable + VariableSize,
-            NP: Datable,
             D: Ord + Datable + ConstantSize,
             P: Datable
 {
@@ -256,19 +220,14 @@ impl<S, Ad, NP, D, P> Sizable for Message<S, Ad, NP, D, P>
             self.meta.size() +
             self.nonce.size() +
             self.session.size() +
-            self.sender.size() +
-            self.receivers_len.size() +
-            self.receivers.size() +
             self.method.size() +
             self.resource.size() +
             self.payload.size()
     }
 }
 
-impl<S, Ad, NP, D, P> Checkable for Message<S, Ad, NP, D, P>
+impl<S, D, P> Checkable for Message<S, D, P>
     where   S: Datable,
-            Ad: Ord + Datable + VariableSize,
-            NP: Datable,
             D: Ord + Datable + ConstantSize,
             P: Datable
 {
@@ -284,14 +243,6 @@ impl<S, Ad, NP, D, P> Checkable for Message<S, Ad, NP, D, P>
         self.nonce.check()?;
         self.session.check()?;
 
-        self.sender.check()?;
-        self.receivers_len.check()?;
-        self.receivers.check()?;
-
-        if self.receivers_len != self.receivers.len() as u64 {
-            return Err(String::from("invalid length"));
-        }
-
         self.method.check()?;
         self.method.check_permission(&self.session.permission)?;
 
@@ -304,18 +255,14 @@ impl<S, Ad, NP, D, P> Checkable for Message<S, Ad, NP, D, P>
     }
 }
 
-impl<S, Ad, NP, D, P> Serializable for Message<S, Ad, NP, D, P>
+impl<S, D, P> Serializable for Message<S, D, P>
     where   S: Datable + Serializable,
-            Ad: Ord + Datable + VariableSize + Serializable,
-            NP: Datable + Serializable,
             D: Ord + Datable + ConstantSize + Serializable,
             P: Datable + Serializable
 {}
 
-impl<S, Ad, NP, D, P> Datable for Message<S, Ad, NP, D, P>
+impl<S, D, P> Datable for Message<S, D, P>
     where   S: Datable,
-            Ad: Ord + Datable + VariableSize,
-            NP: Datable,
             D: Ord + Datable + ConstantSize,
             P: Datable
 {}

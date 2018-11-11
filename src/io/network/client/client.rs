@@ -13,24 +13,23 @@ use io::network::message::Response;
 use io::network::client::OnError;
 
 /// Trait implemented by network clients.
-pub trait Client<CT, S, Ad, NP, D, MP>
+pub trait Client<CT, Ad, S, D, MP>
     where   CT: ClientTransport<Ad>,
-            S: Datable + Serializable,
             Ad: Ord + Datable + VariableSize + Serializable,
-            NP: Datable + Serializable,
+            S: Datable + Serializable,
             D: Ord + Datable + ConstantSize + Serializable,
             MP: Datable + Serializable,
             Self: 'static + Sized + Clone + Send + Sync
 {
     /// Builds a list to `Request` messages to send in sequence.
     fn build(&mut self, address: &Ad)
-        -> Result<Vec<Request<S, Ad, NP, D, MP>>>;
+        -> Result<Vec<Request<S, D, MP>>>;
 
     /// Client behaviour when `OnError` is set to Ignore.
     fn send_ignore_on_error(&mut self,
                             transport: &mut CT,
-                            requests: &Vec<Request<S, Ad, NP, D, MP>>,
-                            responses: &mut Vec<Response<S, Ad, NP, D, MP>>)
+                            requests: &Vec<Request<S, D, MP>>,
+                            responses: &mut Vec<Response<S, D, MP>>)
         -> Result<()>
     {
         requests.check()?;
@@ -56,8 +55,8 @@ pub trait Client<CT, S, Ad, NP, D, MP>
     /// Client behaviour when `OnError` is set to Fail.
     fn send_fail_on_error(&mut self,
                           transport: &mut CT,
-                          requests: &Vec<Request<S, Ad, NP, D, MP>>,
-                          responses: &mut Vec<Response<S, Ad, NP, D, MP>>)
+                          requests: &Vec<Request<S, D, MP>>,
+                          responses: &mut Vec<Response<S, D, MP>>)
         -> Result<()>
     {
         requests.check()?;
@@ -87,8 +86,8 @@ pub trait Client<CT, S, Ad, NP, D, MP>
     fn send_retry_and_ignore(&mut self,
                              transport: &mut CT,
                              times: u64,
-                             requests: &Vec<Request<S, Ad, NP, D, MP>>,
-                             responses: &mut Vec<Response<S, Ad, NP, D, MP>>)
+                             requests: &Vec<Request<S, D, MP>>,
+                             responses: &mut Vec<Response<S, D, MP>>)
         -> Result<()>
     {
         requests.check()?;
@@ -134,8 +133,8 @@ pub trait Client<CT, S, Ad, NP, D, MP>
     fn send_retry_and_fail(&mut self,
                            transport: &mut CT,
                            times: u64,
-                           requests: &Vec<Request<S, Ad, NP, D, MP>>,
-                           responses: &mut Vec<Response<S, Ad, NP, D, MP>>)
+                           requests: &Vec<Request<S, D, MP>>,
+                           responses: &mut Vec<Response<S, D, MP>>)
         -> Result<()>
     {
         requests.check()?;
@@ -184,7 +183,7 @@ pub trait Client<CT, S, Ad, NP, D, MP>
     fn send(&mut self,
             address: &Ad,
             on_error: OnError)
-        -> Result<Vec<Response<S, Ad, NP, D, MP>>>
+        -> Result<Vec<Response<S, D, MP>>>
     {
         address.check()?;
         address.check_size()?;

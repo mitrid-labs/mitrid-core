@@ -5,7 +5,7 @@
 use std::mem;
 
 use base::Result;
-use base::{Sizable, ConstantSize, VariableSize};
+use base::{Sizable, ConstantSize};
 use base::Checkable;
 use base::Serializable;
 use base::Datable;
@@ -17,26 +17,22 @@ pub const RESPONSE_CODE: u64 = 10;
 
 /// Type representing a network response message.
 #[derive(Clone, Eq, PartialEq, Ord, PartialOrd, Debug, Default, Hash, Serialize, Deserialize)]
-pub struct Response<S, Ad, NP, D, P>
+pub struct Response<S, D, P>
     where   S: Datable,
-            Ad: Ord + Datable + VariableSize,
-            NP: Datable,
             D: Ord + Datable + ConstantSize,
             P: Datable
 {
     /// Response inner message
-    pub message: Message<S, Ad, NP, D, P>,
+    pub message: Message<S, D, P>,
 }
 
-impl<S, Ad, NP, D, P> Response<S, Ad, NP, D, P>
+impl<S, D, P> Response<S, D, P>
     where   S: Datable,
-            Ad: Ord + Datable + VariableSize,
-            NP: Datable,
             D: Ord + Datable + ConstantSize,
             P: Datable
 {
     /// Creates a new `Response`.
-    pub fn new(msg: &Message<S, Ad, NP, D, P>) -> Result<Self> {
+    pub fn new(msg: &Message<S, D, P>) -> Result<Self> {
         msg.check()?;
 
         let res = Response { message: msg.to_owned() };
@@ -44,10 +40,8 @@ impl<S, Ad, NP, D, P> Response<S, Ad, NP, D, P>
     }
 }
 
-impl<S, Ad, NP, D, P> Sizable for Response<S, Ad, NP, D, P>
+impl<S, D, P> Sizable for Response<S, D, P>
     where   S: Datable,
-            Ad: Ord + Datable + VariableSize,
-            NP: Datable,
             D: Ord + Datable + ConstantSize,
             P: Datable
 {
@@ -56,10 +50,8 @@ impl<S, Ad, NP, D, P> Sizable for Response<S, Ad, NP, D, P>
     }
 }
 
-impl<S, Ad, NP, D, P> Checkable for Response<S, Ad, NP, D, P>
+impl<S, D, P> Checkable for Response<S, D, P>
     where   S: Datable,
-            Ad: Ord + Datable + VariableSize,
-            NP: Datable,
             D: Ord + Datable + ConstantSize,
             P: Datable
 {
@@ -68,30 +60,24 @@ impl<S, Ad, NP, D, P> Checkable for Response<S, Ad, NP, D, P>
     }
 }
 
-impl<S, Ad, NP, D, P> Serializable for Response<S, Ad, NP, D, P>
+impl<S, D, P> Serializable for Response<S, D, P>
     where   S: Datable + Serializable,
-            Ad: Ord + Datable + VariableSize + Serializable,
-            NP: Datable + Serializable,
             D: Ord + Datable + ConstantSize + Serializable,
             P: Datable + Serializable
 {}
 
-impl<S, Ad, NP, D, P> Datable for Response<S, Ad, NP, D, P>
+impl<S, D, P> Datable for Response<S, D, P>
     where   S: Datable,
-            Ad: Ord + Datable + VariableSize,
-            NP: Datable,
             D: Ord + Datable + ConstantSize,
             P: Datable
 {}
 
-impl<St, S, MS, Ad, NP, D, P>
-    Storable<St, S, D, Response<MS, Ad, NP, D, P>>
-    for Response<MS, Ad, NP, D, P>
+impl<St, S, MS, D, P>
+    Storable<St, S, D, Response<MS, D, P>>
+    for Response<MS, D, P>
     where   St: Store<S>,
             S: Datable + Serializable,
             MS: Datable + Serializable,
-            Ad: Ord + Datable + VariableSize + Serializable,
-            NP: Datable + Serializable,
             D: Ord + Datable + ConstantSize + Serializable,
             P: Datable + Serializable
 {

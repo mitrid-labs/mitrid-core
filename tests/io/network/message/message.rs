@@ -12,8 +12,6 @@ use fixture::base::eval::*;
 use fixture::base::Payload;
 use fixture::crypto::Hasher;
 use fixture::io::Session;
-use fixture::io::Address;
-use fixture::io::Node;
 use fixture::io::message::*;
 
 #[test]
@@ -61,50 +59,6 @@ fn test_message_is_expired() {
     let res = message.is_expired();
     assert!(res.is_ok());
     assert!(!res.unwrap());
-}
-
-#[test]
-fn test_message_sender() {
-    let meta = Meta::default();
-    let address = Address::new("address");
-    let payload = Payload::new("payload");
-    
-    let mut node = Node::new(&meta, &address, &payload).unwrap();
-
-    let message = Message::new();
-
-    let res = message.clone().sender(&node);
-
-    assert!(res.is_ok());
-
-    let invalid_size = 0;
-    node.meta.set_size(invalid_size);
-
-    let res = message.sender(&node);
-
-    assert!(res.is_err());
-}
-
-#[test]
-fn test_message_receivers() {
-    let meta = Meta::default();
-    let address = Address::new("address");
-    let payload = Payload::new("payload");
-    
-    let mut node = Node::new(&meta, &address, &payload).unwrap();
-
-    let message = Message::new();
-
-    let res = message.clone().receivers(&vec![node.clone()]);
-
-    assert!(res.is_ok());
-
-    let invalid_size = 0;
-    node.meta.set_size(invalid_size);
-
-    let res = message.receivers(&vec![node]);
-
-    assert!(res.is_err());
 }
 
 #[test]
@@ -197,10 +151,7 @@ fn test_message_payload() {
 #[test]
 fn test_message_eval() {
     let valid_meta = Meta::default();
-    let address = Address::new("address");
     let payload = Payload::new("payload");
-    
-    let node = Node::new(&valid_meta, &address, &payload).unwrap();
 
     let mut hasher = Hasher{};
 
@@ -208,10 +159,6 @@ fn test_message_eval() {
                         .meta(&valid_meta)
                         .unwrap()
                         .session(&Session::default())
-                        .unwrap()
-                        .sender(&node)
-                        .unwrap()
-                        .receivers(&vec![node.clone()])
                         .unwrap()
                         .method(&Method::default())
                         .unwrap()
@@ -253,25 +200,17 @@ fn test_message_size() {
 #[test]
 fn test_message_check() {
     let valid_meta = Meta::default();
-    let address = Address::new("address");
-    let payload = Payload::new("payload");
-    
-    let node = Node::new(&valid_meta, &address, &payload).unwrap();
 
     let mut message = Message::new()
                         .meta(&valid_meta)
                         .unwrap()
                         .session(&Session::default())
                         .unwrap()
-                        .sender(&node)
-                        .unwrap()
-                        .receivers(&vec![node.clone()])
-                        .unwrap()
                         .method(&Method::default())
                         .unwrap()
                         .resource(&Resource::default())
                         .unwrap()
-                        .payload(&payload)
+                        .payload(&Payload::default())
                         .unwrap();
 
     let res = message.check();
@@ -326,25 +265,17 @@ fn test_check_digest() {
 #[test]
 fn test_message_finalize() {
     let valid_meta = Meta::default();
-    let address = Address::new("address");
-    let payload = Payload::new("payload");
-    
-    let node = Node::new(&valid_meta, &address, &payload).unwrap();
 
     let mut message = Message::new()
                         .meta(&valid_meta)
                         .unwrap()
                         .session(&Session::default())
                         .unwrap()
-                        .sender(&node)
-                        .unwrap()
-                        .receivers(&vec![node.clone()])
-                        .unwrap()
                         .method(&Method::default())
                         .unwrap()
                         .resource(&Resource::default())
                         .unwrap()
-                        .payload(&payload)
+                        .payload(&Payload::default())
                         .unwrap();
 
     let mut hasher = Hasher{};

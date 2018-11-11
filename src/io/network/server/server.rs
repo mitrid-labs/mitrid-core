@@ -17,16 +17,15 @@ use io::network::server::Router;
 use io::network::message::{Request, Response};
 
 /// Trait implemented by network servers.
-pub trait Server<St, StS, ST, CT, H, R, S, Ad, NP, D, MP>
+pub trait Server<St, StS, ST, CT, Ad, H, R, S, D, MP>
     where   St: Store<StS>,
             StS: Datable + Serializable,
             ST: ServerTransport<Ad, CT>,
             CT: ClientTransport<Ad>,
-            H: Handler<St, StS, S, Ad, NP, D, MP>,
-            R: Router<St, StS, S, Ad, NP, D, MP, H>,
-            S: Datable + Serializable,
             Ad: Ord + Datable + VariableSize + Serializable,
-            NP: Datable + Serializable,
+            H: Handler<St, StS, S, D, MP>,
+            R: Router<St, StS, S, D, MP, H>,
+            S: Datable + Serializable,
             D: Ord + Datable + ConstantSize + Serializable,
             MP: Datable + Serializable
 {
@@ -39,8 +38,8 @@ pub trait Server<St, StS, ST, CT, H, R, S, Ad, NP, D, MP>
                       evaluator: Ev,
                       evaluator_mut: EvM)
                 -> Result<()>
-        where   Ev: 'static + Send + Sync + Eval<St, Request<S, Ad, NP, D, MP>, Response<S, Ad, NP, D, MP>>,
-                EvM: 'static + Send + EvalMut<St, Request<S, Ad, NP, D, MP>, Response<S, Ad, NP, D, MP>>
+        where   Ev: 'static + Send + Sync + Eval<St, Request<S, D, MP>, Response<S, D, MP>>,
+                EvM: 'static + Send + EvalMut<St, Request<S, D, MP>, Response<S, D, MP>>
     {
         address.check()?;
         address.check_size()?;

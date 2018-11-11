@@ -5,7 +5,7 @@
 use std::mem;
 
 use base::Result;
-use base::{Sizable, ConstantSize, VariableSize};
+use base::{Sizable, ConstantSize};
 use base::Checkable;
 use base::Serializable;
 use base::Datable;
@@ -18,26 +18,22 @@ pub const REQUEST_CODE: u64 = 9;
 
 /// Type representing a network request message.
 #[derive(Clone, Eq, PartialEq, Ord, PartialOrd, Debug, Default, Hash, Serialize, Deserialize)]
-pub struct Request<S, Ad, NP, D, P>
+pub struct Request<S, D, P>
     where   S: Datable,
-            Ad: Ord + Datable + VariableSize,
-            NP: Datable,
             D: Ord + Datable + ConstantSize,
             P: Datable
 {
     /// Request inner message
-    pub message: Message<S, Ad, NP, D, P>,
+    pub message: Message<S, D, P>,
 }
 
-impl<S, Ad, NP, D, P> Request<S, Ad, NP, D, P>
+impl<S, D, P> Request<S, D, P>
     where   S: Datable,
-            Ad: Ord + Datable + VariableSize,
-            NP: Datable,
             D: Ord + Datable + ConstantSize,
             P: Datable
 {
     /// Creates a new `Request`.
-    pub fn new(msg: &Message<S, Ad, NP, D, P>) -> Result<Self> {
+    pub fn new(msg: &Message<S, D, P>) -> Result<Self> {
         msg.check()?;
 
         match msg.resource {
@@ -52,10 +48,8 @@ impl<S, Ad, NP, D, P> Request<S, Ad, NP, D, P>
     }
 }
 
-impl<S, Ad, NP, D, P> Sizable for Request<S, Ad, NP, D, P>
+impl<S, D, P> Sizable for Request<S, D, P>
     where   S: Datable,
-            Ad: Ord + Datable + VariableSize,
-            NP: Datable,
             D: Ord + Datable + ConstantSize,
             P: Datable
 {
@@ -64,10 +58,8 @@ impl<S, Ad, NP, D, P> Sizable for Request<S, Ad, NP, D, P>
     }
 }
 
-impl<S, Ad, NP, D, P> Checkable for Request<S, Ad, NP, D, P>
+impl<S, D, P> Checkable for Request<S, D, P>
     where   S: Datable,
-            Ad: Ord + Datable + VariableSize,
-            NP: Datable,
             D: Ord + Datable + ConstantSize,
             P: Datable
 {
@@ -83,30 +75,24 @@ impl<S, Ad, NP, D, P> Checkable for Request<S, Ad, NP, D, P>
     }
 }
 
-impl<S, Ad, NP, D, P> Serializable for Request<S, Ad, NP, D, P>
+impl<S, D, P> Serializable for Request<S, D, P>
     where   S: Datable + Serializable,
-            Ad: Ord + Datable + VariableSize + Serializable,
-            NP: Datable + Serializable,
             D: Ord + Datable + ConstantSize + Serializable,
             P: Datable + Serializable
 {}
 
-impl<S, Ad, NP, D, P> Datable for Request<S, Ad, NP, D, P>
+impl<S, D, P> Datable for Request<S, D, P>
     where   S: Datable,
-            Ad: Ord + Datable + VariableSize,
-            NP: Datable,
             D: Ord + Datable + ConstantSize,
             P: Datable
 {}
 
-impl<St, S, MS, Ad, NP, D, P>
-    Storable<St, S, D, Request<MS, Ad, NP, D, P>>
-    for Request<MS, Ad, NP, D, P>
+impl<St, S, MS, D, P>
+    Storable<St, S, D, Request<MS, D, P>>
+    for Request<MS, D, P>
     where   St: Store<S>,
             S: Datable + Serializable,
             MS: Datable + Serializable,
-            Ad: Ord + Datable + VariableSize + Serializable,
-            NP: Datable + Serializable,
             D: Ord + Datable + ConstantSize + Serializable,
             P: Datable + Serializable
 {

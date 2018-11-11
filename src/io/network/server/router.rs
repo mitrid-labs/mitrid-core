@@ -3,7 +3,7 @@
 //! `router` is the module providing the trait implemented by the server router.
 
 use base::Result;
-use base::size::{ConstantSize, VariableSize};
+use base::size::ConstantSize;
 use base::Checkable;
 use base::Serializable;
 use base::Datable;
@@ -15,22 +15,20 @@ use io::network::message::Response;
 use io::network::server::Handler;
 
 /// Trait implemented by the server router.
-pub trait Router<St, StS, S, Ad, NP, D, MP, H>
+pub trait Router<St, StS, S, D, MP, H>
     where   St: Store<StS>,
             StS: Datable + Serializable,
             S: Datable,
-            Ad: Ord + Datable + VariableSize,
-            NP: Datable,
             D: Ord + Datable + ConstantSize,
             MP: Datable,
-            H: Handler<St, StS, S, Ad, NP, D, MP>,
+            H: Handler<St, StS, S, D, MP>,
             Self: 'static + Sized + Clone + Send + Sync
 {
     /// Returns the middleware callbacks applied sequentially by the router. Each callback takes as parameters
     /// the results of the preceding one.
     fn middlewares(&mut self)
-        -> Result<Vec<Box<FnMut(&mut Self, &Request<S, Ad, NP, D, MP>)
-                        -> Result<(Request<S, Ad, NP, D, MP>)>>>> 
+        -> Result<Vec<Box<FnMut(&mut Self, &Request<S, D, MP>)
+                        -> Result<(Request<S, D, MP>)>>>> 
     {
             Ok(vec![])
     }
@@ -39,12 +37,12 @@ pub trait Router<St, StS, S, Ad, NP, D, MP, H>
     fn route<Ev, EvM>(&mut self,
                      store: &mut St,
                      handler: &mut H,
-                     request: &Request<S, Ad, NP, D, MP>,
+                     request: &Request<S, D, MP>,
                      evaluator: &Ev,
                      evaluator_mut: &mut EvM)
-        -> Result<Response<S, Ad, NP, D, MP>>
-        where   Ev: Eval<St, Request<S, Ad, NP, D, MP>, Response<S, Ad, NP, D, MP>>,
-                EvM: EvalMut<St, Request<S, Ad, NP, D, MP>, Response<S, Ad, NP, D, MP>>
+        -> Result<Response<S, D, MP>>
+        where   Ev: Eval<St, Request<S, D, MP>, Response<S, D, MP>>,
+                EvM: EvalMut<St, Request<S, D, MP>, Response<S, D, MP>>
     {
         request.check()?;
 

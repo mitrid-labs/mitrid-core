@@ -9,8 +9,6 @@ use mitrid_core::io::Storable;
 use fixture::base::Payload;
 use fixture::crypto::{Digest, Hasher};
 use fixture::io::Session;
-use fixture::io::Address;
-use fixture::io::Node;
 use fixture::io::Message;
 use fixture::io::Request;
 use fixture::io::store::*;
@@ -18,10 +16,6 @@ use fixture::io::store::*;
 #[test]
 fn test_request_new() {
     let valid_meta = Meta::default();
-    let address = Address::new("address");
-    let payload = Payload::new("payload");
-    
-    let node = Node::new(&valid_meta, &address, &payload).unwrap();
 
     let mut hasher = Hasher{};
 
@@ -29,10 +23,6 @@ fn test_request_new() {
                         .meta(&valid_meta)
                         .unwrap()
                         .session(&Session::default())
-                        .unwrap()
-                        .sender(&node)
-                        .unwrap()
-                        .receivers(&vec![node.clone()])
                         .unwrap()
                         .method(&Method::default())
                         .unwrap()
@@ -55,31 +45,19 @@ fn test_request_new() {
 #[test]
 fn test_request_size() {
     let meta = Meta::default();
-    let session = Session::default();
-    let address = Address::new("address");
-    let payload = Payload::new("payload");
-    
-    let node = Node::new(&meta, &address, &payload).unwrap();
-    let method = Method::default();
-    let resource = Resource::default();
-    let payload = Payload::default();
 
     let mut hasher = Hasher{};
 
     let message = Message::new()
                     .meta(&meta)
                     .unwrap()
-                    .session(&session)
+                    .session(&Session::default())
                     .unwrap()
-                    .sender(&node)
+                    .method(&Method::default())
                     .unwrap()
-                    .receivers(&vec![node.clone()])
+                    .resource(&Resource::default())
                     .unwrap()
-                    .method(&method)
-                    .unwrap()
-                    .resource(&resource)
-                    .unwrap()
-                    .payload(&payload)
+                    .payload(&Payload::default())
                     .unwrap()
                     .finalize(&mut hasher)
                     .unwrap();
@@ -95,31 +73,19 @@ fn test_request_size() {
 #[test]
 fn test_request_check() {
     let meta = Meta::default();
-    let session = Session::default();
-    let address = Address::new("address");
-    let payload = Payload::new("payload");
-    
-    let node = Node::new(&meta, &address, &payload).unwrap();
-    let method = Method::default();
-    let resource = Resource::default();
-    let payload = Payload::default();
 
     let mut hasher = Hasher{};
 
     let message = Message::new()
                     .meta(&meta)
                     .unwrap()
-                    .session(&session)
+                    .session(&Session::default())
                     .unwrap()
-                    .sender(&node)
+                    .method(&Method::default())
                     .unwrap()
-                    .receivers(&vec![node.clone()])
+                    .resource(&Resource::default())
                     .unwrap()
-                    .method(&method)
-                    .unwrap()
-                    .resource(&resource)
-                    .unwrap()
-                    .payload(&payload)
+                    .payload(&Payload::default())
                     .unwrap()
                     .finalize(&mut hasher)
                     .unwrap();
@@ -189,31 +155,19 @@ fn test_request_hex() {
 #[test]
 fn test_request_store() {
     let meta = Meta::default();
-    let session = Session::default();
-    let address = Address::new("address");
-    let payload = Payload::new("payload");
-    
-    let node = Node::new(&meta, &address, &payload).unwrap();
-    let method = Method::default();
-    let resource = Resource::default();
-    let payload = Payload::default();
 
     let mut hasher = Hasher{};
 
     let message = Message::new()
                     .meta(&meta)
                     .unwrap()
-                    .session(&session)
+                    .session(&Session::default())
                     .unwrap()
-                    .sender(&node)
+                    .method(&Method::default())
                     .unwrap()
-                    .receivers(&vec![node.clone()])
+                    .resource(&Resource::default())
                     .unwrap()
-                    .method(&method)
-                    .unwrap()
-                    .resource(&resource)
-                    .unwrap()
-                    .payload(&payload)
+                    .payload(&Payload::default())
                     .unwrap()
                     .finalize(&mut hasher)
                     .unwrap();

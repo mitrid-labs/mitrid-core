@@ -6,9 +6,8 @@ use mitrid_core::io::Message as BasicMessage;
 use fixture::base::Payload;
 use fixture::base::eval::*;
 use fixture::crypto::Digest;
-use fixture::io::Address;
 
-pub type Message = BasicMessage<(), Address, Payload, Digest, Payload>;
+pub type Message = BasicMessage<(), Digest, Payload>;
 
 #[derive(Clone)]
 pub struct MessageEvaluator {}
