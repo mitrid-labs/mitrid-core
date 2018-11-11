@@ -7,7 +7,6 @@ use std::sync::{Arc, Mutex};
 
 use base::Result;
 use base::size::{ConstantSize, VariableSize};
-use base::Checkable;
 use base::Serializable;
 use base::Datable;
 use base::{Eval, EvalMut};
@@ -35,7 +34,7 @@ pub trait Server<St, StS, ST, CT, H, R, S, Ad, NP, D, MP>
     fn serve<Ev, EvM>(store: St,
                       handler: H,
                       router: R,
-                      addresses: &Vec<Ad>,
+                      address: &Ad,
                       thread_limit: u64,
                       evaluator: Ev,
                       evaluator_mut: EvM)
@@ -43,12 +42,10 @@ pub trait Server<St, StS, ST, CT, H, R, S, Ad, NP, D, MP>
         where   Ev: 'static + Send + Sync + Eval<St, Request<S, Ad, NP, D, MP>, Response<S, Ad, NP, D, MP>>,
                 EvM: 'static + Send + EvalMut<St, Request<S, Ad, NP, D, MP>, Response<S, Ad, NP, D, MP>>
     {
-        addresses.check()?;
-        for ref address in addresses {
-            address.check_size()?;
-        }
+        address.check()?;
+        address.check_size()?;
 
-        let mut transport = ST::listen(addresses)?;
+        let mut transport = ST::listen(address)?;
 
         let threads_num = Arc::new(Mutex::new(0));
         let store = Arc::new(Mutex::new(store));

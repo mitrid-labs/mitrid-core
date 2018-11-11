@@ -14,7 +14,7 @@ pub trait ClientTransport<A>
             Self: 'static + Sized + Send + Sync + Clone + Checkable
 {
     /// Opens one or more connections to one or more network addresses.
-    fn connect(addresses: &Vec<A>) -> Result<Self>;
+    fn connect(address: &A) -> Result<Self>;
 
     /// Closes the connections.
     fn disconnect(&mut self) -> Result<()>;
@@ -55,10 +55,10 @@ pub trait ServerTransport<A, CT>
             Self: 'static + Sized + Send + Sync + Checkable
 {
     /// Listens to connections incoming from one or more network addresses.
-    fn listen(addresses: &Vec<A>) -> Result<Self>;
+    fn listen(address: &A) -> Result<Self>;
 
     /// Accepts connections incoming from one or more network addresses.
-    fn accept(&mut self) -> Result<(CT, Vec<A>)>;
+    fn accept(&mut self) -> Result<(CT, A)>;
 
     /// Closes the connections.
     fn close(&mut self) -> Result<()>;

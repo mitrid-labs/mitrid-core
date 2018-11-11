@@ -9,14 +9,14 @@ use fixture::io::{ClientTransport, ServerTransport};
 #[test]
 fn test_ping_server() {
     thread::spawn(move || {
-        let addresses = vec![Address::default()];
-        ServerTransport::serve_ping(&addresses);
+        let address = Address::default();
+        ServerTransport::serve_ping(&address);
     });
 
     thread::sleep(Duration::from_millis(100));
 
-    let addresses = vec![Address::default()];
-    let res = ClientTransport::connect(&addresses);
+    let address = Address::default();
+    let res = ClientTransport::connect(&address);
     assert!(res.is_ok());
 
     let mut client = res.unwrap();

@@ -22,14 +22,8 @@ impl Clone for ClientTransport {
 impl Checkable for ClientTransport {}
 
 impl BasicClientTransport<Address> for ClientTransport {
-    fn connect(addresses: &Vec<Address>) -> Result<Self> {
-        if addresses.len() != 1 {
-            return Err(String::from("invalid length"));
-        }
-
-        let addr = addresses[0].to_owned();
-
-        let tcp_stream = TcpStream::connect(&addr.to_string())
+    fn connect(address: &Address) -> Result<Self> {
+        let tcp_stream = TcpStream::connect(&address.to_string())
                             .map_err(|e| format!("{:?}", e))?;
 
         let ct = ClientTransport(tcp_stream);
@@ -91,8 +85,8 @@ impl BasicClientTransport<Address> for ClientTransport {
 pub struct ServerTransport(TcpListener);
 
 impl ServerTransport {
-    pub fn serve_ping(addresses: &Vec<Address>) {
-        let mut server = ServerTransport::listen(addresses).unwrap();
+    pub fn serve_ping(address: &Address) {
+        let mut server = ServerTransport::listen(address).unwrap();
 
         let (mut client, _) = server.accept().unwrap();
         
@@ -107,14 +101,8 @@ impl ServerTransport {
 impl Checkable for ServerTransport {}
 
 impl BasicServerTransport<Address, ClientTransport> for ServerTransport {
-    fn listen(addresses: &Vec<Address>) -> Result<ServerTransport> {
-        if addresses.len() != 1 {
-            return Err(String::from("invalid length"));
-        }
-
-        let addr = addresses[0].to_owned();
-
-        let listener = TcpListener::bind(&addr.to_string())
+    fn listen(address: &Address) -> Result<ServerTransport> {
+        let listener = TcpListener::bind(&address.to_string())
                             .map_err(|e| format!("{:?}", e))?;
 
         let st = ServerTransport(listener);
@@ -122,14 +110,14 @@ impl BasicServerTransport<Address, ClientTransport> for ServerTransport {
         Ok(st)
     }
 
-    fn accept(&mut self) -> Result<(ClientTransport, Vec<Address>)> {
+    fn accept(&mut self) -> Result<(ClientTransport, Address)> {
         let (tcp_stream, socket) = self.0.accept()
                                         .map_err(|e| format!("{:?}", e))?;
 
         let transport = ClientTransport(tcp_stream);
         let address = Address::from_socket(&socket);
 
-        Ok((transport, vec![address]))
+        Ok((transport, address))
     }
 
     fn close(&mut self) -> Result<()> {
