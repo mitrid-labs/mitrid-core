@@ -3,7 +3,6 @@
 //! `data` is the module providing the trait implemented by types that can be used
 //! as generic types in struct fields and function parameters.
 
-use std::any::Any;
 use std::fmt::Debug;
 use base::check::Checkable;
 use base::size::Sizable;
